@@ -13,10 +13,11 @@ import sys
 
 class UI(tk.Frame):
     '''
-    Frame for file transfer
+    Frame for file transfer system
+    Only used as demonstration
     '''
-    def __init__(self, master=None, **options):
-        tk.Frame.__init__(self, master=None, **options)
+    def __init__(self, master, **options):
+        tk.Frame.__init__(self, master, **options)
         
         # Source and destination filepaths
         if (os.path.exists("TempDirFile")):

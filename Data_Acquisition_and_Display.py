@@ -1,8 +1,10 @@
+from tkinter import filedialog as fd
+from tkinter import ttk
+import tkinter as tk
+
 import UI_File_Transfer
 import Helpers
-
-from tkinter import filedialog as fd
-import tkinter as tk
+import General_Parameters
 
 #-------------------------------------------------
 # GUI
@@ -14,8 +16,39 @@ class Acquisition_Display:
         self.root.title("Data Acquisition and Display")
         self.root.iconbitmap("UM.ico")
 
-        self.fr_transfer = UI_File_Transfer.UI(self.root)
-        self.fr_transfer.pack()
+        # General Parameters
+        '''
+        Frame for basic data management commands
+        Appears regardless of selected tab
+        '''
+        self.fr_gen_param = General_Parameters.UI(self.root)
+        self.fr_gen_param.grid(row=0, column=0)
+
+        # Organization
+        self.bookframe = tk.Frame()
+        self.bookframe.grid(row=0, column=1)
+        self.book = ttk.Notebook(self.bookframe)
+        
+        self.tab_main = ttk.Frame(self.book)
+        self.tab_diag_params = ttk.Frame(self.book)
+        self.tab_single_image = ttk.Frame(self.book)
+        self.tab_montage1 = ttk.Frame(self.book)
+        self.tab_montage2 = ttk.Frame(self.book)
+        self.tab_montage3 = ttk.Frame(self.book)
+        self.tab_montage4 = ttk.Frame(self.book)
+        
+        self.book.add(self.tab_main, text="Main")
+        self.book.add(self.tab_diag_params, text="Diagnostic Parameters")
+        self.book.add(self.tab_single_image, text="Single Image Display")
+        self.book.add(self.tab_montage1, text="Image Montage Display 1")
+        self.book.add(self.tab_montage2, text="Image Montage Display 2")
+        self.book.add(self.tab_montage3, text="Image Montage Display 3")
+        self.book.add(self.tab_montage4, text="Image Montage Display 4")
+        
+        self.book.pack(expand=1, fill="both")
+
+        # Imported Widgets
+        
 
     def open(self):
         self.root.mainloop()
