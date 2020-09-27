@@ -5,6 +5,7 @@ import tkinter as tk
 import UI_File_Transfer
 import Helpers
 import General_Parameters
+import Diagnostic_Parameters
 
 #-------------------------------------------------
 # GUI
@@ -48,7 +49,8 @@ class Acquisition_Display:
         self.book.pack(expand=1, fill="both")
 
         # Imported Widgets
-        
+        self.fr_diag_params = Diagnostic_Parameters.UI(self.tab_diag_params)
+        self.fr_diag_params.pack()
 
     def open(self):
         self.root.mainloop()
