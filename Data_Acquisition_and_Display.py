@@ -2,6 +2,7 @@ from tkinter import filedialog as fd
 from tkinter import ttk
 import tkinter as tk
 
+import config
 import UI_File_Transfer
 import Helpers
 import General_Parameters
@@ -15,12 +16,13 @@ class Acquisition_Display:
     def __init__(self):
         self.root = tk.Tk()
         self.root.title("Data Acquisition and Display")
-        self.root.iconbitmap("UM.ico")
+        self.root.iconbitmap("assets/UM.ico")
 
         # General Parameters
         '''
         Frame for basic data management commands
         Appears regardless of selected tab
+        Shot run directory function must be in top-level to ensure data access
         '''
         self.fr_gen_param = General_Parameters.UI(self.root)
         self.fr_gen_param.grid(row=0, column=0)

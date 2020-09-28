@@ -12,7 +12,7 @@ class Notice_Window:
     def __init__(self, txt, error=True):
         self.root = tk.Tk()
         self.root.title("Notice")
-        self.root.iconbitmap("UM.ico")
+        self.root.iconbitmap("assets/UM.ico")
         self.root.geometry("300x50")
         
         self.lbl = tk.Label(self.root, text=txt)

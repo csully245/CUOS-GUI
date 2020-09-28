@@ -4,6 +4,8 @@ from tkinter import filedialog as fd
 import tkinter as tk
 import os
 
+import config
+
 #-------------------------------------------------
 # Top-level GUI
 #-------------------------------------------------
@@ -32,6 +34,7 @@ class UI(tk.LabelFrame):
                                         title="Set Permanent Storage Directory")
             perm_dir_file = open("PermDirFile", "w")
             perm_dir_file.write(self.path_perm)
+            config.shot_run_dir = self.path_perm
         
         self.btn_path_perm = tk.Button(self, text="Select Shot Run Directory",
                                       command=lambda: set_path_perm(self))
@@ -45,3 +48,9 @@ class UI(tk.LabelFrame):
 
         self.testlabel = tk.Label(self, text="test")
         self.testlabel.pack()
+
+def test():
+    root = tk.Tk()
+    gp = UI(root)
+    gp.pack()
+    root.mainloop()
