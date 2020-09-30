@@ -24,7 +24,7 @@ class UI(tk.LabelFrame):
             file = open("PermPathFile", "r")
             self.path_perm = file.read()
         else:
-            self.path_perm = ".."
+            self.path_perm = "./"
 
         def set_path_perm(self):
             '''
@@ -43,11 +43,9 @@ class UI(tk.LabelFrame):
         # Shot counters
 
         # Buttons
-
+        
         # Options
 
-        self.testlabel = tk.Label(self, text="test")
-        self.testlabel.pack()
 
 def test():
     root = tk.Tk()

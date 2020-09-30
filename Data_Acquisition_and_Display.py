@@ -7,6 +7,7 @@ import UI_File_Transfer
 import Helpers
 import General_Parameters
 import Diagnostic_Parameters
+import Single_Image_Display
 
 #-------------------------------------------------
 # GUI
@@ -18,6 +19,8 @@ class Acquisition_Display:
         self.root.title("Data Acquisition and Display")
         self.root.iconbitmap("assets/UM.ico")
 
+        self.update_funcs = []
+        
         # General Parameters
         '''
         Frame for basic data management commands
@@ -51,7 +54,14 @@ class Acquisition_Display:
         self.book.pack(expand=1, fill="both")
 
         # Imported Widgets
-        self.fr_diag_params = Diagnostic_Parameters.UI(self.tab_diag_params)
+
+        self.fr_single_image = Single_Image_Display.UI(self.tab_single_image)
+        self.fr_single_image.pack()
+        self.update_funcs.append(self.fr_single_image.update_options)
+        self.update_funcs.append(self.fr_single_image.update_dropdown)
+
+        self.fr_diag_params = Diagnostic_Parameters.UI(self.tab_diag_params,
+                                                       self.update_funcs)
         self.fr_diag_params.pack()
 
     def open(self):

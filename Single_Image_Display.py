@@ -21,10 +21,22 @@ class UI(tk.Frame):
         self.options = ["Select a Diagnostic"]
         self.options_dirs = {"Select a Diagnostic":"./"}
         for dr in os.listdir(config.shot_run_dir):
-            if (os.path.isdir(dr)):
-                path = os.path.join(config.shot_run_dir, dr)
-                self.options_dirs[dr] = path
-                self.options.append(dr)
+            #if (os.path.isdir(dr)):
+            path = os.path.join(config.shot_run_dir, dr)
+            self.options_dirs[dr] = path
+            self.options.append(dr)
+
+    def update_dropdown(self):
+        '''
+        Updates dropdown for new options
+        '''
+        self.diagnostic.set(self.options[0])
+
+        self.drop_diag.pack_forget()
+        self.drop_diag = ttk.Combobox(self.fr_controls, width=27,
+                                      textvariable=self.diagnostic)
+        self.drop_diag['values'] = tuple(self.options)
+        self.drop_diag.grid(row=0, column=0)
     
     def update_image(self):
         '''
@@ -70,12 +82,12 @@ class UI(tk.Frame):
         self.drop_diag = ttk.Combobox(self.fr_controls, width=27,
                                       textvariable=self.diagnostic)
         self.drop_diag['values'] = tuple(self.options)
-        self.drop_diag.pack()
+        self.drop_diag.grid(row=0, column=0)
 
         # Other
         btn_load = tk.Button(self.fr_controls, text="Load",
                              command=lambda: self.update_image())
-        btn_load.pack()
+        btn_load.grid(row=1, column=0)
 
 
         

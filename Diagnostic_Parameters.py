@@ -13,7 +13,8 @@ class Diagnostic_Frame(tk.LabelFrame):
     '''
     Sub-frame for options for each unique diagnostic
     '''
-    def __init__(self, master, num):
+    def __init__(self, master, num, updater):
+        self.updater = updater
         tk.LabelFrame.__init__(self, master, text="Diagnostic " + str(num))
 
         # Public-access data
@@ -67,6 +68,8 @@ class Diagnostic_Frame(tk.LabelFrame):
                     # WARNING: Be careful in testing, this can delete dirs
                     # lol access denied, thanks windows
                     os.remove(perm)
+            for func in self.updater:
+                func()
         self.checkbtn_enabled = tk.Checkbutton(self, text="Enable Diagnostic",
                                             variable=self.enabled,
                                             command=lambda: \
@@ -87,7 +90,7 @@ class UI(tk.Frame):
     Frame for basic data management commands
     Appears regardless of selected tab
     '''
-    def __init__(self, master, **options):
+    def __init__(self, master, updater, **options):
         tk.Frame.__init__(self, master, **options)
 
         rows = 4
@@ -96,7 +99,7 @@ class UI(tk.Frame):
         self.frames = []
         for c in range(columns):
             for r in range(rows):
-                fr = Diagnostic_Frame(self, count)
+                fr = Diagnostic_Frame(self, count, updater)
                 fr.grid(row=r, column=c, padx=10, pady=5)
                 self.frames.append(fr)
                 count += 1
