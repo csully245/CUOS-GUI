@@ -1,5 +1,8 @@
 import tkinter as tk
 import winsound
+from matplotlib import pyplot as plt
+import numpy as np
+from PIL import Image, ImageTk
 
 '''
 Helper functions and classes
@@ -25,3 +28,12 @@ class Notice_Window:
                              command=self.root.destroy)
         self.btn.pack()
         '''
+
+def load_image(img_path):
+    '''
+    Input: filepath 'img' to plt.imread-acceptable source
+    Output: tkinter PhotoImage
+    '''
+    img_arr = plt.imread(img_path)
+    img_arr = (img_arr*255).astype(np.uint8)
+    return ImageTk.PhotoImage(Image.fromarray(img_arr))
