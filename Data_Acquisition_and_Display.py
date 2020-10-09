@@ -1,6 +1,7 @@
 from tkinter import filedialog as fd
 from tkinter import ttk
 import tkinter as tk
+import sys
 
 import config
 import UI_File_Transfer
@@ -8,6 +9,7 @@ import Helpers
 import General_Parameters
 import Diagnostic_Parameters
 import Single_Image_Display
+import Multi_Image_Display
 
 #-------------------------------------------------
 # GUI
@@ -57,8 +59,10 @@ class Acquisition_Display:
 
         self.fr_single_image = Single_Image_Display.UI(self.tab_single_image)
         self.fr_single_image.pack()
-        self.update_funcs.append(self.fr_single_image.update_options)
-        self.update_funcs.append(self.fr_single_image.update_dropdown)
+        self.update_funcs.append(self.fr_single_image.update_all)
+
+        self.fr_multi_image = Multi_Image_Display.UI(self.tab_montage1)
+        self.fr_multi_image.pack()
 
         self.fr_diag_params = Diagnostic_Parameters.UI(self.tab_diag_params,
                                                        self.update_funcs)
@@ -83,8 +87,9 @@ def run():
         acq.open()
     except:
         acq.close()
-        error_message = "Unexpected Error: " + str(sys.exc_info()[0])
+        # Doesn't catch errors inside mainloop
+        error_message = "(unhandled) " + str(sys.exc_info()[0])
         error_message += "\nClosed Data Acquisition and Display"
-        Helpers.Notice_Window(error_message)
+        Helpers.Error_Window(error_message)
         
 run()

@@ -3,6 +3,7 @@ import winsound
 from matplotlib import pyplot as plt
 import numpy as np
 from PIL import Image, ImageTk
+import threading
 
 '''
 Helper functions and classes
@@ -10,9 +11,9 @@ Helper functions and classes
 
 class Notice_Window:
     '''
-    GUI template for notice messages, such as progress updates and errors
+    GUI template for notice messages, such as progress updates
     '''
-    def __init__(self, txt, error=True):
+    def __init__(self, txt):
         self.root = tk.Tk()
         self.root.title("Notice")
         self.root.iconbitmap("assets/UM.ico")
@@ -20,20 +21,37 @@ class Notice_Window:
         
         self.lbl = tk.Label(self.root, text=txt)
         self.lbl.pack(padx=10, pady=10)
-        if (error):
-            winsound.PlaySound("SystemExit", winsound.SND_ALIAS)
+        
+        self.root.mainloop()
 
-        '''
-        self.btn = tk.Button(self.root, text="Close", width=20, height=10,
-                             command=self.root.destroy)
-        self.btn.pack()
-        '''
+class Error_Window:
+    '''
+    GUI template for error messages
+    '''
+    def __init__(self, txt):
+        self.root = tk.Tk()
+        self.root.title("Error")
+        self.root.iconbitmap("assets/UM.ico")
+        self.root.geometry("300x50")
+        
+        self.lbl = tk.Label(self.root, text="Error: " + txt)
+        self.lbl.pack()
+        winsound.PlaySound("SystemExit", winsound.SND_ASYNC)
+        
+        self.root.mainloop()
 
-def load_image(img_path):
+def load_image(img_path, k=1):
     '''
     Input: filepath 'img' to plt.imread-acceptable source
     Output: tkinter PhotoImage
     '''
+
     img_arr = plt.imread(img_path)
     img_arr = (img_arr*255).astype(np.uint8)
-    return ImageTk.PhotoImage(Image.fromarray(img_arr))
+    img = Image.fromarray(img_arr)
+
+    if (k != 1):
+        size = (int(img.width * k), int(img.height * k))
+        img = img.resize(size, Image.ANTIALIAS)
+
+    return ImageTk.PhotoImage(img)

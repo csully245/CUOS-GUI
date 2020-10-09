@@ -13,7 +13,7 @@ class Diagnostic_Frame(tk.LabelFrame):
     '''
     Sub-frame for options for each unique diagnostic
     '''
-    def __init__(self, master, num, updater):
+    def __init__(self, master, num, updater=None):
         self.updater = updater
         tk.LabelFrame.__init__(self, master, text="Diagnostic " + str(num))
 
@@ -61,8 +61,7 @@ class Diagnostic_Frame(tk.LabelFrame):
                 if not (os.path.isdir(perm)):
                     os.mkdir(perm)
                 else:
-                    Helpers.Notice_Window("Directory already exists",
-                                          error=False)
+                    Helpers.Notice_Window("Directory already exists")
             else:
                 if (os.path.isdir(perm)):
                     # WARNING: Be careful in testing, this can delete dirs
