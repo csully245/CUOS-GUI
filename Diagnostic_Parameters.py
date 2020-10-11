@@ -5,20 +5,53 @@ from tkinter import filedialog as fd
 import tkinter as tk
 import os
 
-#-------------------------------------------------
-# Top-level GUI
-#-------------------------------------------------
-
 class Diagnostic_Frame(tk.LabelFrame):
     '''
     Sub-frame for options for each unique diagnostic
+    Interactive widgets:
+    -entry_diagnostic: enter name of diagnostic, used for shotrundir file name
+    -btn_dir: select source directory for diagnostic's raw data
+    -entry_ext: enter file extension, to unpack data if plt.imread() fails
+    -checkbtn_raw: no functionality
+    -checkbtn_enabled: determines whether the diagnostic is ready to transmit
     '''
-    def __init__(self, master, num, updater=None):
+    def load_from_workspace(self, workspace):
+        '''
+        Loads default data from input values generated from selected workspace
+        .json file
+        Workspace: dict containing diagnostic name, file extension, raw image
+        Enabling is set to false (will need error handling)
+        '''
+        # Enabling
+        self.enabled = False
+        # ERROR HANDLING: what happens if the folder already exists?
+
+        # Loading
+        self.entry_diagnostic.delete(0, tk.END)
+        self.entry_diagnostic.insert(0, workspace["diagnostic"])
+        self.entry_dir.delete(0, tk.END)
+        self.entry_dir.insert(0, workspace["dir_temp"])
+        self.entry_ext.delete(0, tk.END)
+        self.entry_ext.insert(0, workspace["file_extension"])
+        self.raw_img.set(workspace["raw_img"])
+
+    def get_workspace(self):
+        '''
+        Returns all variables needed to later recreate an identical frame
+        '''
+        workspace = {
+                "diagnostic": self.entry_diagnostic.get(),
+                "dir_temp" : self.entry_dir.get(),
+                "file_extension" : self.entry_ext.get(),
+                "raw_img" : self.raw_img.get()
+            }
+        return workspace
+        
+    def __init__(self, master, num, updater):
         self.updater = updater
         tk.LabelFrame.__init__(self, master, text="Diagnostic " + str(num))
 
         # Public-access data
-        self.dir_temp = ".."
         self.enabled = False
         self.raw_img = tk.BooleanVar()
         self.raw_img.set(False)
@@ -44,10 +77,10 @@ class Diagnostic_Frame(tk.LabelFrame):
                 initial_dir = self.entry_dir.get()
             else:
                 initial_dir = ".."
-            self.dir_temp = fd.askdirectory(initialdir=initial_dir,
+            dir_temp = fd.askdirectory(initialdir=initial_dir,
                                         title=title_text)
             self.entry_dir.delete(0, tk.END)
-            self.entry_dir.insert(0, self.dir_temp)
+            self.entry_dir.insert(0, dir_temp)
         self.btn_dir = tk.Button(self, text="Select Directory",
                             command=lambda: select_dir(self))
 
@@ -83,14 +116,44 @@ class Diagnostic_Frame(tk.LabelFrame):
         self.entry_ext.grid(row=2, column=1, pady=2)
         self.checkbtn_raw.grid(row=3, column=0, pady=2)
         self.checkbtn_enabled.grid(row=3, column=1, pady=2)
-        
+
 class UI(tk.Frame):
     '''
-    Frame for basic data management commands
-    Appears regardless of selected tab
+    Frame for basic data management commands.
+    Appears regardless of selected tab.
+    Creates an instance of Diagnostic_Frame for each possible diagnostic.
     '''
-    def __init__(self, master, updater, **options):
+    def load_from_workspace(self, workspace):
+        '''
+        Sets all diagnostics to values stored in workspace
+        Workspace: list containing dicts of diagnostic values
+        '''
+        default_workspace = {
+                "dir_temp" : "",
+                "file_extension" : ".tif",
+                "raw_img" : False
+            }
+        i = 0
+        for frame in self.frames:
+            if (len(workspace) <= i):
+                frame.load_from_workspace(default_workspace)
+            else:
+                frame.load_from_workspace(workspace[i])
+            i += 1
+
+    def get_workspace(self):
+        workspace = []
+        for frame in self.frames:
+            workspace.append(frame.get_workspace())
+        return workspace
+        
+    def __init__(self, master, updater=None, **options):
         tk.Frame.__init__(self, master, **options)
+
+        def null():
+            return
+        if (updater == None):
+            updater = null
 
         rows = 4
         columns = 3
@@ -107,7 +170,7 @@ class UI(tk.Frame):
         paths = []
         for fr in self.frames:
             if (fr.enabled.get()):
-                paths.append(fr.dir_temp)
+                paths.append(fr.entry_dir.get())
         return paths
 
 def test():
@@ -116,6 +179,6 @@ def test():
     fr.pack()
 
     btn = tk.Button(root, text="Take data",
-                    command=lambda: print(fr.get_source_paths()))
+                    command=lambda: print(fr.get_workspace()))
     btn.pack()
     root.mainloop()

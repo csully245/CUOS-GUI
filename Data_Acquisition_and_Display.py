@@ -2,6 +2,7 @@ from tkinter import filedialog as fd
 from tkinter import ttk
 import tkinter as tk
 import sys
+import json
 
 import config
 import UI_File_Transfer
@@ -22,15 +23,8 @@ class Acquisition_Display:
         self.root.iconbitmap("assets/UM.ico")
 
         self.update_funcs = []
-        
-        # General Parameters
-        '''
-        Frame for basic data management commands
-        Appears regardless of selected tab
-        Shot run directory function must be in top-level to ensure data access
-        '''
-        self.fr_gen_param = General_Parameters.UI(self.root)
-        self.fr_gen_param.grid(row=0, column=0)
+        self.workspace_load_funcs = []
+        self.workspace_save_funcs = []
 
         # Organization
         self.bookframe = tk.Frame()
@@ -64,9 +58,26 @@ class Acquisition_Display:
         self.fr_multi_image = Multi_Image_Display.UI(self.tab_montage1)
         self.fr_multi_image.pack()
 
+        ''' Parameter frames loaded last to allow passing full update_funcs '''
         self.fr_diag_params = Diagnostic_Parameters.UI(self.tab_diag_params,
                                                        self.update_funcs)
         self.fr_diag_params.pack()
+        
+        load = self.fr_diag_params.load_from_workspace
+        self.workspace_load_funcs.append(load)
+        save = self.fr_diag_params.get_workspace
+        self.workspace_save_funcs.append(save)
+        
+        # General Parameters
+        '''
+        Frame for basic data management commands
+        Appears regardless of selected tab
+        Shot run directory function must be in top-level to ensure data access
+        '''
+        self.fr_gen_param = General_Parameters.UI(self.root,
+                                                  self.workspace_load_funcs,
+                                                  self.workspace_save_funcs)
+        self.fr_gen_param.grid(row=0, column=0)
 
     def open(self):
         self.root.mainloop()
