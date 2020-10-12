@@ -3,6 +3,7 @@ import config
 
 from tkinter import filedialog as fd
 import tkinter as tk
+from tkinter import ttk
 import os
 
 class Diagnostic_Frame(tk.LabelFrame):
@@ -33,7 +34,7 @@ class Diagnostic_Frame(tk.LabelFrame):
         self.entry_dir.insert(0, workspace["dir_temp"])
         self.entry_ext.delete(0, tk.END)
         self.entry_ext.insert(0, workspace["file_extension"])
-        self.raw_img.set(workspace["raw_img"])
+        self.drop_process.set(workspace["process"])
 
     def get_workspace(self):
         '''
@@ -43,7 +44,7 @@ class Diagnostic_Frame(tk.LabelFrame):
                 "diagnostic": self.entry_diagnostic.get(),
                 "dir_temp" : self.entry_dir.get(),
                 "file_extension" : self.entry_ext.get(),
-                "raw_img" : self.raw_img.get()
+                "process" : self.drop_process.get()
             }
         return workspace
         
@@ -65,8 +66,16 @@ class Diagnostic_Frame(tk.LabelFrame):
         self.lbl_2 = tk.Label(self, text="Enter File Extension")
         self.entry_ext = tk.Entry(self, width=20)
         self.entry_ext.insert(0, ".tif")
-        self.checkbtn_raw = tk.Checkbutton(self, text="Raw Image",
-                                        variable=self.raw_img)
+
+        self.process_options = [
+            "Select a Process",
+            "Raw Image",
+            "Advanced"
+            ]
+        self.process = tk.StringVar()
+        self.process.set(self.process_options[0])
+        self.drop_process = ttk.Combobox(self, textvariable=self.process)
+        self.drop_process['values'] = tuple(self.process_options)
         
         def select_dir(self):
             '''
@@ -114,7 +123,7 @@ class Diagnostic_Frame(tk.LabelFrame):
         self.entry_dir.grid(row=1, column=1, pady=2)
         self.lbl_2.grid(row=2, column=0, pady=2)
         self.entry_ext.grid(row=2, column=1, pady=2)
-        self.checkbtn_raw.grid(row=3, column=0, pady=2)
+        self.drop_process.grid(row=3, column=0, pady=2, padx=2)
         self.checkbtn_enabled.grid(row=3, column=1, pady=2)
 
 class UI(tk.Frame):

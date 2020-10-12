@@ -7,6 +7,7 @@ import json
 import config
 import UI_File_Transfer
 import Helpers
+import Main_tab
 import General_Parameters
 import Diagnostic_Parameters
 import Single_Image_Display
@@ -50,6 +51,8 @@ class Acquisition_Display:
         self.book.pack(expand=1, fill="both")
 
         # Imported Widgets
+        self.fr_main = Main_tab.UI(self.tab_main)
+        self.fr_main.pack()
 
         self.fr_single_image = Single_Image_Display.UI(self.tab_single_image)
         self.fr_single_image.pack()

@@ -20,7 +20,17 @@ class UI(tk.LabelFrame):
                  **options):
         tk.LabelFrame.__init__(self, master, text="General Parameters",
                                font=14, **options)
-        def null():
+        '''
+        workspace_load: list of functions to update a tab based on a json file.
+        Should have parameters (self, workspace), where workspace is a
+        json-friendly data type packaged by the tab's own workspace_save()
+
+        workspace_save: list of functions to save a tab's settings into a
+        json file. Should have parameters (self).
+        '''
+        
+        def null(workspace):
+            ''' Default blank function in case no functions are passed '''
             return
         if (workspace_load == None):
             self.workspace_load = [null]
@@ -73,7 +83,7 @@ class UI(tk.LabelFrame):
                 json.dump(workspace,write_file)
         self.btn_save_wksp = tk.Button(self, text="Save Workspace",
                                             command=lambda:save_workspace(self))
-        self.btn_save_wksp.pack()
+        self.btn_save_wksp.pack(pady=2)
 
         def load_workspace(self):
             '''
@@ -91,7 +101,7 @@ class UI(tk.LabelFrame):
                 funct(wksp)
         self.btn_load_wksp = tk.Button(self, text="Load Workspace",
                                             command=lambda:load_workspace(self))
-        self.btn_load_wksp.pack()
+        self.btn_load_wksp.pack(pady=2)
         
         # Options
 
