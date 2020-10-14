@@ -60,17 +60,18 @@ class Diagnostic_Col(tk.Frame):
         self.img.resize((20, 12))
         self.img = ImageTk.PhotoImage(self.img)
         self.lbl_img = tk.Label(self, image=self.img)
-        self.lbl_img.grid(row=1, column=0)
-            
+        self.lbl_img.grid(row=1, column=0) 
         
-    def __init__(self, master, k=0, **options):
+    def __init__(self, master, k=0, max_width=None, max_height=None,
+                 **options):
         tk.Frame.__init__(self, master, **options)
         self.fr_controls = tk.Frame(self)
         self.fr_controls.grid(row=0, column=0)
         
         # Images
         self.img_lbls = []
-        self.img = Helpers.load_image("assets/CUOS-med.png", k)
+        self.img = Helpers.load_image("assets/CUOS-med.png", k, max_width,
+                                      max_height)
         for i in range(3):
             img_lbl = tk.Label(self, image=self.img)
             img_lbl.grid(row=i+1, column=0)
@@ -87,7 +88,7 @@ class Diagnostic_Col(tk.Frame):
         self.drop_diag = ttk.Combobox(self.fr_controls, width=27,
                                       textvariable=self.diagnostic)
         self.drop_diag['values'] = tuple(self.options)
-        self.drop_diag.grid(row=0, column=0)
+        self.drop_diag.grid(row=0, column=0, columnspan=2)
 
         # Other
         btn_load = tk.Button(self.fr_controls, text="Load",
@@ -102,13 +103,13 @@ class UI(tk.Frame):
         if not initial:
             self.num_diagnostics += 1
         k = 3 / self.num_diagnostics
-        col = Diagnostic_Col(self, k)
+        col = Diagnostic_Col(self, k, max_width=self.max_img_width,
+                             max_height = self.max_img_height)
         col.grid(row=0, column=len(self.diagnostics))
         self.diagnostics.append(col)
 
         if not initial:
             self.refresh_diagnostics()
-
     
     def refresh_diagnostics(self):
         for diag in self.diagnostics:
@@ -116,9 +117,18 @@ class UI(tk.Frame):
         num = len(self.diagnostics)
         for _ in range(num):
             self.add_diagnostic(initial=True)
+
+    def remove_diagnostic(self):
+        self.num_diagnostics -= 1
+        self.diagnostics[-1].destroy()
+        del self.diagnostics[-1]
+        self.refresh_diagnostics()
     
     def __init__(self, master, num_diagnostics=3, **options):
         tk.Frame.__init__(self, master, **options)
+
+        self.max_img_height = 300
+        self.max_img_width = 500
 
         self.num_diagnostics = num_diagnostics
         self.diagnostics = []
@@ -135,6 +145,10 @@ class UI(tk.Frame):
         btn_refresh = tk.Button(self.fr_controls, text="Refresh",
                                 command=lambda: self.refresh_diagnostics())
         btn_refresh.pack()
+
+        btn_rm = tk.Button(self.fr_controls, text="Remove Diagnostic",
+                           command=lambda: self.remove_diagnostic())
+        btn_rm.pack()
 
         
 def test():

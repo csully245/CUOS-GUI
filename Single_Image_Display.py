@@ -26,7 +26,7 @@ def max_num_in_dir(path):
             pic = int(pic)
             nums.append(pic)
         except:
-            print("Bad filename: " + name)
+            Helpers.Error_Window("Bad filename: " + name)
     if (len(nums) == 0):
         return None
     else:
@@ -206,7 +206,7 @@ class UI(tk.Frame):
         tk.Frame.__init__(self, master, **options)
 
         # Image and colorbar
-        self.img = Helpers.load_image("assets/20170607_XRAYCCD_s024.tif", k=10)
+        self.img = Helpers.load_image("assets/CUOS-med.png", k=1)
         self.lbl_img = tk.Label(self, image=self.img)
         self.lbl_img.grid(row=0, column=0)
 

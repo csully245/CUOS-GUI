@@ -40,18 +40,36 @@ class Error_Window:
         
         self.root.mainloop()
 
-def load_image(img_path, k=1):
+def load_image(img_path, k=1, max_height=None, max_width=None):
     '''
     Input: filepath 'img' to plt.imread-acceptable source
     Output: tkinter PhotoImage
     '''
 
+    # Read file
     img_arr = plt.imread(img_path)
     img_arr = (img_arr*255).astype(np.uint8)
     img = Image.fromarray(img_arr)
 
-    if (k != 1):
-        size = (int(img.width * k), int(img.height * k))
-        img = img.resize(size, Image.ANTIALIAS)
+    # Scale based off k
+    def scale(img, k):
+        if (k != 1):
+            return (int(img.width * k), int(img.height * k))
+        else:
+            return (img.width, img.height)
+        
+    width, height = scale(img, k)
 
+    # Check max dimensions
+    c = 1
+    if (width > height and max_width != None):
+        if (width > max_width):
+            c = max_width / width
+    elif (height > img.width and max_height != None):
+        if (height > max_height):
+            c = max_height / height
+    size = scale(img, c)
+
+    # Resize image
+    img = img.resize(size, Image.ANTIALIAS)
     return ImageTk.PhotoImage(img)

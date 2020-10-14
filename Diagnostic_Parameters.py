@@ -53,9 +53,6 @@ class Diagnostic_Frame(tk.LabelFrame):
         tk.LabelFrame.__init__(self, master, text="Diagnostic " + str(num))
 
         # Public-access data
-        self.enabled = False
-        self.raw_img = tk.BooleanVar()
-        self.raw_img.set(False)
         self.enabled = tk.BooleanVar()
         self.enabled.set(False)
         
@@ -106,9 +103,12 @@ class Diagnostic_Frame(tk.LabelFrame):
                     Helpers.Notice_Window("Directory already exists")
             else:
                 if (os.path.isdir(perm)):
-                    # WARNING: Be careful in testing, this can delete dirs
-                    # lol access denied, thanks windows
-                    os.remove(perm)
+                    try:
+                        os.rmdir(perm)
+                    except OSError:
+                        self.checkbtn_enabled.select()
+                        text = "Cannot disable, destination contains files."
+                        Helpers.Notice_Window(text)
             for func in self.updater:
                 func()
         self.checkbtn_enabled = tk.Checkbutton(self, text="Enable Diagnostic",
@@ -140,7 +140,7 @@ class UI(tk.Frame):
         default_workspace = {
                 "dir_temp" : "",
                 "file_extension" : ".tif",
-                "raw_img" : False
+                "process" : "Select a Process"
             }
         i = 0
         for frame in self.frames:
@@ -162,7 +162,7 @@ class UI(tk.Frame):
         def null():
             return
         if (updater == None):
-            updater = null
+            updater = [null]
 
         rows = 4
         columns = 3

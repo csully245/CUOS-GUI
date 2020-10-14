@@ -24,7 +24,6 @@ class UI(tk.LabelFrame):
         workspace_load: list of functions to update a tab based on a json file.
         Should have parameters (self, workspace), where workspace is a
         json-friendly data type packaged by the tab's own workspace_save()
-
         workspace_save: list of functions to save a tab's settings into a
         json file. Should have parameters (self).
         '''
