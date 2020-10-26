@@ -71,15 +71,15 @@ class UI(tk.Frame):
         # WARNING: ensure shotrundir is properly updated
         self.diagnostic.set(workspace["diagnostic"])
         self.entry_num.delete(0, tk.END)
-        self.entry_diagnostic.insert(0, workspace["entry_num"])
+        self.entry_num.insert(0, workspace["entry_num"])
 
     def get_workspace(self):
         '''
         Returns all variables needed to later recreate an identical frame
         '''
         workspace = {
-            "directory": self.diagnostic.get(),
-            "img_num": self.entry_num.get()
+            "diagnostic": self.diagnostic.get(),
+            "entry_num": self.entry_num.get()
             }
         return workspace
     

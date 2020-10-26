@@ -19,9 +19,9 @@ class UI(tk.Frame):
         .json file
         Workspace: list containing saved workspaced
         '''
-        for fr, wksp in self.frames, workspace:
-            # ERROR: not unpacking properly
+        for fr, wksp in zip(self.frames, workspace):
             fr.load_from_workspace(wksp)
+
     def get_workspace(self):
         '''
         Returns all variables needed to later recreate an identical frame

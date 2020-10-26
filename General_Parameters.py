@@ -16,6 +16,19 @@ class UI(tk.LabelFrame):
     Frame for basic data management commands
     Appears regardless of selected tab
     '''
+    def load_from_workspace(self, workspace):
+        '''
+        Loads data used in workspace file for general parameters
+        '''
+        config.shot_run_dir = workspace
+        
+    def get_workspace(self):
+        '''
+        Returns all values needed to recreate the general parameters later
+        Returns string shotrundir
+        '''
+        return config.shot_run_dir
+    
     def __init__(self, master, workspace_load=None, workspace_save=None,
                  **options):
         tk.LabelFrame.__init__(self, master, text="General Parameters",
@@ -27,7 +40,8 @@ class UI(tk.LabelFrame):
         workspace_save: list of functions to save a tab's settings into a
         json file. Should have parameters (self).
         '''
-        
+
+        # Workspace function handling
         def null(workspace):
             ''' Default blank function in case no functions are passed '''
             return
@@ -39,6 +53,9 @@ class UI(tk.LabelFrame):
             self.workspace_save = [null]
         else:
             self.workspace_save = workspace_save
+
+        self.workspace_load.append(self.load_from_workspace)
+        self.workspace_save.append(self.get_workspace) 
         
         # Shot Run Directory
         if (os.path.exists("PermPathFile")):
