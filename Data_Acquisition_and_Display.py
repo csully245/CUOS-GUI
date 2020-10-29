@@ -5,8 +5,8 @@ import sys
 import json
 
 import config
-import UI_File_Transfer
 import Helpers
+import Menu_Bar
 import Main_tab
 import General_Parameters
 import Diagnostic_Parameters
@@ -82,16 +82,15 @@ class Acquisition_Display:
         self.fr_diag_params.pack()
         self.add_wksp_funcs(self.fr_diag_params)
         
-        # General Parameters
+        # File Menu
         '''
-        Frame for basic data management commands
-        Appears regardless of selected tab
-        Shot run directory function must be in top-level to ensure data access
+        Identical in function to General Parameters, but uses a dropdown
+        file menu instead of a whole frame
         '''
-        self.fr_gen_param = General_Parameters.UI(self.root,
-                                                  self.workspace_load_funcs,
-                                                  self.workspace_save_funcs)
-        self.fr_gen_param.grid(row=0, column=0)
+        self.menubar = Menu_Bar.UI(self.root, self.workspace_load_funcs,
+                                   self.workspace_save_funcs)
+        self.root.config(menu=self.menubar)
+        
 
     def open(self):
         self.root.mainloop()
