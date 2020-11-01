@@ -100,8 +100,9 @@ class UI(tk.Frame):
     Frame for displaying images of multiple diagnostics, ready to be
     continually updated as more data is ready
     '''
-    def add_diagnostic(self, initial=False, k=1):
-        if not initial:
+    def add_diagnostic(self, btn=True, k=1):
+        ''' Adds a column for three images of one diagnostic '''
+        if btn:
             self.num_diagnostics += 1
         k = 3 / self.num_diagnostics
         col = Diagnostic_Col(self, k, max_width=self.max_img_width,
@@ -109,21 +110,36 @@ class UI(tk.Frame):
         col.grid(row=0, column=len(self.diagnostics))
         self.diagnostics.append(col)
 
-        if not initial:
+        if btn:
             self.refresh_diagnostics()
     
     def refresh_diagnostics(self):
+        '''
+        Reloads all diagnostics, including to proper scale factor
+        '''
         for diag in self.diagnostics:
-            diag.grid_forget()
-        num = len(self.diagnostics)
+            diag.destroy()
+        num = self.num_diagnostics
+        print(num)
         for _ in range(num):
-            self.add_diagnostic(initial=True)
+            self.add_diagnostic(btn=False)
 
     def remove_diagnostic(self):
+        ''' Removes the rightmost diagnostic column '''
+        if (self.num_diagnostics < 1):
+            Helpers.Error_Window("No diagnostics to remove.")
+            return
         self.num_diagnostics -= 1
         self.diagnostics[-1].destroy()
         del self.diagnostics[-1]
         self.refresh_diagnostics()
+        #NOTE: this will undo any picture settings. Use workspaces?
+        
+    '''
+    Thinking
+    add_diagnostic: double plus one
+    remove_diagnostic: double minus one
+    '''
     
     def __init__(self, master, num_diagnostics=3, **options):
         tk.Frame.__init__(self, master, **options)
@@ -134,7 +150,7 @@ class UI(tk.Frame):
         self.num_diagnostics = num_diagnostics
         self.diagnostics = []
         for x in range(num_diagnostics):
-            self.add_diagnostic(initial=True)
+            self.add_diagnostic(btn=False)
 
         self.fr_controls = tk.Frame(self)
         self.fr_controls.grid(row=1, column=0)
@@ -142,11 +158,12 @@ class UI(tk.Frame):
         btn_add_diag = tk.Button(self.fr_controls, text="Add diagnostic",
                                  command=lambda: self.add_diagnostic())
         btn_add_diag.pack()
-
+        '''
         btn_refresh = tk.Button(self.fr_controls, text="Refresh",
                                 command=lambda: self.refresh_diagnostics())
+        
         btn_refresh.pack()
-
+        '''
         btn_rm = tk.Button(self.fr_controls, text="Remove Diagnostic",
                            command=lambda: self.remove_diagnostic())
         btn_rm.pack()
