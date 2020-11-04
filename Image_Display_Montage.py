@@ -42,6 +42,8 @@ class Diagnostic_Col(tk.Frame):
         '''
         Updates image to alphabetically-last in selected diagnostic
         '''
+        return
+    
         self.lbl_img.grid_forget()
         
         root_path = self.options_dirs[self.diagnostic.get()]

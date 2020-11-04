@@ -4,10 +4,10 @@ import tkinter as tk
 import sys
 import json
 
+import Startup
 import Helpers
 import Menu_Bar
 import Main_tab
-import General_Parameters
 import Diagnostic_Parameters
 import Image_Display_Single
 import Image_Display_Montage
@@ -31,7 +31,9 @@ class Acquisition_Display:
         save = frame.get_workspace
         self.workspace_save_funcs.append(save)
 
-    def __init__(self):
+    def __init__(self):    
+        Startup.startup()
+
         self.root = tk.Tk()
         self.root.title("Data Acquisition and Display")
         self.root.iconbitmap("assets/UM.ico")

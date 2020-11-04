@@ -1,9 +1,8 @@
 import tkinter as tk
 import winsound
-from matplotlib import pyplot as plt
 import numpy as np
 from PIL import Image, ImageTk
-import threading
+from matplotlib import pyplot as plt
 import json
 
 '''

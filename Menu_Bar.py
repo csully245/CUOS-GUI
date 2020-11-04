@@ -22,7 +22,7 @@ class UI(tk.Menu):
         Returns all values needed to recreate the general parameters later
         Returns string shotrundir
         '''
-        return get_from_file("shotrundir", "setup.json")
+        return Helpers.get_from_file("shotrundir", "setup.json")
     
     def __init__(self, master, workspace_load=None, workspace_save=None,
                  tearoff=0, **options):
@@ -52,10 +52,10 @@ class UI(tk.Menu):
             Pulls data from json file
             Calls load function for each tab
             '''
-            path_load = fd.askopenfilename(initialdir = "./",
+            path_load = fd.askopenfilename(initialdir = "./Workspaces",
                                       title = "Select Workspace",
                                       filetypes = (("json files","*.json"),))
-            if (path_load == ""):
+            if not (os.path.isfile(path_load)):
                 return
             with open(path_load,"r") as read_file:
                 workspace = json.load(read_file)
@@ -78,10 +78,12 @@ class UI(tk.Menu):
             each tab requires. Must all be json-friendly
             Stores workspace in json file
             '''
-            path_save =  fd.asksaveasfilename(initialdir="./",
+            path_save =  fd.asksaveasfilename(initialdir="./Workspaces",
                                               title="Save Workspace",
                                               defaultextension='.json',
                                               filetypes=(("json files","*.json"),))
+            if not (os.path.isfile(path_save)):
+                return
             workspace = []
             for funct in self.workspace_save:
                 workspace.append(funct())
