@@ -4,7 +4,6 @@ import tkinter as tk
 import sys
 import json
 
-import config
 import Helpers
 import Menu_Bar
 import Main_tab

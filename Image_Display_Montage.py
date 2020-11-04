@@ -1,4 +1,3 @@
-import config
 import Helpers
 
 from tkinter import ttk
@@ -20,9 +19,10 @@ class Diagnostic_Col(tk.Frame):
         '''
         self.options = ["Select a Diagnostic"]
         self.options_dirs = {"Select a Diagnostic":"./"}
-        for dr in os.listdir(config.shot_run_dir):
+        shotrundir = Helpers.get_from_file("shotrundir", "setup.json")
+        for dr in os.listdir(shotrundir):
             #if (os.path.isdir(dr)):
-            path = os.path.join(config.shot_run_dir, dr)
+            path = os.path.join(shotrundir, dr)
             self.options_dirs[dr] = path
             self.options.append(dr)
 

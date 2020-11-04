@@ -1,4 +1,3 @@
-import config
 import Helpers
 
 from tkinter import ttk
@@ -68,10 +67,10 @@ class UI(tk.Frame):
         .json file
         Workspace: dict containing diagnostic name and image number
         '''
-        # WARNING: ensure shotrundir is properly updated
         self.diagnostic.set(workspace["diagnostic"])
         self.entry_num.delete(0, tk.END)
         self.entry_num.insert(0, workspace["entry_num"])
+        #self.update_image()
 
     def get_workspace(self):
         '''
@@ -86,19 +85,20 @@ class UI(tk.Frame):
     #-------------------------
     # Update commands
     #-------------------------  
-    def update_options(self):
+    def _update_options(self):
         '''
         Updates diagnostic options
         '''
         self.options = ["Select a Diagnostic"]
         self.options_dirs = {"Select a Diagnostic":"./"}
-        for dr in os.listdir(config.shot_run_dir):
+        shotrundir = Helpers.get_from_file("shotrundir", "setup.json")
+        for dr in os.listdir(shotrundir):
             #if (os.path.isdir(dr)):
-            path = os.path.join(config.shot_run_dir, dr)
+            path = os.path.join(shotrundir, dr)
             self.options_dirs[dr] = path
             self.options.append(dr)
 
-    def update_dropdown(self):
+    def _update_dropdown(self):
         '''
         Updates dropdown for new options
         '''
@@ -110,18 +110,14 @@ class UI(tk.Frame):
         self.drop_diag['values'] = tuple(self.options)
         self.drop_diag.grid(row=0, column=0, columnspan=2)
 
-    def update_image(self):
-        '''
-        Updates image to selected image in entry
-        '''
-        # LATER: add case for default image on failure
-
+    def _get_image_path(self):
+        ''' Returns the path of the displayed image '''
         # Gets diagnostic path
         root_path = self.options_dirs[self.diagnostic.get()]
         if not (os.path.isdir(root_path)):
             Helpers.Error_Window("Invalid diagnostic path.")
             print(self.diagnostic.get())
-            return
+            return ""
 
         # Gets path of number equal to entry
         pics = os.listdir(root_path) # WARNING: Assumes dir contains only pics
@@ -137,13 +133,20 @@ class UI(tk.Frame):
             text = "Multiple pics with shot number '"
             text += num + "'."
             Helpers.Error_Window(text)
-            return
+            return ""
         elif (len(valid_pics) == 0):
             text = "No pics with shot number '"
             text += num + "'."
             Helpers.Error_Window(text)
-            return
-        path = os.path.join(root_path, valid_pics[0])
+            return ""
+        return os.path.join(root_path, valid_pics[0])
+
+    def _update_image(self):
+        '''
+        Updates image to selected image in entry
+        '''
+        # LATER: add case for default image on failure
+        path = self._get_image_path()
 
         # Updates image
         self.img = Helpers.load_image(path)
@@ -151,7 +154,7 @@ class UI(tk.Frame):
         self.lbl_img = tk.Label(self, image=self.img)
         self.lbl_img.grid(row=0, column=0)
 
-    def update_buttonstate(self):
+    def _update_buttonstate(self):
         '''
         Updates whether the left-right image buttons are clickable or not
         '''
@@ -162,7 +165,8 @@ class UI(tk.Frame):
         try:
             max_num = convert_to_4_digit(max_num_in_dir(self.diagnostic.get()))
         except:
-            max_num = convert_to_4_digit(max_num_in_dir("./shotrundir/Example"))
+            path = "./Shot_Run_Default/Example"
+            max_num = convert_to_4_digit(max_num_in_dir(path))
         if (self.img_num == max_num):
             self.arrow_right.config(state='disabled')
         else:
@@ -172,10 +176,10 @@ class UI(tk.Frame):
         '''
         Calls all widget update commands
         '''
-        self.update_options()
-        self.update_dropdown()
-        self.update_image()
-        self.update_buttonstate()
+        self._update_options()
+        self._update_dropdown()
+        self._update_image()
+        self._update_buttonstate()
 
     #-------------------------
     # Other internal functions
@@ -196,10 +200,10 @@ class UI(tk.Frame):
         self.entry_num.insert(0, self.img_num)
         
         # Updates buttons
-        self.update_buttonstate()
+        self._update_buttonstate()
         
         # Loads new image
-        self.update_image()
+        self._update_image()
             
     def move_img_right(self):
         '''
@@ -207,7 +211,8 @@ class UI(tk.Frame):
         Updates button ability
         '''
         # Updates img_num and entry
-        max_num = convert_to_4_digit(max_num_in_dir("./shotrundir/Example"))
+        path = "./Shot_Run_Default/Example"
+        max_num = convert_to_4_digit(max_num_in_dir(path))
         if (self.img_num == "" or self.img_num == max_num):
             return
         else:
@@ -217,10 +222,10 @@ class UI(tk.Frame):
         self.entry_num.insert(0, self.img_num)
         
         # Updates buttons
-        self.update_buttonstate()
+        self._update_buttonstate()
         
         # Loads new image
-        self.update_image()
+        self._update_image()
 
     #-------------------------
     # init
@@ -228,6 +233,8 @@ class UI(tk.Frame):
     
     def __init__(self, master, **options):
         tk.Frame.__init__(self, master, **options)
+
+        self.scale = 1
 
         # Image and colorbar
         self.img = Helpers.load_image("assets/CUOS-med.png", k=1)
@@ -246,7 +253,7 @@ class UI(tk.Frame):
         '''
         self.options = []
         self.options_dirs = dict()
-        self.update_options()
+        self._update_options()
         
         self.diagnostic = tk.StringVar()
         self.diagnostic.set(self.options[0])
@@ -256,12 +263,17 @@ class UI(tk.Frame):
         self.drop_diag['values'] = tuple(self.options)
         self.drop_diag.grid(row=0, column=0, columnspan=2)
 
+        # Increase/decrease scale buttons
+        def increase_scale(self):
+            self.scale += 0.2
+            
+
         # Image loading
         '''
         Button for manually reloading the image
         '''
         btn_load = tk.Button(self.fr_controls, text="Load",
-                             command=lambda: self.update_image())
+                             command=lambda: self._update_image())
         btn_load.grid(row=1, column=0)
 
         # Image select 
@@ -270,7 +282,7 @@ class UI(tk.Frame):
         Buttons for moving to the previous or next picture
         '''
         self.entry_num = tk.Entry(self.fr_controls)
-        max_img = max_num_in_dir("./shotrundir/Example")
+        max_img = max_num_in_dir("./Shot_Run_Default/Example")
         if (max_img == None):
             self.img_num = ""
             #self.entry_num.config(state='disabled')
@@ -284,7 +296,7 @@ class UI(tk.Frame):
                                     command=lambda: self.move_img_left())
         self.arrow_right = tk.Button(self.fr_controls, text="Next Image",
                                     command=lambda: self.move_img_right())
-        self.update_buttonstate()
+        self._update_buttonstate()
         self.arrow_left.grid(row=1, column=1)
         self.arrow_right.grid(row=1, column=3)
 

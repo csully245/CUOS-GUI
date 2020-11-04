@@ -1,4 +1,3 @@
-import config
 import Helpers
 import Image_Display_Single
 

@@ -1,5 +1,4 @@
 import Helpers
-import config
 
 from tkinter import filedialog as fd
 import tkinter as tk
@@ -95,7 +94,8 @@ class Diagnostic_Frame(tk.LabelFrame):
             Manages data source and destination folders for diagnostic
             Adds folder for diagnostic in shot_run_dir if setting to enable
             '''
-            perm=os.path.join(config.shot_run_dir,self.entry_diagnostic.get())
+            path = Helpers.get_from_file("shotrundir", "setup.json")
+            perm=os.path.join(path, self.entry_diagnostic.get())
             if (self.enabled.get()):
                 if not (os.path.isdir(perm)):
                     os.mkdir(perm)

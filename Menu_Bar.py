@@ -2,8 +2,7 @@ from tkinter import filedialog as fd
 import tkinter as tk
 import os
 import json
-
-import config
+import Helpers
 
 class UI(tk.Menu):
     '''
@@ -14,15 +13,16 @@ class UI(tk.Menu):
     def load_from_workspace(self, workspace):
         '''
         Loads data used in workspace file for general parameters
+        Sets shotrundir value in setup.json to workspace
         '''
-        config.shot_run_dir = workspace
+        Helpers.edit_file("shotrundir", workspace, "setup.json")
         
     def get_workspace(self):
         '''
         Returns all values needed to recreate the general parameters later
         Returns string shotrundir
         '''
-        return config.shot_run_dir
+        return get_from_file("shotrundir", "setup.json")
     
     def __init__(self, master, workspace_load=None, workspace_save=None,
                  tearoff=0, **options):
@@ -103,7 +103,8 @@ class UI(tk.Menu):
                                         title="Set Permanent Storage Directory")
             perm_dir_file = open("PermDirFile", "w")
             perm_dir_file.write(self.path_perm)
-            config.shot_run_dir = self.path_perm
+            Helpers.edit_file("shot_run_dir", self.path_perm, "setup.json")
+            
 
         # Assemble menu bar
         self.filemenu = tk.Menu(self, tearoff=0)

@@ -4,6 +4,7 @@ from matplotlib import pyplot as plt
 import numpy as np
 from PIL import Image, ImageTk
 import threading
+import json
 
 '''
 Helper functions and classes
@@ -73,3 +74,29 @@ def load_image(img_path, k=1, max_height=None, max_width=None):
     # Resize image
     img = img.resize(size, Image.ANTIALIAS)
     return ImageTk.PhotoImage(img)
+
+def get_from_file(key, filename):
+    '''
+    Returns value of key in dict stored in filename
+    File must be .json and contain only a dict
+    '''
+    with open(filename, "r") as read_file:
+        data = json.load(read_file)
+    if not key in data.keys():
+        Error_Window('Key "' + key + '" does not exist.')
+        return ""
+    return data[key]
+
+def edit_file(key, value, filename):
+    '''
+    Sets value of key in dict stored in filename
+    File must be .json and contain only a dict
+    '''
+    with open(filename, "r") as read_file:
+        data = json.load(read_file)
+    if not key in data.keys():
+        Error_Window('Key "' + key + '" does not exist.')
+        return ""
+    data[key] = value
+    with open(filename, "w") as write_file:
+        json.dump(data, write_file)
