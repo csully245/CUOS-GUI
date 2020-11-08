@@ -40,10 +40,15 @@ class Error_Window:
         
         self.root.mainloop()
 
-def load_image(img_path, k=1, max_height=None, max_width=None):
+def load_image(img_path, k=1.0, ratio=2.0, base=200):
     '''
-    Input: filepath 'img' to plt.imread-acceptable source
-    Output: tkinter PhotoImage
+    Input:
+        -img_path: string, filepath to plt.imread-acceptable source
+        -k: float, scale factor
+        -ratio: float, aspect ratio (W:H)
+        -base: int, W/H dimensions at k=1.0
+    Output:
+        -tkinter PhotoImage
     '''
 
     # Read file
@@ -51,27 +56,9 @@ def load_image(img_path, k=1, max_height=None, max_width=None):
     img_arr = (img_arr*255).astype(np.uint8)
     img = Image.fromarray(img_arr)
 
-    # Scale based off k
-    def scale(img, k):
-        if (k != 1):
-            return (int(img.width * k), int(img.height * k))
-        else:
-            return (img.width, img.height)
-        
-    width, height = scale(img, k)
-
-    # Check max dimensions
-    c = 1
-    if (width > height and max_width != None):
-        if (width > max_width):
-            c = max_width / width
-    elif (height > img.width and max_height != None):
-        if (height > max_height):
-            c = max_height / height
-    size = scale(img, c)
-
-    # Resize image
-    img = img.resize(size, Image.ANTIALIAS)
+    # Fit to shape
+    shape = (int(ratio * k * base), int(k * base))
+    img = img.resize(shape, Image.ANTIALIAS)
     return ImageTk.PhotoImage(img)
 
 def get_from_file(key, filename):

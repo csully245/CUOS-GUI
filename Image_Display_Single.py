@@ -149,7 +149,7 @@ class UI(tk.Frame):
         path = self._get_image_path()
 
         # Updates image
-        self.img = Helpers.load_image(path)
+        self.img = Helpers.load_image(path, self.scale)
         self.lbl_img.grid_forget()
         self.lbl_img = tk.Label(self, image=self.img)
         self.lbl_img.grid(row=0, column=0)
@@ -231,16 +231,16 @@ class UI(tk.Frame):
     # init
     #-------------------------
     
-    def __init__(self, master, **options):
+    def __init__(self, master, scale=4, **options):
         tk.Frame.__init__(self, master, **options)
 
-        self.scale = 1
+        self.scale = scale
 
         # Image and colorbar
-        self.img = Helpers.load_image("assets/CUOS-med.png", k=1)
+        self.img = Helpers.load_image("assets/CUOS-med.png", k=scale)
         self.lbl_img = tk.Label(self, image=self.img)
         self.lbl_img.grid(row=0, column=0)
-
+        
         # Frames
         self.fr_controls = tk.Frame(self)
         self.fr_controls.grid(row=1, column=0)
@@ -311,7 +311,7 @@ class UI(tk.Frame):
 
 def test():
     root = tk.Tk()
-    gui = UI(root)
+    gui = UI(root, scale=1)
     gui.pack()
     root.attributes('-topmost', True)
     root.mainloop()
