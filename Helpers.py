@@ -5,10 +5,9 @@ from PIL import Image, ImageTk
 from matplotlib import pyplot as plt
 import json
 
-'''
-Helper functions and classes
-'''
-
+#-------------------------------------------------
+# Message Windows
+#-------------------------------------------------
 class Notice_Window:
     '''
     GUI template for notice messages, such as progress updates
@@ -40,6 +39,9 @@ class Error_Window:
         
         self.root.mainloop()
 
+#-------------------------------------------------
+# Image display
+#-------------------------------------------------
 def load_image(img_path, k=1.0, ratio=2.0, base=200):
     '''
     Input:
@@ -57,9 +59,55 @@ def load_image(img_path, k=1.0, ratio=2.0, base=200):
     img = Image.fromarray(img_arr)
 
     # Fit to shape
+    if (k == 0):
+        k = 1
     shape = (int(ratio * k * base), int(k * base))
     img = img.resize(shape, Image.ANTIALIAS)
     return ImageTk.PhotoImage(img)
+
+def max_num_in_dir(path):
+    '''
+    Returns the max numbered file in a given directory
+    Expects all files in directory to be pics in convention: name-xxxx
+    with xxxx representing number
+    '''
+    pic_names = os.listdir(path)
+    nums = []
+    for name in pic_names:
+        pic = name.partition(".")[0]
+        pic = pic.partition("-")[2]
+        try:
+            pic = int(pic)
+            nums.append(pic)
+        except:
+            Helpers.Error_Window("Bad filename: " + name)
+    if (len(nums) == 0):
+        return None
+    else:
+        return max(nums)
+
+def to_4_digit(num):
+    '''
+    Returns a 4-digit string of the input positive int
+    Returns '9999' if num is more than four digits
+    Returns '-001' if num is negative
+    '''
+    if (num < 0):
+        return "-001"
+    elif (num >= 9999):
+        return "9999"
+    elif (num > 999):
+        return str(num)
+    elif (num > 99):
+        return "0" + str(num)
+    elif (num > 9):
+        return "00" + str(num)
+    else:
+        return "000" + str(num)
+
+#-------------------------------------------------
+# .json file interaction
+#-------------------------------------------------
 
 def get_from_file(key, filename):
     '''

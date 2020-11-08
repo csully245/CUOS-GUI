@@ -65,8 +65,7 @@ class Diagnostic_Frame(tk.LabelFrame):
 
         self.process_options = [
             "Select a Process",
-            "Raw Image",
-            "Advanced"
+            "Raw Image"
             ]
         self.process = tk.StringVar()
         self.process.set(self.process_options[0])
