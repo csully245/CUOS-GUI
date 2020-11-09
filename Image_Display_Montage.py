@@ -60,8 +60,8 @@ class Diagnostic_Col(tk.Frame):
     def load(self, img_num):
         ''' Updates images to match shot num '''
         img_paths = self._get_img_paths()
-        count = 1
-        for img_lbl in self.img_lbls:
+        new_img_lbls = []
+        for img_lbl, i in zip(self.img_lbls, range(3)):
             # Finds image
             num_str = "-" + Helpers.to_4_digit(img_num)
             img_path = "assets/CUOS-med.png"
@@ -69,16 +69,18 @@ class Diagnostic_Col(tk.Frame):
                 if num_str in path:
                     img_path = path
                     break
-            img = Helpers.load_image(img_path)
+            self.imgs.append(Helpers.load_image(img_path))
             
             # Replaces image
             img_lbl.grid_forget()
-            lbl_img = tk.Label(self, image=img)
-            lbl_img.grid(row=count, column=0)
+            del self.imgs[0]
+            img_lbl = tk.Label(self, image=self.imgs[-1])
+            new_img_lbls.append(img_lbl)
+            img_lbl.grid(row=i+3, column=0)
             
             # Moves to previous image
             img_num -= 1
-            count += 1
+        self.img_lbls = new_img_lbls
 
     #-------------------------
     # init
@@ -90,9 +92,10 @@ class Diagnostic_Col(tk.Frame):
         
         # Images
         self.img_lbls = []
-        self.img = Helpers.load_image("assets/CUOS-med.png", k=k)
+        self.imgs = []
         for i in range(3):
-            img_lbl = tk.Label(self, image=self.img)
+            self.imgs.append(Helpers.load_image("assets/CUOS-med.png", k=k))
+            img_lbl = tk.Label(self, image=self.imgs[-1])
             img_lbl.grid(row=i+1, column=0)
             self.img_lbls.append(img_lbl)
 

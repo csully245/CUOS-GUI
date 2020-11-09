@@ -231,7 +231,7 @@ class UI(tk.Frame):
     # init
     #-------------------------
     
-    def __init__(self, master, scale=4, **options):
+    def __init__(self, master, scale=3, **options):
         tk.Frame.__init__(self, master, **options)
 
         self.scale = scale

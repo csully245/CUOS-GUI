@@ -105,7 +105,7 @@ class UI(tk.Menu):
                                         title="Set Permanent Storage Directory")
             perm_dir_file = open("PermDirFile", "w")
             perm_dir_file.write(self.path_perm)
-            Helpers.edit_file("shot_run_dir", self.path_perm, "setup.json")
+            Helpers.edit_file("shotrundir", self.path_perm, "setup.json")
             
 
         # Assemble menu bar

@@ -39,7 +39,7 @@ class UI(tk.Frame):
         self.frames = []
         for c in range(columns):
             for r in range(rows):
-                fr = Image_Display_Single.UI(self, scale=1.2)
+                fr = Image_Display_Single.UI(self, scale=0.8)
                 fr.grid(row=r, column=c, padx=40, pady=5)
                 self.frames.append(fr)
 
