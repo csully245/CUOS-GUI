@@ -5,51 +5,7 @@ import tkinter as tk
 from PIL import Image, ImageTk
 import os
 from matplotlib import pyplot as plt
-
-#-------------------------------------------------
-# Helper functions
-#-------------------------------------------------
-
-def max_num_in_dir(path):
-    '''
-    Returns the max numbered file in a given directory
-    Expects all files in directory to be pics in convention: name-xxxx
-    with xxxx representing number
-    '''
-    pic_names = os.listdir(path)
-    nums = []
-    for name in pic_names:
-        pic = name.partition(".")[0]
-        pic = pic.partition("-")[2]
-        try:
-            pic = int(pic)
-            nums.append(pic)
-        except:
-            Helpers.Error_Window("Bad filename: " + name)
-    if (len(nums) == 0):
-        return None
-    else:
-        return max(nums)
-
-def convert_to_4_digit(num):
-    '''
-    Returns a 4-digit string of the input positive int
-    Returns '9999' if num is more than four digits
-    Returns '-001' if num is negative
-    '''
-    if (num < 0):
-        return "-001"
-    elif (num >= 9999):
-        return "9999"
-    elif (num > 999):
-        return str(num)
-    elif (num > 99):
-        return "0" + str(num)
-    elif (num > 9):
-        return "00" + str(num)
-    else:
-        return "000" + str(num)
-    
+  
 #-------------------------------------------------
 # Top-level GUI
 #-------------------------------------------------  
@@ -109,22 +65,26 @@ class UI(tk.Frame):
                                       textvariable=self.diagnostic)
         self.drop_diag['values'] = tuple(self.options)
         self.drop_diag.grid(row=0, column=0, columnspan=2)
-
-    def _get_image_path(self):
-        ''' Returns the path of the displayed image '''
+        
+    def _get_img_path(self):
+        ''' Returns the path of the desired image '''
+        # Gets shot run directory
+        root_path = Helpers.get_from_file("shotrundir", "setup.json")
+        
         # Gets diagnostic path
-        root_path = self.options_dirs[self.diagnostic.get()]
+        diagnostic_path = self.options_dirs[self.diagnostic.get()]
+        root_path = os.path.join(root_path, diagnostic_path)
         if not (os.path.isdir(root_path)):
             Helpers.Error_Window("Invalid diagnostic path.")
             print(self.diagnostic.get())
-            return ""
+            return "./"
 
         # Gets path of number equal to entry
         pics = os.listdir(root_path) # WARNING: Assumes dir contains only pics
         if (len(pics) == 0):
             Helpers.Error_Window("No data available.")
-            return
-        num = self.entry_num.get()
+            return "./"
+        num = Helpers.to_4_digit(int(self.entry_num.get()))
         valid_pics = []
         for pic in pics:
             if num in pic:
@@ -138,18 +98,16 @@ class UI(tk.Frame):
             text = "No pics with shot number '"
             text += num + "'."
             Helpers.Error_Window(text)
-            return ""
-        return os.path.join(root_path, valid_pics[0])
+            return "./"
+        else:
+            return os.path.join(root_path, valid_pics[0])
 
     def _update_image(self):
         '''
         Updates image to selected image in entry
         '''
-        # LATER: add case for default image on failure
-        path = self._get_image_path()
-
-        # Updates image
-        self.img = Helpers.load_image(path, self.scale)
+        self.img_path = self._get_img_path()
+        self.img = Helpers.load_image(self.img_path, self.scale)
         self.lbl_img.grid_forget()
         self.lbl_img = tk.Label(self, image=self.img)
         self.lbl_img.grid(row=0, column=0)
@@ -158,16 +116,19 @@ class UI(tk.Frame):
         '''
         Updates whether the left-right image buttons are clickable or not
         '''
-        if (self.img_num == "0000"):
+        path = Helpers.get_from_file("shotrundir", "Setup.json")
+        path += "/" + self.diagnostic.get()
+        if not (os.path.isdir(path)):
+            self.arrow_left.config(state='disabled')
+            self.arrow_right.config(state='disabled')
+            return
+        img_num = int(self.entry_num.get())
+        if (img_num == 0):
             self.arrow_left.config(state='disabled')
         else:
             self.arrow_left.config(state='active')
-        try:
-            max_num = convert_to_4_digit(max_num_in_dir(self.diagnostic.get()))
-        except:
-            path = "./Shot_Run_Default/Example"
-            max_num = convert_to_4_digit(max_num_in_dir(path))
-        if (self.img_num == max_num):
+        max_num = Helpers.max_num_in_dir(path)
+        if (img_num == max_num):
             self.arrow_right.config(state='disabled')
         else:
             self.arrow_right.config(state='active')
@@ -191,13 +152,11 @@ class UI(tk.Frame):
         Updates button ability
         '''
         # Updates img_num and entry
-        if (self.img_num == "" or self.img_num == "0000"):
+        img_num = int(self.entry_num.get())
+        if (img_num == 0):
             return
         else:
-            self.img_num = int(self.img_num) - 1
-            self.img_num = convert_to_4_digit(self.img_num)
-        self.entry_num.delete(0, tk.END)
-        self.entry_num.insert(0, self.img_num)
+            self._set_shot_num(img_num-1)
         
         # Updates buttons
         self._update_buttonstate()
@@ -211,21 +170,28 @@ class UI(tk.Frame):
         Updates button ability
         '''
         # Updates img_num and entry
-        path = "./Shot_Run_Default/Example"
-        max_num = convert_to_4_digit(max_num_in_dir(path))
-        if (self.img_num == "" or self.img_num == max_num):
+        img_num = int(self.entry_num.get())
+        path = Helpers.get_from_file("shotrundir", "setup.json")
+        path += "/" + self.diagnostic.get()
+        max_num = Helpers.max_num_in_dir(path)
+        if (img_num == max_num):
             return
         else:
-            self.img_num = int(self.img_num) + 1
-            self.img_num = convert_to_4_digit(self.img_num)
-        self.entry_num.delete(0, tk.END)
-        self.entry_num.insert(0, self.img_num)
+            self._set_shot_num(img_num+1)
         
         # Updates buttons
         self._update_buttonstate()
         
         # Loads new image
         self._update_image()
+
+    # New functions
+    def _set_shot_num(self, num):
+        ''' Sets number stored in shot number entry to num'''
+        self.entry_num.delete(0, tk.END)
+        self.entry_num.insert(0, str(num))
+    def drop_diag_handle(self, event):
+        self._update_buttonstate()
 
     #-------------------------
     # init
@@ -237,7 +203,8 @@ class UI(tk.Frame):
         self.scale = scale
 
         # Image and colorbar
-        self.img = Helpers.load_image("assets/CUOS-med.png", k=scale)
+        self.img_path = "assets/CUOS-med.png"
+        self.img = Helpers.load_image(self.img_path, k=scale)
         self.lbl_img = tk.Label(self, image=self.img)
         self.lbl_img.grid(row=0, column=0)
         
@@ -261,12 +228,15 @@ class UI(tk.Frame):
         self.drop_diag = ttk.Combobox(self.fr_controls, width=27,
                                       textvariable=self.diagnostic)
         self.drop_diag['values'] = tuple(self.options)
+
+        # ERROR WITH CALLBACK
+        self.drop_diag.bind("<<ComboboxSelected>>", self.drop_diag_handle)
         self.drop_diag.grid(row=0, column=0, columnspan=2)
 
         # Increase/decrease scale buttons
         def increase_scale(self):
             self.scale += 0.2
-            
+            self._update_image()
 
         # Image loading
         '''
@@ -282,14 +252,7 @@ class UI(tk.Frame):
         Buttons for moving to the previous or next picture
         '''
         self.entry_num = tk.Entry(self.fr_controls)
-        max_img = max_num_in_dir("./Shot_Run_Default/Example")
-        if (max_img == None):
-            self.img_num = ""
-            #self.entry_num.config(state='disabled')
-        else:
-            self.img_num = "0000"
-        self.entry_num.delete(0, tk.END)
-        self.entry_num.insert(0, self.img_num)
+        self._set_shot_num(0)
         self.entry_num.grid(row=1, column=2)
 
         self.arrow_left = tk.Button(self.fr_controls, text="Previous Image",
@@ -299,10 +262,6 @@ class UI(tk.Frame):
         self._update_buttonstate()
         self.arrow_left.grid(row=1, column=1)
         self.arrow_right.grid(row=1, column=3)
-
-        
-        # Can we expect there to be a "default values" folder in shotrundir?
-        # I could make it upon init
         
 
 #-------------------------------------------------
