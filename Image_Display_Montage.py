@@ -126,6 +126,7 @@ class UI(tk.Frame):
         ''' Adds a column for three images of one diagnostic '''
         if btn:
             self.num_diagnostics += 1
+        
         k = 3 / self.num_diagnostics
         col = Diagnostic_Col(self.fr_diags, k=k)
         col.grid(row=0, column=len(self.diagnostics))
@@ -182,13 +183,18 @@ class UI(tk.Frame):
         self.fr_controls = tk.Frame(self)
         self.fr_controls.grid(row=1, column=0)
 
-        btn_add_diag = tk.Button(self.fr_controls, text="Add diagnostic",
+        self.btn_add_diag = tk.Button(self.fr_controls, text="Add diagnostic",
                                  command=lambda: self.add_diagnostic())
-        btn_add_diag.pack()
+        self.btn_add_diag.pack()
         
-        btn_rm = tk.Button(self.fr_controls, text="Remove Diagnostic",
+        self.btn_rm = tk.Button(self.fr_controls, text="Remove Diagnostic",
                            command=lambda: self.remove_diagnostic())
-        btn_rm.pack()
+        self.btn_rm.pack()
+
+        # NOTE: buttons disabled while solving issue
+        # Issue: error when loading images after adding or removing cols
+        self.btn_add_diag.config(state='disabled')
+        self.btn_rm.config(state='disabled')
 
         # Shot number updating
         self.fr_shot = tk.Frame(self)

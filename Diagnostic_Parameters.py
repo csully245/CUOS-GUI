@@ -64,7 +64,6 @@ class Diagnostic_Frame(tk.LabelFrame):
         self.entry_ext.insert(0, ".tif")
 
         self.process_options = [
-            "Select a Process",
             "Raw Image"
             ]
         self.process = tk.StringVar()
@@ -163,8 +162,8 @@ class UI(tk.Frame):
         if (updater == None):
             updater = [null]
 
-        rows = 4
-        columns = 3
+        rows = 5
+        columns = 4
         count = 1
         self.frames = []
         for c in range(columns):

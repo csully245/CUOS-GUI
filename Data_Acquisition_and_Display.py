@@ -37,6 +37,7 @@ class Acquisition_Display:
         self.root = tk.Tk()
         self.root.title("Data Acquisition and Display")
         self.root.iconbitmap("assets/UM.ico")
+        self.root.state('zoomed')
 
         self.update_funcs = []
         self.workspace_load_funcs = []
@@ -91,7 +92,6 @@ class Acquisition_Display:
         self.menubar = Menu_Bar.UI(self.root, self.workspace_load_funcs,
                                    self.workspace_save_funcs)
         self.root.config(menu=self.menubar)
-        
 
     def open(self):
         self.root.mainloop()
