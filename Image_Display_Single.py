@@ -84,7 +84,7 @@ class UI(tk.Frame):
         if (len(pics) == 0):
             Helpers.Error_Window("No data available.")
             return "./"
-        num = Helpers.to_4_digit(int(self.entry_num.get()))
+        num = "s" + Helpers.to_3_digit(int(self.entry_num.get()))
         valid_pics = []
         for pic in pics:
             if num in pic:

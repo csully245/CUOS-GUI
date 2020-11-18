@@ -63,7 +63,7 @@ class Diagnostic_Col(tk.Frame):
         new_img_lbls = []
         for img_lbl, i in zip(self.img_lbls, range(3)):
             # Finds image
-            num_str = "-" + Helpers.to_4_digit(img_num)
+            num_str = "s" + Helpers.to_3_digit(img_num)
             img_path = "assets/CUOS-med.png"
             for path in img_paths:
                 if num_str in path:

@@ -70,14 +70,14 @@ def load_image(img_path, k=1.0, ratio=2.0, base=200):
 def max_num_in_dir(path):
     '''
     Returns the max numbered file in a given directory
-    Expects all files in directory to be pics in convention: name-xxxx
-    with xxxx representing number
+    Expects all files in directory to be pics in convention:
+    YYYYMMDD_diagnostic_s###
     '''
     pic_names = os.listdir(path)
     nums = []
     for name in pic_names:
         pic = name.partition(".")[0]
-        pic = pic.partition("-")[2]
+        pic = pic.partition("_s")[2]
         try:
             pic = int(pic)
             nums.append(pic)
@@ -88,24 +88,22 @@ def max_num_in_dir(path):
     else:
         return max(nums)
 
-def to_4_digit(num):
+def to_3_digit(num):
     '''
-    Returns a 4-digit string of the input positive int
-    Returns '9999' if num is more than four digits
-    Returns '-001' if num is negative
+    Returns a 3-digit string of the input positive int
+    Returns '999' if num is more than three digits
+    Returns '000' if num is negative
     '''
     if (num < 0):
-        return "-001"
-    elif (num >= 9999):
-        return "9999"
-    elif (num > 999):
-        return str(num)
+        return "000"
+    elif (num >= 999):
+        return "999"
     elif (num > 99):
-        return "0" + str(num)
+        return str(num)
     elif (num > 9):
-        return "00" + str(num)
+        return "0" + str(num)
     else:
-        return "000" + str(num)
+        return "00" + str(num)
 
 #-------------------------------------------------
 # File management
