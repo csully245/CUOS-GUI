@@ -139,7 +139,7 @@ class UI(tk.Frame):
         '''
         self._update_options()
         self._update_dropdown()
-        self._update_image()
+        #self._update_image()
         self._update_buttonstate()
 
     #-------------------------
