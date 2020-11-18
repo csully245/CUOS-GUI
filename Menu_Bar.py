@@ -48,6 +48,7 @@ class UI(tk.Menu):
         self.workspace_load.append(self.load_from_workspace)
         
         def load_workspace(self):
+            # NOTE: Fix function naming conventions
             '''
             Pulls data from json file
             Calls load function for each tab
@@ -82,8 +83,6 @@ class UI(tk.Menu):
                                               title="Save Workspace",
                                               defaultextension='.json',
                                               filetypes=(("json files","*.json"),))
-            if not (os.path.isfile(path_save)):
-                return
             workspace = []
             for funct in self.workspace_save:
                 workspace.append(funct())
