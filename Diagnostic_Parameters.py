@@ -109,6 +109,8 @@ class Diagnostic_Frame(tk.LabelFrame):
                         Helpers.Notice_Window(text)
             for func in self.updater:
                 func()
+                # ERROR: enabling diagnostic attempts to update image
+                # but by definition the destination has no files
         self.checkbtn_enabled = tk.Checkbutton(self, text="Enable Diagnostic",
                                             variable=self.enabled,
                                             command=lambda: \
@@ -153,6 +155,13 @@ class UI(tk.Frame):
         for frame in self.frames:
             workspace.append(frame.get_workspace())
         return workspace
+
+    def get_source_paths(self):
+        paths = []
+        for fr in self.frames:
+            if (fr.enabled.get()):
+                paths.append(fr.entry_dir.get())
+        return paths
         
     def __init__(self, master, updater=None, **options):
         tk.Frame.__init__(self, master, **options)
@@ -172,13 +181,6 @@ class UI(tk.Frame):
                 fr.grid(row=r, column=c, padx=10, pady=5)
                 self.frames.append(fr)
                 count += 1
-
-    def get_source_paths(self):
-        paths = []
-        for fr in self.frames:
-            if (fr.enabled.get()):
-                paths.append(fr.entry_dir.get())
-        return paths
 
 def test():
     root = tk.Tk()

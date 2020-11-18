@@ -12,6 +12,7 @@ import Diagnostic_Parameters
 import Image_Display_Single
 import Image_Display_Montage
 import Image_Display_Selective
+import Save_Controls
 
 #-------------------------------------------------
 # GUI
@@ -83,6 +84,10 @@ class Acquisition_Display:
                                                        self.update_funcs)
         self.fr_diag_params.pack()
         self.add_wksp_funcs(self.fr_diag_params)
+
+        wksp_diag = self.fr_diag_params.get_workspace
+        self.fr_save = Save_Controls.UI(self.root, wksp_diag)
+        self.fr_save.grid(row=1, column=1)
         
         # File Menu
         '''

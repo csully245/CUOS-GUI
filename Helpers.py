@@ -4,6 +4,8 @@ import numpy as np
 from PIL import Image, ImageTk
 from matplotlib import pyplot as plt
 import json
+import os
+import shutil
 
 #-------------------------------------------------
 # Message Windows
@@ -106,7 +108,7 @@ def to_4_digit(num):
         return "000" + str(num)
 
 #-------------------------------------------------
-# .json file interaction
+# File management
 #-------------------------------------------------
 
 def get_from_file(key, filename):
@@ -134,3 +136,17 @@ def edit_file(key, value, filename):
     data[key] = value
     with open(filename, "w") as write_file:
         json.dump(data, write_file)
+
+def save_most_recent(src, dest):
+    '''
+    Copies the most recent file in the source directory into the destination
+    Assumes alphabetically last will be most recent, as is true for convention:
+    YYYYMMDD_diagnostic_s###
+    '''
+    files = os.listdir(src)
+    files = sorted(files)
+    path = src + "/" + files[-1]
+    shutil.copy(path, dest)
+    
+
+    
