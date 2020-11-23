@@ -23,7 +23,7 @@ class Diagnostic_Frame(tk.LabelFrame):
         Enabling is set to false (will need error handling)
         '''
         # Enabling
-        self.enabled = False
+        self.enabled.set(False)
         # ERROR HANDLING: what happens if the folder already exists?
 
         # Loading

@@ -56,13 +56,18 @@ def load_image(img_path, k=1.0, ratio=2.0, base=200):
     '''
 
     # Read file
-    img = Image.open(img_path)
+    img0 = plt.imread(img_path)
 
     # Fit to shape
     if (k == 0):
         k = 1
-    shape = (int(ratio * k * base), int(k * base))
-    img = img.resize(shape, Image.ANTIALIAS)
+    shape = (int(k * base), int(ratio * k * base))
+    img = np.resize(img0, shape)
+    img = Image.fromarray(img.astype('uint8'))
+    # vmin and vmax depends on diagnostic
+    #img = plt.imshow(img)
+    
+    #img.pcolormesh(np.flipud(img),  vmin=0, vmax=255, cmap = cm.magma, rasterized = True)
     return ImageTk.PhotoImage(img)
 
 def rgb2gray(rgb):
@@ -83,6 +88,8 @@ def max_num_in_dir(path):
     pic_names = os.listdir(path)
     nums = []
     for name in pic_names:
+        if not ".tif" in name:
+            continue
         pic = name.partition(".")[0]
         pic = pic.partition("_s")[2]
         try:
@@ -145,13 +152,14 @@ def edit_file(key, value, filename):
 
 def save_most_recent(src, dest):
     '''
-    Copies the most recent file in the source directory into the destination
-    Assumes alphabetically last will be most recent, as is true for convention:
-    YYYYMMDD_diagnostic_s###
+    Copies the most recently edited file in the source directory into the
+    destination
     '''
     files = os.listdir(src)
-    files = sorted(files)
-    path = src + "/" + files[-1]
+    new_files = []
+    for file in files:
+        new_files.append(src + "/" + file)
+    path = max(new_files, key=os.path.getctime)
     shutil.copy(path, dest)
 
 def save_by_number(src, dest, num):
