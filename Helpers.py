@@ -56,9 +56,7 @@ def load_image(img_path, k=1.0, ratio=2.0, base=200):
     '''
 
     # Read file
-    img_arr = plt.imread(img_path)
-    img_arr = (img_arr*255).astype(np.uint8)
-    img = Image.fromarray(img_arr)
+    img = Image.open(img_path)
 
     # Fit to shape
     if (k == 0):
@@ -66,6 +64,15 @@ def load_image(img_path, k=1.0, ratio=2.0, base=200):
     shape = (int(ratio * k * base), int(k * base))
     img = img.resize(shape, Image.ANTIALIAS)
     return ImageTk.PhotoImage(img)
+
+def rgb2gray(rgb):
+	'''
+        Convert the 3-channel rgb image into grayscale
+        Developed by Yong Ma for Daq_Yong_v2.py
+	'''
+	r, g, b = rgb[:,:,0] , rgb[:,:,1] , rgb[:,:,2]
+	gray  = 0.2989 * r + 0.587 * g + 0.114 * b
+	return gray
 
 def max_num_in_dir(path):
     '''
@@ -82,7 +89,7 @@ def max_num_in_dir(path):
             pic = int(pic)
             nums.append(pic)
         except:
-            Helpers.Error_Window("Bad filename: " + name)
+            Error_Window("Bad filename: " + name)
     if (len(nums) == 0):
         return None
     else:
@@ -94,6 +101,7 @@ def to_3_digit(num):
     Returns '999' if num is more than three digits
     Returns '000' if num is negative
     '''
+    num = int(num)
     if (num < 0):
         return "000"
     elif (num >= 999):
@@ -145,6 +153,16 @@ def save_most_recent(src, dest):
     files = sorted(files)
     path = src + "/" + files[-1]
     shutil.copy(path, dest)
+
+def save_by_number(src, dest, num):
+    '''
+    Copies file including 's###' in the source directory into the destination
+    '''
+    files = os.listdir(src)
+    for file in files:
+        if ("s" + num) in file:
+            path = src + "/" + file
+            shutil.copy(path, dest)
     
 
     

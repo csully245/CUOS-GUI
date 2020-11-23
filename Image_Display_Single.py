@@ -74,9 +74,9 @@ class UI(tk.Frame):
         # Gets diagnostic path
         diagnostic_path = self.options_dirs[self.diagnostic.get()]
         root_path = os.path.join(root_path, diagnostic_path)
+        print(root_path)
         if not (os.path.isdir(root_path)):
             Helpers.Error_Window("Invalid diagnostic path.")
-            print(self.diagnostic.get())
             return "./"
 
         # Gets path of number equal to entry
@@ -86,6 +86,8 @@ class UI(tk.Frame):
             return "./"
         num = "s" + Helpers.to_3_digit(int(self.entry_num.get()))
         valid_pics = []
+        print("Pics:")
+        print(pics)
         for pic in pics:
             if num in pic:
                 valid_pics.append(pic)
@@ -100,6 +102,8 @@ class UI(tk.Frame):
             Helpers.Error_Window(text)
             return "./"
         else:
+            if "._" in valid_pics[0]:
+                valid_pics[0] = valid_pics[0].partition("._")[2]
             return os.path.join(root_path, valid_pics[0])
 
     def _update_image(self):
@@ -107,6 +111,7 @@ class UI(tk.Frame):
         Updates image to selected image in entry
         '''
         self.img_path = self._get_img_path()
+        print(self.img_path)
         self.img = Helpers.load_image(self.img_path, self.scale)
         self.lbl_img.grid_forget()
         self.lbl_img = tk.Label(self, image=self.img)
@@ -185,12 +190,15 @@ class UI(tk.Frame):
         # Loads new image
         self._update_image()
 
-    # New functions
     def _set_shot_num(self, num):
         ''' Sets number stored in shot number entry to num'''
         self.entry_num.delete(0, tk.END)
         self.entry_num.insert(0, str(num))
     def drop_diag_handle(self, event):
+        self._update_buttonstate()
+
+    def _load_btn(self):
+        self._update_image()
         self._update_buttonstate()
 
     #-------------------------
@@ -243,7 +251,7 @@ class UI(tk.Frame):
         Button for manually reloading the image
         '''
         btn_load = tk.Button(self.fr_controls, text="Load",
-                             command=lambda: self._update_image())
+                             command=lambda: self._load_btn())
         btn_load.grid(row=1, column=0)
 
         # Image select 
