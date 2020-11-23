@@ -74,7 +74,6 @@ class UI(tk.Frame):
         # Gets diagnostic path
         diagnostic_path = self.options_dirs[self.diagnostic.get()]
         root_path = os.path.join(root_path, diagnostic_path)
-        print(root_path)
         if not (os.path.isdir(root_path)):
             Helpers.Error_Window("Invalid diagnostic path.")
             return "./"
@@ -86,8 +85,6 @@ class UI(tk.Frame):
             return "./"
         num = "s" + Helpers.to_3_digit(int(self.entry_num.get()))
         valid_pics = []
-        print("Pics:")
-        print(pics)
         for pic in pics:
             if num in pic:
                 valid_pics.append(pic)
@@ -102,16 +99,23 @@ class UI(tk.Frame):
             Helpers.Error_Window(text)
             return "./"
         else:
-            if "._" in valid_pics[0]:
-                valid_pics[0] = valid_pics[0].partition("._")[2]
-            return os.path.join(root_path, valid_pics[0])
+            pic_path = valid_pics[0]
+            if "._" in pic_path:
+                pic_path = pic_path.partition("._")[2]
+            while ("\\\\" in pic_path):
+                part = pic_path.partition("\\")
+                pic_path = part[0] + "/" + part[2]
+            while ("\\" in pic_path):
+                part = pic_path.partition("\\")
+                pic_path = part[0] + "/" + part[2]
+            self.img_path = os.path.join(root_path, pic_path)
+            return self.img_path
 
     def _update_image(self):
         '''
         Updates image to selected image in entry
         '''
         self.img_path = self._get_img_path()
-        print(self.img_path)
         self.img = Helpers.load_image(self.img_path, self.scale)
         self.lbl_img.grid_forget()
         self.lbl_img = tk.Label(self, image=self.img)
@@ -195,7 +199,8 @@ class UI(tk.Frame):
         self.entry_num.delete(0, tk.END)
         self.entry_num.insert(0, str(num))
     def drop_diag_handle(self, event):
-        self._update_buttonstate()
+        #self._update_buttonstate()
+        return
 
     def _load_btn(self):
         self._update_image()
