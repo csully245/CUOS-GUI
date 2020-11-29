@@ -26,14 +26,13 @@ class UI(tk.Frame):
 
     def save_by_number(self):
         ''' Saves shot number data, if it exists '''
-        num = Helpers.to_3_digit(self.entry_num.get())
         diag_data = self.wksp_diag()
         shotrundir = Helpers.get_from_file("shotrundir", "setup.json")
         for diag in diag_data:
             src = diag["dir_temp"]
             dest = shotrundir + "/" + diag["diagnostic"]
             if (os.path.isdir(src) and os.path.isdir(dest)):
-                Helpers.save_by_number(src, dest, num)
+                Helpers.save_by_number(src, dest, self.entry_num.get())
     
     def __init__(self, master, wksp_diag, **options):
         tk.Frame.__init__(self, master, **options)

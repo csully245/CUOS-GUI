@@ -18,7 +18,7 @@ class Notice_Window:
         self.root = tk.Tk()
         self.root.title("Notice")
         self.root.iconbitmap("assets/UM.ico")
-        self.root.geometry("300x50")
+        self.root.geometry("500x50")
         
         self.lbl = tk.Label(self.root, text=txt)
         self.lbl.pack(padx=10, pady=10)
@@ -33,7 +33,7 @@ class Error_Window:
         self.root = tk.Tk()
         self.root.title("Error")
         self.root.iconbitmap("assets/UM.ico")
-        self.root.geometry("300x50")
+        self.root.geometry("500x50")
         
         self.lbl = tk.Label(self.root, text="Error: " + txt)
         self.lbl.pack()
@@ -150,6 +150,16 @@ def edit_file(key, value, filename):
     with open(filename, "w") as write_file:
         json.dump(data, write_file)
 
+def check_saved(dest, filename):
+    ''' Checks whether file saving functions completed and creates
+        appropriate message window
+    '''
+    # DEV NOTE: eventually make this auto-close
+    if (os.path.isfile(dest + "/" + filename)):
+        Notice_Window("Save successful.")
+    else:
+        Error_Window("Save unsuccessful.")
+
 def save_most_recent(src, dest):
     '''
     Copies the most recently edited file in the source directory into the
@@ -161,16 +171,25 @@ def save_most_recent(src, dest):
         new_files.append(src + "/" + file)
     path = max(new_files, key=os.path.getctime)
     shutil.copy(path, dest)
+    filename = path.partition(src)[2]
+    check_saved(dest, filename)
 
 def save_by_number(src, dest, num):
     '''
-    Copies file including 's###' in the source directory into the destination
+    Copies file including 's###' or 'shot#' in the source directory into the
+    destination
+    src: string, source directory
+    dest: string, destination directory
+    num: string or int, minimum-digit number (no leading zeros)
     '''
     files = os.listdir(src)
     for file in files:
-        if ("s" + num) in file:
+        convention_1 = "s" + to_3_digit(num)
+        convention_2 = "shot" + str(num)
+        if (convention_1 in file) or (convention_2 in file):
             path = src + "/" + file
             shutil.copy(path, dest)
+            check_saved(dest, file)
     
 
     

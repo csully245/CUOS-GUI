@@ -8,6 +8,11 @@ class UI(tk.Menu):
     '''
     Menu bar with file dropdown menu
     Fills role of General Parameters in old MATLAB GUI
+
+    Commands:
+    -Select Shot Run Directory
+    -Load From Workspace
+    -Save Current Workspace
     '''
     
     def load_from_workspace(self, workspace):
