@@ -53,13 +53,13 @@ class Acquisition_Display:
         self.tab_diag_params = ttk.Frame(self.book)
         self.tab_single_image = ttk.Frame(self.book)
         self.tab_montage = ttk.Frame(self.book)
-        self.tab_selective = ttk.Frame(self.book)
+        #self.tab_selective = ttk.Frame(self.book)
         
         self.book.add(self.tab_main, text="Main")
         self.book.add(self.tab_diag_params, text="Diagnostic Parameters")
         self.book.add(self.tab_single_image, text="Single Image Display")
         self.book.add(self.tab_montage, text="Image Montage Display")
-        self.book.add(self.tab_selective, text="Selective Image Display")
+        #self.book.add(self.tab_selective, text="Selective Image Display")
         
         self.book.pack(expand=1, fill="both")
 
@@ -74,11 +74,11 @@ class Acquisition_Display:
 
         self.fr_multi_image = Image_Display_Montage.UI(self.tab_montage)
         self.fr_multi_image.pack()
-
+        '''
         self.fr_selective_image = Image_Display_Selective.UI(self.tab_selective)
         self.fr_selective_image.pack()
         self.add_wksp_funcs(self.fr_selective_image)
-
+        '''
         ''' Parameter frames loaded last to allow passing full update_funcs '''
         self.fr_diag_params = Diagnostic_Parameters.UI(self.tab_diag_params,
                                                        self.update_funcs)
@@ -102,7 +102,7 @@ class Acquisition_Display:
         self.root.mainloop()
 
     def close(self):
-        self.root.destroy()
+        self.root.quit()
 
 #-------------------------------------------------
 # Execution

@@ -3,9 +3,23 @@ import winsound
 import numpy as np
 from PIL import Image, ImageTk
 from matplotlib import pyplot as plt
+from matplotlib.figure import Figure 
+from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg,
+                                               NavigationToolbar2Tk) 
 import json
 import os
 import shutil
+from datetime import date
+
+#-------------------------------------------------
+# Generic Data Manipulation
+#-------------------------------------------------
+
+def get_suffix(word, delimeter):
+    ''' Returns the part of word after the last instance of 'delimeter' '''
+    while (delimeter in word):
+        word = word.partition(delimeter)[2]
+    return word
 
 #-------------------------------------------------
 # Message Windows
@@ -69,6 +83,41 @@ def load_image(img_path, k=1.0, ratio=2.0, base=200):
     
     #img.pcolormesh(np.flipud(img),  vmin=0, vmax=255, cmap = cm.magma, rasterized = True)
     return ImageTk.PhotoImage(img)
+
+def plot_image(img_path, root, k=1.0, ratio=2.0, base=200):
+    '''
+    Input:
+        -img_path: string, filepath to plt.imread-acceptable source
+        -k: float, scale factor
+        -ratio: float, aspect ratio (W:H)
+        -base: int, W/H dimensions at k=1.0
+    Output:
+        -tkinter Canvas of plt Figure
+    '''
+
+    # Read file
+    img0 = plt.imread(img_path)
+
+    # Fit to shape
+    if (k == 0):
+        k = 1
+    shape = (int(k * base), int(ratio * k * base), 3)
+    img0 = np.resize(img0, shape)
+    #img = Image.fromarray(img.astype('uint8'))
+    # vmin and vmax depends on diagnostic
+
+    # Place on canvas
+    fig = Figure()
+    plot1 = fig.add_subplot(111)
+    # DEV NOTE: have in-GUI feature to edit vmin and vmax
+    plot1.imshow(img0, vmin=0, vmax=255)
+    canvas = FigureCanvasTkAgg(fig, master=root)
+    canvas.draw()
+    #toolbar = NavigationToolbar2Tk(canvas, root)
+    #toolbar.update()
+    return canvas.get_tk_widget()
+    
+    #img.pcolormesh(np.flipud(img),  vmin=0, vmax=255, cmap = cm.magma, rasterized = True)
 
 def rgb2gray(rgb):
 	'''
@@ -154,33 +203,65 @@ def check_saved(dest, filename):
     ''' Checks whether file saving functions completed and creates
         appropriate message window
     '''
-    # DEV NOTE: eventually make this auto-close
     if (os.path.isfile(dest + "/" + filename)):
-        Notice_Window("Save successful.")
+        return True
     else:
-        Error_Window("Save unsuccessful.")
+        return False
 
-def save_most_recent(src, dest):
+def copy_raw_data(src, dest, num, diag):
+    '''
+    Copies file at location 'src' to directory 'dest'
+    with naming convention: diagnostic_date_s###
+    '''
+    ext = get_suffix(src, ".")
+    today = date.today()
+    name = diag + "_" + today.strftime("%Y%m%d")
+    name += "_s" + to_3_digit(num) + "." + ext
+    shutil.copy(src, dest + "/" + name)
+
+def save_most_recent(src, dest, diag):
     '''
     Copies the most recently edited file in the source directory into the
     destination
+    src: string, source file
+    dest: string, destination directory
+    diag: string, name of diagnostic
     '''
+    # Identify most recent file
     files = os.listdir(src)
     new_files = []
     for file in files:
         new_files.append(src + "/" + file)
     path = max(new_files, key=os.path.getctime)
-    shutil.copy(path, dest)
+    
+    # Isolate shot number from src
     filename = path.partition(src)[2]
-    check_saved(dest, filename)
+    if ("_s" in filename):
+        num = filename.partition("_s")[2]
+    elif ("shot" in filename):
+        num = filename.partition("shot")[2]
+    else:
+        Error_Window("Bad filename: " + filename)
+        return
+    num = num.partition(".")[0]
+    try:
+        num = int(num)
+    except:
+        Error_Window("Bad filename: " + filename)
+        return
 
-def save_by_number(src, dest, num):
+    # Copy file
+    copy_raw_data(path, dest, num, diag)
+
+def save_by_number(src, dest, num, diag):
     '''
     Copies file including 's###' or 'shot#' in the source directory into the
-    destination
-    src: string, source directory
+    destination, then renames to naming convention:
+    diagnostic_date_s###
+    src: string, source file
     dest: string, destination directory
     num: string or int, minimum-digit number (no leading zeros)
+    diag: string, name of diagnostic
     '''
     files = os.listdir(src)
     for file in files:
@@ -188,8 +269,4 @@ def save_by_number(src, dest, num):
         convention_2 = "shot" + str(num)
         if (convention_1 in file) or (convention_2 in file):
             path = src + "/" + file
-            shutil.copy(path, dest)
-            check_saved(dest, file)
-    
-
-    
+            copy_raw_data(path, dest, num, diag)

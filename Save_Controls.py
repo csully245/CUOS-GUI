@@ -21,8 +21,9 @@ class UI(tk.Frame):
             shotrundir = Helpers.get_from_file("shotrundir", "setup.json")
             for path, name in zip(paths, names):
                 dest = shotrundir + "/" + name
-                if (os.path.isdir(path) and os.path.isdir(dest)):
-                    Helpers.save_most_recent(path, dest)
+                # ADD: check if enabled
+                if (os.path.isdir(path) and os.path.isdir(dest) and name != ""):
+                    Helpers.save_most_recent(path, dest, name)
 
     def save_by_number(self):
         ''' Saves shot number data, if it exists '''
@@ -32,7 +33,8 @@ class UI(tk.Frame):
             src = diag["dir_temp"]
             dest = shotrundir + "/" + diag["diagnostic"]
             if (os.path.isdir(src) and os.path.isdir(dest)):
-                Helpers.save_by_number(src, dest, self.entry_num.get())
+                Helpers.save_by_number(src, dest, self.entry_num.get(),
+                                       diag["diagnostic"])
     
     def __init__(self, master, wksp_diag, **options):
         tk.Frame.__init__(self, master, **options)
