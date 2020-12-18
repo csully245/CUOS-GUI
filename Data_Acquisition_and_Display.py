@@ -5,6 +5,7 @@ import sys
 import json
 
 import Startup
+import Sidebar_Dialog
 import Helpers
 import Menu_Bar
 import Main_tab
@@ -33,7 +34,7 @@ class Acquisition_Display:
         self.workspace_save_funcs.append(save)
 
     def __init__(self):    
-        Startup.startup()
+        #Startup.startup()
 
         self.root = tk.Tk()
         self.root.title("Data Acquisition and Display")
@@ -45,8 +46,11 @@ class Acquisition_Display:
         self.workspace_save_funcs = []
 
         # Organization
+        self.fr_sidebar = Sidebar_Dialog.UI(self.root)
+        self.fr_sidebar.grid(row=0, column=1)
+        
         self.bookframe = tk.Frame()
-        self.bookframe.grid(row=0, column=1)
+        self.bookframe.grid(row=0, column=0)
         self.book = ttk.Notebook(self.bookframe)
         
         self.tab_main = ttk.Frame(self.book)
@@ -87,7 +91,7 @@ class Acquisition_Display:
 
         wksp_diag = self.fr_diag_params.get_workspace
         self.fr_save = Save_Controls.UI(self.root, wksp_diag)
-        self.fr_save.grid(row=1, column=1)
+        self.fr_save.grid(row=1, column=0)
         
         # File Menu
         '''

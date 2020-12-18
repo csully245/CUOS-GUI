@@ -16,18 +16,10 @@ class UI(tk.Menu):
     '''
     
     def load_from_workspace(self, workspace):
-        '''
-        Loads data used in workspace file for general parameters
-        Sets shotrundir value in setup.json to workspace
-        '''
-        Helpers.edit_file("shotrundir", workspace, "setup.json")
+        return
         
     def get_workspace(self):
-        '''
-        Returns all values needed to recreate the general parameters later
-        Returns string shotrundir
-        '''
-        return Helpers.get_from_file("shotrundir", "setup.json")
+        return None
     
     def __init__(self, master, workspace_load=None, workspace_save=None,
                  tearoff=0, **options):
