@@ -1,15 +1,17 @@
 import tkinter as tk
 import winsound
 import numpy as np
-from PIL import Image, ImageTk
+from PIL import Image, ImageTk, ImageGrab
 from matplotlib import pyplot as plt
 from matplotlib.figure import Figure 
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg,
-                                               NavigationToolbar2Tk) 
+                                               NavigationToolbar2Tk)
+from matplotlib import cm
 import json
 import os
 import shutil
 from datetime import date
+from time import strftime
 
 #-------------------------------------------------
 # Generic Data Manipulation
@@ -58,6 +60,26 @@ class Error_Window:
 #-------------------------------------------------
 # Image display
 #-------------------------------------------------
+def rgb2gray(rgb):
+    '''
+    Convert the 3-channel rgb image into grayscale
+    Developed by Yong Ma for Daq_Yong_v2.py
+    '''
+    '''
+    if ((len(rgb.shape)) == 3):
+        r, g, b = rgb[:,:,0] , rgb[:,:,1] , rgb[:,:,2]
+    elif ((len(rgb.shape)) == 2):
+        r, g, b = rgb[:,:,0] , rgb[:,:,1] , rgb[:,:,0]
+    else:
+        r, g, b = rgb[:,:,0] , rgb[:,:,0] , rgb[:,:,0]
+    gray  = 0.2989 * r + 0.587 * g + 0.114 * b
+    return gray
+    '''
+    r, g, b = rgb[:,:,0] , rgb[:,:,1] , rgb[:,:,2]
+    gray  = 0.2989 * r + 0.587 * g + 0.114 * b
+    return gray
+
+
 def load_image(img_path, k=1.0, ratio=2.0, base=200):
     '''
     Input:
@@ -94,7 +116,31 @@ def plot_image(img_path, root, k=1.0, ratio=2.0, base=200):
     Output:
         -tkinter Canvas of plt Figure
     '''
+    img = plt.imread(img_path)
 
+    img = rgb2gray(img)
+    plt.pcolormesh(np.flipud(img),  vmin=0, vmax=255, cmap = cm.magma, rasterized = True)
+    
+    img = Image.fromarray(img.astype('uint8'))
+    if (k == 0):
+        k = 1
+    shape = (int(ratio * k * base), int(k * base))
+    img = img.resize(shape, Image.ANTIALIAS)
+    
+    np.array(img)
+    
+    # Place on canvas
+    fig = Figure()
+    plot1 = fig.add_subplot(111)
+    # DEV NOTE: have in-GUI feature to edit vmin and vmax
+    plot1.imshow(img, vmin=0, vmax=255)
+    canvas = FigureCanvasTkAgg(fig, master=root)
+    canvas.draw()
+    #toolbar = NavigationToolbar2Tk(canvas, root)
+    #toolbar.update()
+    return canvas.get_tk_widget()
+
+    '''
     # Read file
     img0 = plt.imread(img_path)
 
@@ -116,17 +162,15 @@ def plot_image(img_path, root, k=1.0, ratio=2.0, base=200):
     #toolbar = NavigationToolbar2Tk(canvas, root)
     #toolbar.update()
     return canvas.get_tk_widget()
+    '''
     
-    #img.pcolormesh(np.flipud(img),  vmin=0, vmax=255, cmap = cm.magma, rasterized = True)
 
-def rgb2gray(rgb):
-	'''
-        Convert the 3-channel rgb image into grayscale
-        Developed by Yong Ma for Daq_Yong_v2.py
-	'''
-	r, g, b = rgb[:,:,0] , rgb[:,:,1] , rgb[:,:,2]
-	gray  = 0.2989 * r + 0.587 * g + 0.114 * b
-	return gray
+def test_plot():
+    root = tk.Tk()
+    text = ".\\Old Working Code\\Hercules Data\\Hercules Data for 4 shots\\ESPEC\\20201119_ESPEC_s019.tif"
+    img = plot_image(text, root)
+    img.pack()
+    root.mainloop()
 
 def max_num_in_dir(path):
     '''
@@ -270,3 +314,10 @@ def save_by_number(src, dest, num, diag):
         if (convention_1 in file) or (convention_2 in file):
             path = src + "/" + file
             copy_raw_data(path, dest, num, diag)
+
+def take_screenshot():
+    img = ImageGrab.grab()
+    dest = "./Screenshots"
+    timestamp = strftime("%Y-%m-%d_%H.%M.%S")
+    name = dest + "/" + timestamp + ".png"
+    img.save(name, format="PNG")
