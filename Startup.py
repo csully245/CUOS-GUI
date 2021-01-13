@@ -97,16 +97,12 @@ class Startup_Menu(tk.Frame):
         self.entry_run_num.grid(row=2, column=1)
         self.btn_ok.grid(row=3, column=1)
 
-
-
-
-
-
-
-def startup_2():
-    menu = Startup_Menu()
-    menu_data = menu.get_data()
-    date = menu_data["date"]
+def startup():
+    '''
+    Handles first-thing events:
+    - Checks if each default directory exists
+    - Stores shot_run_name in setup.json
+    '''
 
     ''' Checks if each default directory exists '''
     paths = ["./Shot_Runs",
@@ -122,21 +118,12 @@ def startup_2():
             Helpers.Error_Window(error_text)
             # NOTE: This will only check if the path exists, not if the
             # data inside them is valid
-
-    ''' Handles shot run directory in file structure'''
-    shotrundir = "./Shot_Runs" + "/" 
-    shotrundir += menu_data["run_name"] + "_" + menu_data["run_num"]
-    shotrundir += date["year"] + date["month"] + date["day"]
-    if (os.path.isdir(shotrundir)):
-        # Run GUI to check if they want to save into the same folder or not
-        pass
-    os.mkdir(shotrundir)
     
     ''' Stores shot_run_name in setup.json '''
     filename = "setup.json"
     data = {
-            "shotrundir": shotrundir,
-            "date": date
+            "shotrundir": "./Shot_Runs/Shot_Run_Default",
+            "date": Helpers.date_default
             }
     with open(filename,"w") as write_file:
             json.dump(data,write_file)

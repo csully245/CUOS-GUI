@@ -34,7 +34,7 @@ class Acquisition_Display:
         self.workspace_save_funcs.append(save)
 
     def __init__(self):    
-        #Startup.startup()
+        Startup.startup()
 
         self.root = tk.Tk()
         self.root.title("Data Acquisition and Display")

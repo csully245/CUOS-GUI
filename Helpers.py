@@ -315,9 +315,41 @@ def save_by_number(src, dest, num, diag):
             path = src + "/" + file
             copy_raw_data(path, dest, num, diag)
 
+date_default = {
+        "year": "0001",
+        "month": "01",
+        "day": "01"
+        }
+
+def get_today():
+    '''
+    Returns a datetime.date object representing today.
+    If there has been a date set manually, it uses that.
+    Otherwise, it uses date.today()
+    '''
+    today = get_from_file("date", "setup.json")
+    if (today != date_default):
+        y = int(today["year"])
+        m = int(today["month"])
+        d = int(today["day"])
+        return date(y, m, d)
+    else:
+        return date.today()
+    
 def take_screenshot():
     img = ImageGrab.grab()
     dest = "./Screenshots"
     timestamp = strftime("%Y-%m-%d_%H.%M.%S")
     name = dest + "/" + timestamp + ".png"
     img.save(name, format="PNG")
+
+def test_screenshots(period):
+    import time
+    baseline = time.perf_counter()
+    elapsed = time.perf_counter() - baseline
+    iterations = 0
+    while (elapsed < period):
+        take_screenshot()
+        iterations += 1
+        elapsed = time.perf_counter() - baseline
+    print(iterations / period)
