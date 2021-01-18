@@ -117,6 +117,16 @@ class UI(tk.Frame):
     Frame for displaying images of multiple diagnostics, ready to be
     continually updated as more data is ready
     '''
+
+    def update_all(self):
+        '''
+        Updates all data, to be used after key data is changed in another
+        frame.
+        '''
+        for diag in self.diagnostics:
+            diag._update_options()
+            diag._update_dropdown()
+    
     def _set_shot_num(self, num):
         ''' Sets number stored in shot number entry to num'''
         self.entry_num.delete(0, tk.END)

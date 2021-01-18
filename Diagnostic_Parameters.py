@@ -27,13 +27,16 @@ class Diagnostic_Frame(tk.LabelFrame):
         # ERROR HANDLING: what happens if the folder already exists?
 
         # Loading
-        self.entry_diagnostic.delete(0, tk.END)
-        self.entry_diagnostic.insert(0, workspace["diagnostic"])
-        self.entry_dir.delete(0, tk.END)
-        self.entry_dir.insert(0, workspace["dir_temp"])
-        self.entry_ext.delete(0, tk.END)
-        self.entry_ext.insert(0, workspace["file_extension"])
-        self.drop_process.set(workspace["process"])
+        try:
+            self.entry_diagnostic.delete(0, tk.END)
+            self.entry_diagnostic.insert(0, workspace["diagnostic"])
+            self.entry_dir.delete(0, tk.END)
+            self.entry_dir.insert(0, workspace["dir_temp"])
+            self.entry_ext.delete(0, tk.END)
+            self.entry_ext.insert(0, workspace["file_extension"])
+            self.drop_process.set(workspace["process"])
+        except KeyError:
+            Helpers.Error_Window("Incompatible workspace file.")
 
     def get_workspace(self):
         '''

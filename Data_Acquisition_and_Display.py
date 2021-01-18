@@ -77,6 +77,7 @@ class Acquisition_Display:
         self.add_wksp_funcs(self.fr_single_image)
 
         self.fr_multi_image = Image_Display_Montage.UI(self.tab_montage)
+        self.update_funcs.append(self.fr_multi_image.update_all)
         self.fr_multi_image.pack()
         '''
         self.fr_selective_image = Image_Display_Selective.UI(self.tab_selective)

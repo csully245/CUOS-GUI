@@ -72,10 +72,12 @@ class UI(tk.Frame):
         root_path = Helpers.get_from_file("shotrundir", "setup.json")
         
         # Gets diagnostic path
-        diagnostic_path = self.options_dirs[self.diagnostic.get()]
-        root_path = os.path.join(root_path, diagnostic_path)
+        root_path = self.options_dirs[self.diagnostic.get()]
+        #root_path = os.path.join(root_path, diagnostic_path)
         if not (os.path.isdir(root_path)):
-            Helpers.Error_Window("Invalid diagnostic path.")
+            error_text = "Diagnostic path does not exist:\n"
+            error_text += root_path
+            Helpers.Error_Window(error_text)
             return "./"
 
         # Gets path of number equal to entry
