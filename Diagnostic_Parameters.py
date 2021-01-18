@@ -79,7 +79,7 @@ class Diagnostic_Frame(tk.LabelFrame):
             if (os.path.exists(self.entry_dir.get())):
                 initial_dir = self.entry_dir.get()
             else:
-                initial_dir = ".."
+                initial_dir = "./"
             dir_temp = fd.askdirectory(initialdir=initial_dir,
                                         title=title_text)
             self.entry_dir.delete(0, tk.END)
