@@ -1,0 +1,7 @@
+Error Diagnosing
+
+Error Text					Module				Function
+______________________________________________________________________________________________________________________
+
+"Incompatible workspace file."			Diagnostic_Parameters.py	Diagnostic_Frame.load_from_workspace()
+"Diagnostic path does not exist: (path)"	Image_Display_Single.py		UI._get_img_path()
