@@ -69,12 +69,12 @@ class Diagnostic_Col(tk.Frame):
                 if num_str in path:
                     img_path = path
                     break
-            self.imgs.append(Helpers.load_image(img_path))
+            img_lbl.grid_forget()
+            img_lbl, img = Helpers.load_image(img_path, self)
+            self.imgs.append(img)
             
             # Replaces image
-            img_lbl.grid_forget()
             del self.imgs[0]
-            img_lbl = tk.Label(self, image=self.imgs[-1])
             new_img_lbls.append(img_lbl)
             img_lbl.grid(row=i+3, column=0)
             
@@ -94,8 +94,8 @@ class Diagnostic_Col(tk.Frame):
         self.img_lbls = []
         self.imgs = []
         for i in range(3):
-            self.imgs.append(Helpers.load_image("assets/CUOS-med.png", k=k))
-            img_lbl = tk.Label(self, image=self.imgs[-1])
+            img_lbl, img = Helpers.load_image("assets/CUOS-med.png", self, k=k)
+            self.imgs.append(img)
             img_lbl.grid(row=i+1, column=0)
             self.img_lbls.append(img_lbl)
 

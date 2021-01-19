@@ -85,7 +85,7 @@ def resize_image(img, k, ratio, base):
     shape = (int(ratio * k * base), int(k * base))
     return img.resize(shape, Image.ANTIALIAS)
 
-def load_image(img_path, k=1.0, ratio=2.0, base=200, recolor=False,
+def load_image(img_path, root, k=1.0, ratio=2.0, base=200, recolor=False,
                black="black", white="white"):
     '''
     Plots image using Image.open and ImageTk.PhotoImage
@@ -99,15 +99,17 @@ def load_image(img_path, k=1.0, ratio=2.0, base=200, recolor=False,
         -black: color to use for black pixels in recolor
         -white: color to use for white pixels in recolor
     Output:
-        -tkinter PhotoImage
+        -tuple: (tkinter Label, tkinter PhotoImage)
     '''
     img = Image.open(img_path)
     img = resize_image(img, k, ratio, base)
     if (recolor):
         img = ImageOps.colorize(img.convert("L"), black=black, white=white)
-    return ImageTk.PhotoImage(img)
+    img = ImageTk.PhotoImage(img)
+    return (tk.Label(root, image=img), img)
 
-def plot_image(img_path, root, k=1.0, ratio=2.0, base=200):
+def plot_image(img_path, root, k=1.0, ratio=2.0, base=200, recolor=False,
+               black="black", white="white"):
     '''
     Plots image using plt.imread and tk.Canvas
     Still in development and to be tested
@@ -118,7 +120,8 @@ def plot_image(img_path, root, k=1.0, ratio=2.0, base=200):
         -ratio: float, aspect ratio (W:H)
         -base: int, W/H dimensions at k=1.0
     Output:
-        -tkinter Canvas of plt Figure
+        -tuple: (tkinter Canvas of plt Figure, None)
+    Note: returns None to maintain format of load_image()
     '''
     img = Image.open(img_path)
     img = resize_image(img, k, ratio, base)
@@ -128,6 +131,7 @@ def plot_image(img_path, root, k=1.0, ratio=2.0, base=200):
                        rasterized=True)
     else:
         plt.imshow(img_arr)
+    
     '''
     img = plt.imread(img_path)
 
@@ -151,7 +155,7 @@ def plot_image(img_path, root, k=1.0, ratio=2.0, base=200):
     canvas.draw()
     #toolbar = NavigationToolbar2Tk(canvas, root)
     #toolbar.update()
-    return canvas.get_tk_widget()
+    return (canvas.get_tk_widget(), None)
 
     '''
     # Read file

@@ -118,9 +118,9 @@ class UI(tk.Frame):
         Updates image to selected image in entry
         '''
         self.img_path = self._get_img_path()
-        self.img = Helpers.load_image(self.img_path, self.scale)
         self.lbl_img.grid_forget()
-        self.lbl_img = tk.Label(self, image=self.img)
+        self.lbl_img, self.img = Helpers.load_image(self.img_path, self,
+                                                    k=self.scale)
         self.lbl_img.grid(row=0, column=0)
 
     def _update_buttonstate(self):
@@ -219,8 +219,8 @@ class UI(tk.Frame):
 
         # Image and colorbar
         self.img_path = "assets/CUOS-med.png"
-        self.img = Helpers.load_image(self.img_path, k=scale)
-        self.lbl_img = tk.Label(self, image=self.img)
+        self.lbl_img, self.img = Helpers.load_image(self.img_path, self,
+                                                    k=scale)
         self.lbl_img.grid(row=0, column=0)
         
         # Frames
