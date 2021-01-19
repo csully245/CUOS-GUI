@@ -1,7 +1,7 @@
 import tkinter as tk
 import winsound
 import numpy as np
-from PIL import Image, ImageTk, ImageGrab
+from PIL import Image, ImageTk, ImageGrab, ImageOps
 from matplotlib import pyplot as plt
 from matplotlib.figure import Figure 
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg,
@@ -85,39 +85,33 @@ def resize_image(img, k, ratio, base):
     shape = (int(ratio * k * base), int(k * base))
     return img.resize(shape, Image.ANTIALIAS)
 
-def load_image(img_path, k=1.0, ratio=2.0, base=200):
+def load_image(img_path, k=1.0, ratio=2.0, base=200, recolor=False,
+               black="black", white="white"):
     '''
+    Plots image using Image.open and ImageTk.PhotoImage
+    
     Input:
         -img_path: string, filepath to plt.imread-acceptable source
         -k: float, scale factor
         -ratio: float, aspect ratio (W:H)
         -base: int, W/H dimensions at k=1.0
+        -recolor: bool, whether or not to recolor the image
+        -black: color to use for black pixels in recolor
+        -white: color to use for white pixels in recolor
     Output:
         -tkinter PhotoImage
     '''
     img = Image.open(img_path)
     img = resize_image(img, k, ratio, base)
+    if (recolor):
+        img = ImageOps.colorize(img.convert("L"), black=black, white=white)
     return ImageTk.PhotoImage(img)
-    '''
-    # Read file
-    img = plt.imread(img_path)
-    img = Image.fromarray(img.astype('uint8'))
-    # Fit to shape
-    
-    if (k == 0):
-        k = 1
-    shape = (int(k * base), int(ratio * k * base))
-    img = np.resize(img0, shape)
-    img = Image.fromarray(img.astype('uint8'))
-    # vmin and vmax depends on diagnostic
-    #img = plt.imshow(img)
-    
-    #img.pcolormesh(np.flipud(img),  vmin=0, vmax=255, cmap = cm.magma, rasterized = True)
-    
-    return ImageTk.PhotoImage(img)
-    '''
+
 def plot_image(img_path, root, k=1.0, ratio=2.0, base=200):
     '''
+    Plots image using plt.imread and tk.Canvas
+    Still in development and to be tested
+    
     Input:
         -img_path: string, filepath to plt.imread-acceptable source
         -k: float, scale factor
@@ -125,6 +119,15 @@ def plot_image(img_path, root, k=1.0, ratio=2.0, base=200):
         -base: int, W/H dimensions at k=1.0
     Output:
         -tkinter Canvas of plt Figure
+    '''
+    img = Image.open(img_path)
+    img = resize_image(img, k, ratio, base)
+    img_arr = np.asarray(img)
+    if (recolor):
+        plt.pcolormesh(np.flipud(img),  vmin=0, vmax=255, cmap=cm.magma,
+                       rasterized=True)
+    else:
+        plt.imshow(img_arr)
     '''
     img = plt.imread(img_path)
 
@@ -138,7 +141,7 @@ def plot_image(img_path, root, k=1.0, ratio=2.0, base=200):
     img = img.resize(shape, Image.ANTIALIAS)
     
     np.array(img)
-    
+    '''
     # Place on canvas
     fig = Figure()
     plot1 = fig.add_subplot(111)
