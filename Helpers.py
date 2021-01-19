@@ -79,6 +79,11 @@ def rgb2gray(rgb):
     gray  = 0.2989 * r + 0.587 * g + 0.114 * b
     return gray
 
+def resize_image(img, k, ratio, base):
+    if (k == 0):
+        k = 1
+    shape = (int(ratio * k * base), int(k * base))
+    return img.resize(shape, Image.ANTIALIAS)
 
 def load_image(img_path, k=1.0, ratio=2.0, base=200):
     '''
@@ -90,11 +95,15 @@ def load_image(img_path, k=1.0, ratio=2.0, base=200):
     Output:
         -tkinter PhotoImage
     '''
-
+    img = Image.open(img_path)
+    img = resize_image(img, k, ratio, base)
+    return ImageTk.PhotoImage(img)
+    '''
     # Read file
-    img0 = plt.imread(img_path)
-
+    img = plt.imread(img_path)
+    img = Image.fromarray(img.astype('uint8'))
     # Fit to shape
+    
     if (k == 0):
         k = 1
     shape = (int(k * base), int(ratio * k * base))
@@ -104,8 +113,9 @@ def load_image(img_path, k=1.0, ratio=2.0, base=200):
     #img = plt.imshow(img)
     
     #img.pcolormesh(np.flipud(img),  vmin=0, vmax=255, cmap = cm.magma, rasterized = True)
+    
     return ImageTk.PhotoImage(img)
-
+    '''
 def plot_image(img_path, root, k=1.0, ratio=2.0, base=200):
     '''
     Input:
