@@ -119,8 +119,8 @@ class UI(tk.Frame):
         '''
         self.img_path = self._get_img_path()
         self.lbl_img.grid_forget()
-        self.lbl_img, self.img = Helpers.load_image(self.img_path, self,
-                                                    k=self.scale)
+        self.lbl_img, self.img = Helpers.plot_image(self.img_path, self,
+                                                    k=self.scale, recolor=True)
         self.lbl_img.grid(row=0, column=0)
 
     def _update_buttonstate(self):

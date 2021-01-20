@@ -80,13 +80,23 @@ def rgb2gray(rgb):
     return gray
 
 def resize_image(img, k, ratio, base):
+    '''
+    Inputs:
+    -img: PIL Image
+    -k: float, scale factor
+    -ratio: float, aspect ratio (W:H)
+    -base: int, W/H dimensions at k=1.0
+
+    Outputs:
+    PIL Image, resized
+    '''
     if (k == 0):
         k = 1
     shape = (int(ratio * k * base), int(k * base))
     return img.resize(shape, Image.ANTIALIAS)
 
 def load_image(img_path, root, k=1.0, ratio=2.0, base=200, recolor=False,
-               black="black", white="white"):
+               black="#FFCB05", white="#00274C"):
     '''
     Plots image using Image.open and ImageTk.PhotoImage
     
@@ -109,7 +119,7 @@ def load_image(img_path, root, k=1.0, ratio=2.0, base=200, recolor=False,
     return (tk.Label(root, image=img), img)
 
 def plot_image(img_path, root, k=1.0, ratio=2.0, base=200, recolor=False,
-               black="black", white="white"):
+               colormap=cm.magma):
     '''
     Plots image using plt.imread and tk.Canvas
     Still in development and to be tested
@@ -125,62 +135,19 @@ def plot_image(img_path, root, k=1.0, ratio=2.0, base=200, recolor=False,
     '''
     img = Image.open(img_path)
     img = resize_image(img, k, ratio, base)
-    img_arr = np.asarray(img)
+    fig = Figure()
+    plot1 = fig.add_subplot(111)
     if (recolor):
-        plt.pcolormesh(np.flipud(img),  vmin=0, vmax=255, cmap=cm.magma,
+        img_arr = np.asarray(img)
+        img_arr = rgb2gray(img_arr)
+        # DEV NOTE: have in-GUI feature to edit vmin and vmax
+        plot1.pcolormesh(np.flipud(img_arr), vmin=0, vmax=255, cmap=colormap,
                        rasterized=True)
     else:
-        plt.imshow(img_arr)
-    
-    '''
-    img = plt.imread(img_path)
-
-    img = rgb2gray(img)
-    plt.pcolormesh(np.flipud(img),  vmin=0, vmax=255, cmap = cm.magma, rasterized = True)
-    
-    img = Image.fromarray(img.astype('uint8'))
-    if (k == 0):
-        k = 1
-    shape = (int(ratio * k * base), int(k * base))
-    img = img.resize(shape, Image.ANTIALIAS)
-    
-    np.array(img)
-    '''
-    # Place on canvas
-    fig = Figure()
-    plot1 = fig.add_subplot(111)
-    # DEV NOTE: have in-GUI feature to edit vmin and vmax
-    plot1.imshow(img, vmin=0, vmax=255)
+        plot1.imshow(img)
     canvas = FigureCanvasTkAgg(fig, master=root)
     canvas.draw()
-    #toolbar = NavigationToolbar2Tk(canvas, root)
-    #toolbar.update()
     return (canvas.get_tk_widget(), None)
-
-    '''
-    # Read file
-    img0 = plt.imread(img_path)
-
-    # Fit to shape
-    if (k == 0):
-        k = 1
-    shape = (int(k * base), int(ratio * k * base), 3)
-    img0 = np.resize(img0, shape)
-    #img = Image.fromarray(img.astype('uint8'))
-    # vmin and vmax depends on diagnostic
-
-    # Place on canvas
-    fig = Figure()
-    plot1 = fig.add_subplot(111)
-    # DEV NOTE: have in-GUI feature to edit vmin and vmax
-    plot1.imshow(img0, vmin=0, vmax=255)
-    canvas = FigureCanvasTkAgg(fig, master=root)
-    canvas.draw()
-    #toolbar = NavigationToolbar2Tk(canvas, root)
-    #toolbar.update()
-    return canvas.get_tk_widget()
-    '''
-    
 
 def test_plot():
     root = tk.Tk()
