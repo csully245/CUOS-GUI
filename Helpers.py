@@ -119,7 +119,7 @@ def load_image(img_path, root, k=1.0, ratio=2.0, base=200, recolor=False,
     return (tk.Label(root, image=img), img)
 
 def plot_image(img_path, root, k=1.0, ratio=2.0, base=200, recolor=False,
-               colormap=cm.magma):
+               colormap=cm.magma, ticks=False):
     '''
     Plots image using plt.imread and tk.Canvas
     Still in development and to be tested
@@ -136,18 +136,28 @@ def plot_image(img_path, root, k=1.0, ratio=2.0, base=200, recolor=False,
     img = Image.open(img_path)
     img = resize_image(img, k, ratio, base)
     fig = Figure()
-    plot1 = fig.add_subplot(111)
+    plot1 = fig.add_subplot(111, aspect=0.5*ratio)
+    plot1.tick_params(axis='both', which='both',
+                    bottom=False, left=False, labelbottom=False,
+                    labelleft=False)
+    
     if (recolor):
         img_arr = np.asarray(img)
-        img_arr = rgb2gray(img_arr)
-        # DEV NOTE: have in-GUI feature to edit vmin and vmax
+        if (len(img_arr.shape) > 2):
+            img_arr = rgb2gray(img_arr)
         plot1.pcolormesh(np.flipud(img_arr), vmin=0, vmax=255, cmap=colormap,
                        rasterized=True)
     else:
         plot1.imshow(img)
     canvas = FigureCanvasTkAgg(fig, master=root)
     canvas.draw()
-    return (canvas.get_tk_widget(), None)
+    canvas = canvas.get_tk_widget()
+
+    # Resize
+    load_plot_ratio = 2.557
+    height = load_plot_ratio * base
+    canvas.configure(width=k*height, height=height)
+    return (canvas, None)
 
 def test_plot():
     root = tk.Tk()
