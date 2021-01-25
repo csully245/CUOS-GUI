@@ -97,7 +97,7 @@ class UI(tk.Menu):
             '''
             Sets the directory for the permanent (destination) files
             '''
-            self.path_perm = fd.askdirectory(initialdir="./",
+            self.path_perm = fd.askdirectory(initialdir="./Shot_Runs",
                                         title="Set Permanent Storage Directory")
             perm_dir_file = open("PermDirFile", "w")
             perm_dir_file.write(self.path_perm)

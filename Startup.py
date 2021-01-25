@@ -21,9 +21,10 @@ class Startup_Menu(tk.Frame):
             "date": date,
             "run_num": self.entry_run_num.get()
             }
-    def ok(self):
+    
+    def generate(self):
         '''
-        Handles 'ok' button:
+        Handles 'ok' button for "Generate?":
         -Checks if shotrundir already exists
         -Loads new UI if necessary
         -Updates shotrundir if necessary
@@ -34,8 +35,9 @@ class Startup_Menu(tk.Frame):
         menu_data = self.get_data()
         date = menu_data["date"]
         shotrundir = "./Shot_Runs" + "/" 
-        shotrundir += menu_data["run_name"] + "_" + menu_data["run_num"]
-        shotrundir += date["year"] + date["month"] + date["day"]
+        shotrundir += menu_data["run_name"] + "_"
+        shotrundir += date["year"] + date["month"] + date["day"] + "_"
+        shotrundir += menu_data["run_num"]
         if (os.path.isdir(shotrundir)):
             # Asks if there should be a new dir made
             # TODO: create UI for this
@@ -47,6 +49,16 @@ class Startup_Menu(tk.Frame):
             os.mkdir(shotrundir)
             Helpers.edit_file("shotrundir", shotrundir, "setup.json")
         self.grid_forget()
+
+    def use_last(self):
+        '''
+        Handles "Ok" button for "use last?":
+        -Sets shot run directory to current value in setup.json
+        -Removes UI
+        '''
+        shotrundir = Helpers.get_from_file("shotrundir_last", "setup.json")
+        Helpers.edit_file("shotrundir", shotrundir, "setup.json")
+        self.grid_forget()
         
     def __init__(self, master, **options):
         self.master = master
@@ -57,7 +69,7 @@ class Startup_Menu(tk.Frame):
         self.lbl_run_name = tk.Label(self, text=txt)
         
         self.entry_run_name = tk.Entry(self, width=30)
-        self.entry_run_name.insert(0, "Shotrundir_Default")
+        self.entry_run_name.insert(0, "Shot_Run")
 
         # Date
         txt="Enter date"
@@ -85,17 +97,30 @@ class Startup_Menu(tk.Frame):
         self.entry_run_num = tk.Entry(self, width=30)
         self.entry_run_num.insert(0, "0")
 
-        # OK button
-        self.btn_ok = tk.Button(self, text="Ok", command=lambda: self.ok())
-        
+        # "Generate Shot Run Directory?" button
+        self.fr_generate = tk.Frame(self)
+        lbl_text = "Generate Shot Run Directory?"
+        self.lbl_generate = tk.Label(self.fr_generate, text=lbl_text)
+        self.lbl_generate.grid(row=0, column=0)
+        self.btn_generate = tk.Button(self.fr_generate, text="Ok",
+                                        command=lambda: self.generate())
+        self.btn_generate.grid(row=0, column=1)
+
+        # "Use last" button
+        self.fr_use_last = tk.Frame(self)
+        lbl_text = "Use Last Shot Run Directory?"
+        self.lbl_use_last = tk.Label(self.fr_use_last, text=lbl_text)
+        self.lbl_use_last.grid(row=0, column=0)
+        self.btn_use_last = tk.Button(self.fr_use_last, text="Ok",
+                                        command=lambda: self.use_last())
+        self.btn_use_last.grid(row=0, column=1)
+
         # Gridding
-        #self.lbl_run_name.grid(row=0, column=0)
-        self.entry_run_name.grid(row=0, column=1)
-        #self.lbl_date.grid(row=1, column=0)
-        self.frame_date_entries.grid(row=1, column=1)
-        #self.lbl_run_num.grid(row=2, column=0)
-        self.entry_run_num.grid(row=2, column=1)
-        self.btn_ok.grid(row=3, column=1)
+        self.entry_run_name.grid(row=0, column=0)
+        self.frame_date_entries.grid(row=1, column=0)
+        self.entry_run_num.grid(row=2, column=0)
+        self.fr_generate.grid(row=3, column=0)
+        self.fr_use_last.grid(row=4, column=0)
 
 def startup():
     '''
@@ -129,10 +154,11 @@ def startup():
     
     ''' Stores shot_run_name in setup.json '''
     filename = "setup.json"
+    shotrundir_last = Helpers.get_from_file("shotrundir", filename)
     data = {
             "shotrundir": "./Shot_Runs/Shot_Run_Default",
+            "shotrundir_last": shotrundir_last,
             "date": Helpers.date_default
             }
     with open(filename,"w") as write_file:
             json.dump(data,write_file)
-    

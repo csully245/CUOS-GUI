@@ -210,6 +210,15 @@ def to_3_digit(num):
     else:
         return "00" + str(num)
 
+def get_shot_num(path):
+    ''' Returns the shot number (in str) of an image at path 'path' '''
+    if ("_s" in path):
+        out = path.partition("_s")[2]
+    elif ("shot" in path):
+        out = path.partition("shot")[2]
+    out = out.partition(".")[0]
+    return out
+
 #-------------------------------------------------
 # File management
 #-------------------------------------------------
