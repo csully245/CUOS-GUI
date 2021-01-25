@@ -60,6 +60,9 @@ class Error_Window:
 #-------------------------------------------------
 # Image display
 #-------------------------------------------------
+
+default_img_path = "./assets/CUOS-med.png"
+
 def rgb2gray(rgb):
     '''
     Convert the 3-channel rgb image into grayscale
