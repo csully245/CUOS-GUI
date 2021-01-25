@@ -1,11 +1,7 @@
 import Helpers
-import os
 
+import os
 import tkinter as tk
-    
-#-------------------------------------------------
-# Top-level GUI
-#-------------------------------------------------  
 
 class Diagnostic_Display(tk.LabelFrame):
     '''
@@ -29,11 +25,20 @@ class Diagnostic_Display(tk.LabelFrame):
                                                     self)
             self.wgt_img.grid(row=0, column=0)
     
+    def update_label(self):
+        if (self.diag == "" or self.img_path == Helpers.default_img_path):
+            shot_num = ""
+        else:
+            shot_num = "Shot #" + Helpers.get_shot_num(self.img_path)
+            self.lbl_img = tk.Label(self, text=shot_num)
+            self.lbl_img.grid(row=1, column=0)
+    
     def update_diagnostic(self, diag, shotrundir):
         self.config(text = diag)
         self.diag = diag
         self.shotrundir = shotrundir
         self.update_image()
+        self.update_label()
 
     def __init__(self, master, diag, shotrundir, **options):
         tk.LabelFrame.__init__(self, master, text=diag, **options)
@@ -44,11 +49,17 @@ class Diagnostic_Display(tk.LabelFrame):
         self.wgt_img, self.img = Helpers.load_image(self.img_path,
                                                     self)
         self.wgt_img.grid(row=0, column=0)
-    
+
+        self.lbl_img = tk.Label(self, text="")
+        self.lbl_img.grid(row=1, column=0)
+
+#-------------------------------------------------
+# Top-level GUI
+#------------------------------------------------- 
+
 class UI(tk.Frame):
     '''
-    Frame for displaying multiple images, to be individually selected.
-    Each image is a Image_Display_Single UI
+    Container for each diagnostic frame. Shows the most recent data from each diagnostic.
     '''
     def load_from_workspace(self, workspace):
         '''
@@ -110,7 +121,7 @@ class UI(tk.Frame):
                 else:
                     diag = ""
                 fr = Diagnostic_Display(self, diag, self.shotrundir)
-                fr.grid(row=r, column=c, padx=40, pady=5)
+                fr.grid(row=r, column=c, padx=10, pady=5)
                 self.frames.append(fr)
 
         self.btn_update = tk.Button(self, text="Update", command=lambda: self.update_diagnostics()) 
