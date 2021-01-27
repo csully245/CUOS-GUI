@@ -24,6 +24,8 @@ class UI(tk.Frame):
             # ADD: check if enabled
             if (os.path.isdir(path) and os.path.isdir(dest) and name != ""):
                 Helpers.save_most_recent(path, dest, name)
+        for func in self.update_funcs:
+            func()
 
     def save_by_number(self):
         ''' Saves shot number data, if it exists '''
@@ -35,10 +37,13 @@ class UI(tk.Frame):
             if (os.path.isdir(src) and os.path.isdir(dest)):
                 Helpers.save_by_number(src, dest, self.entry_num.get(),
                                        diag["diagnostic"])
+        for func in self.update_funcs:
+            func()
     
-    def __init__(self, master, wksp_diag, **options):
+    def __init__(self, master, wksp_diag, update_funcs, **options):
         tk.Frame.__init__(self, master, **options)
         self.wksp_diag = wksp_diag
+        self.update_funcs = update_funcs
             
         self.btn_save_recent = tk.Button(self, text="Save Most Recent",
                                     command=lambda: self.save_most_recent())

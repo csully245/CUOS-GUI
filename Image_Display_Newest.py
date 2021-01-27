@@ -12,11 +12,15 @@ class Diagnostic_Display(tk.LabelFrame):
         if (self.diag == ""):
             return
         diag_path = os.path.join(self.shotrundir, self.diag)
-        files = os.listdir(diag_path)
-        new_files = []
-        for file in files:
-            new_files.append(os.path.join(diag_path, file))
-        path = max(new_files, key=os.path.getctime)
+        files = []
+        for file in os.listdir(diag_path):
+            filename = os.path.join(diag_path, file)
+            if (os.path.isfile(filename)):
+                files.append(filename)
+        if files:
+            path = max(files, key=os.path.getctime)
+        else:
+            path = Helpers.default_img_path
 
         if (path != self.img_path):
             self.img_path = path
@@ -123,9 +127,6 @@ class UI(tk.Frame):
                 fr = Diagnostic_Display(self, diag, self.shotrundir)
                 fr.grid(row=r, column=c, padx=10, pady=5)
                 self.frames.append(fr)
-
-        self.btn_update = tk.Button(self, text="Update", command=lambda: self.update_diagnostics()) 
-        self.btn_update.grid(row=rows, column=0)  
 
 #-------------------------------------------------
 # Execution
