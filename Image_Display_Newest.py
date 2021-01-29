@@ -21,7 +21,6 @@ class Diagnostic_Display(tk.LabelFrame):
             path = max(files, key=os.path.getctime)
         else:
             path = Helpers.default_img_path
-        print(path)
         if (path != self.img_path):
             self.img_path = path
             self.wgt_img.grid_forget()
@@ -96,7 +95,6 @@ class UI(tk.Frame):
         return out
     
     def update_diagnostics(self):
-        print("Called")
         self.shotrundir = Helpers.get_from_file("shotrundir", "setup.json")
         diags = self.get_diagnostics()
         for frame in self.frames:
