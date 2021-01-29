@@ -96,7 +96,12 @@ def resize_image(img, k, ratio, base):
     if (k == 0):
         k = 1
     shape = (int(ratio * k * base), int(k * base))
-    return img.resize(shape, Image.ANTIALIAS)
+    try:
+        out = img.resize(shape, Image.ANTIALIAS)
+    except ValueError:
+        out = np.resize(np.asarray(img), shape)
+        out = Image.fromarray(out)
+    return out
 
 def load_image(img_path, root, k=1.0, ratio=2.0, base=200, recolor=False,
                black="#FFCB05", white="#00274C"):
@@ -143,15 +148,34 @@ def plot_image(img_path, root, k=1.0, ratio=2.0, base=200, recolor=False,
     plot1.tick_params(axis='both', which='both',
                     bottom=False, left=False, labelbottom=False,
                     labelleft=False)
-    
+    '''
+    img = Image.open(img_path)
+    #img = resize_image(img, k, ratio, base)
+    fig = Figure()
+    fig, plot1 = plt.subplots(1, subplot_kw={'aspect': 'auto'}, figsize=(4,2))
+    #plot1 = fig.add_subplot(111, subplot_kw={'aspect': 'auto'})
+    plot1.tick_params(axis='both', which='both',
+                    bottom=False, left=False, labelbottom=False,
+                    labelleft=False)
+
     if (recolor):
         img_arr = np.asarray(img)
         if (len(img_arr.shape) > 2):
             img_arr = rgb2gray(img_arr)
-        plot1.pcolormesh(np.flipud(img_arr), vmin=0, vmax=255, cmap=colormap,
+        plot1.pcolormesh(np.flipud(img_arr), vmin=0, vmax=2000, cmap=colormap,
                        rasterized=True)
     else:
-        plot1.imshow(img)
+    '''
+    img_arr = np.asarray(img)
+    if (len(img_arr.shape) > 2):
+        img_arr = rgb2gray(img_arr)
+    plot1.imshow(img_arr, vmin=0, vmax=2000, cmap=colormap, rasterized=True, aspect='auto')
+
+    '''
+    fig, (ax1, ax2, ax3, ax4) = plt.subplots(4,1,figsize = (6,12), subplot_kw={'aspect': 'auto'})
+    plt.subplots_adjust(hspace = 0.3, wspace = 0.5)
+    pne = ax1.imshow(ne, extent = extent,  cmap = cm.gray_r, vmin = 0, vmax = 10 ,  rasterized = True, aspect='auto')
+    '''
     canvas = FigureCanvasTkAgg(fig, master=root)
     canvas.draw()
     canvas = canvas.get_tk_widget()
@@ -161,13 +185,6 @@ def plot_image(img_path, root, k=1.0, ratio=2.0, base=200, recolor=False,
     height = load_plot_ratio * base
     canvas.configure(width=k*height, height=height)
     return (canvas, None)
-
-def test_plot():
-    root = tk.Tk()
-    text = ".\\Old Working Code\\Hercules Data\\Hercules Data for 4 shots\\ESPEC\\20201119_ESPEC_s019.tif"
-    img = plot_image(text, root)
-    img.pack()
-    root.mainloop()
 
 def max_num_in_dir(path):
     '''
@@ -216,6 +233,8 @@ def get_shot_num(path):
         out = path.partition("_s")[2]
     elif ("shot" in path):
         out = path.partition("shot")[2]
+    else:
+        out = path
     out = out.partition(".")[0]
     return out
 
