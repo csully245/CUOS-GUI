@@ -1,4 +1,5 @@
 import Helpers
+import Image_Options_Menu
 
 import os
 import tkinter as tk
@@ -24,8 +25,9 @@ class Diagnostic_Display(tk.LabelFrame):
         if (path != self.img_path):
             self.img_path = path
             self.wgt_img.grid_forget()
+            vmin, vmax = self.fr_options.get()
             self.wgt_img, self.img = Helpers.load_image(self.img_path,
-                                                    self)
+                                                    self, recolor=True, vmin=vmin, vmax=vmax)
             self.wgt_img.grid(row=0, column=0)
     
     def update_label(self):
@@ -51,10 +53,15 @@ class Diagnostic_Display(tk.LabelFrame):
         self.img_path = Helpers.default_img_path
         self.wgt_img, self.img = Helpers.load_image(self.img_path,
                                                     self)
-        self.wgt_img.grid(row=0, column=0)
 
         self.lbl_img = tk.Label(self, text="")
+
+        self.fr_options = Image_Options_Menu.UI(self)
+
+        # Gridding
+        self.wgt_img.grid(row=0, column=0)
         self.lbl_img.grid(row=1, column=0)
+        self.fr_options.grid(row=2, column=0)
 
 #-------------------------------------------------
 # Top-level GUI
@@ -126,6 +133,9 @@ class UI(tk.Frame):
                 fr = Diagnostic_Display(self, diag, self.shotrundir)
                 fr.grid(row=r, column=c, padx=10, pady=5)
                 self.frames.append(fr)
+
+        self.btn_update = tk.Button(self, text="Update", command=lambda: self.update_diagnostics)
+        self.btn_update.grid(row=rows, column=1)
 
 #-------------------------------------------------
 # Execution
