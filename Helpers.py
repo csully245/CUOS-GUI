@@ -274,13 +274,14 @@ def copy_raw_data(src, dest, num, diag):
     name += "_s" + to_3_digit(num) + "." + ext
     shutil.copy(src, dest + "/" + name)
 
-def save_most_recent(src, dest, diag):
+def save_most_recent(src, dest, diag, num):
     '''
     Copies the most recently edited file in the source directory into the
     destination
     src: string, source file
     dest: string, destination directory
     diag: string, name of diagnostic
+    num: int/string, shot number
     '''
     # Identify most recent file
     files = os.listdir(src)
@@ -289,6 +290,7 @@ def save_most_recent(src, dest, diag):
         new_files.append(src + "/" + file)
     path = max(new_files, key=os.path.getctime)
     
+    '''
     # Isolate shot number from src
     filename = path.partition(src)[2]
     if ("_s" in filename):
@@ -304,7 +306,8 @@ def save_most_recent(src, dest, diag):
     except:
         Error_Window("Bad filename: " + filename)
         return
-
+    '''
+    num = to_3_digit(num)
     # Copy file
     copy_raw_data(path, dest, num, diag)
 

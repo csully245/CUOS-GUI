@@ -23,7 +23,11 @@ class UI(tk.Frame):
             dest = shotrundir + "/" + name
             # ADD: check if enabled
             if (os.path.isdir(path) and os.path.isdir(dest) and name != ""):
-                Helpers.save_most_recent(path, dest, name)
+                num = int(self.entry_num.get())
+                Helpers.save_most_recent(path, dest, name, num)
+                num += 1
+                self.entry_num.delete(0, tk.END)
+                self.entry_num.insert(0, str(num))
         for func in self.update_funcs:
             func()
 

@@ -22,7 +22,7 @@ class Diagnostic_Display(tk.LabelFrame):
             path = max(files, key=os.path.getctime)
         else:
             path = Helpers.default_img_path
-        if (path != self.img_path):
+        if (True):
             self.img_path = path
             self.wgt_img.grid_forget()
             vmin, vmax = self.fr_options.get()
