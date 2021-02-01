@@ -104,7 +104,7 @@ def resize_image(img, k, ratio, base):
     return out
 
 def load_image(img_path, root, k=1.0, ratio=2.0, base=200, recolor=False,
-               black="#FFCB05", white="#00274C"):
+                vmin=0, vmax=255):
     '''
     Plots image using Image.open and ImageTk.PhotoImage
     
@@ -122,12 +122,17 @@ def load_image(img_path, root, k=1.0, ratio=2.0, base=200, recolor=False,
     img = Image.open(img_path)
     img = resize_image(img, k, ratio, base)
     if (recolor):
+        black = "black"
+        white = "white"
+        img = np.asarray(img)
+        img = np.clip(img, vmin, vmax)
+        img = Image.fromarray(img)
         img = ImageOps.colorize(img.convert("L"), black=black, white=white)
     img = ImageTk.PhotoImage(img)
     return (tk.Label(root, image=img), img)
 
 def plot_image(img_path, root, k=1.0, ratio=2.0, base=200, recolor=False,
-               colormap=cm.magma, ticks=False):
+               colormap=cm.magma, vmin=0, vmax=255, ticks=False):
     '''
     Plots image using plt.imread and tk.Canvas
     Still in development and to be tested
@@ -141,49 +146,30 @@ def plot_image(img_path, root, k=1.0, ratio=2.0, base=200, recolor=False,
         -tuple: (tkinter Canvas of plt Figure, None)
     Note: returns None to maintain format of load_image()
     '''
+    
+    # Create image plot
     img = Image.open(img_path)
-    img = resize_image(img, k, ratio, base)
     fig = Figure()
-    plot1 = fig.add_subplot(111, aspect=0.5*ratio)
-    plot1.tick_params(axis='both', which='both',
-                    bottom=False, left=False, labelbottom=False,
-                    labelleft=False)
-    '''
-    img = Image.open(img_path)
-    #img = resize_image(img, k, ratio, base)
-    fig = Figure()
-    fig, plot1 = plt.subplots(1, subplot_kw={'aspect': 'auto'}, figsize=(4,2))
-    #plot1 = fig.add_subplot(111, subplot_kw={'aspect': 'auto'})
-    plot1.tick_params(axis='both', which='both',
-                    bottom=False, left=False, labelbottom=False,
-                    labelleft=False)
 
-    if (recolor):
-        img_arr = np.asarray(img)
-        if (len(img_arr.shape) > 2):
-            img_arr = rgb2gray(img_arr)
-        plot1.pcolormesh(np.flipud(img_arr), vmin=0, vmax=2000, cmap=colormap,
-                       rasterized=True)
-    else:
-    '''
+    # Edit plot settings
+    base_size = 2
+    fig, plot1 = plt.subplots(1, subplot_kw={'aspect': 'auto'},
+                    figsize=(ratio*base_size,base_size))
+    xleft, xright = plot1.get_xlim()
+    ybottom, ytop = plot1.get_ylim()
+    plot1.set_aspect(abs((xright-xleft)/(ybottom-ytop))*ratio)
+    plot1.tick_params(axis='both', which='both',
+                    bottom=False, left=False, labelbottom=False,
+                    labelleft=False)
     img_arr = np.asarray(img)
     if (len(img_arr.shape) > 2):
         img_arr = rgb2gray(img_arr)
-    plot1.imshow(img_arr, vmin=0, vmax=2000, cmap=colormap, rasterized=True, aspect='auto')
+    plot1.imshow(img_arr, vmin=vmin, vmax=vmax, cmap=colormap, rasterized=True, aspect='auto')
 
-    '''
-    fig, (ax1, ax2, ax3, ax4) = plt.subplots(4,1,figsize = (6,12), subplot_kw={'aspect': 'auto'})
-    plt.subplots_adjust(hspace = 0.3, wspace = 0.5)
-    pne = ax1.imshow(ne, extent = extent,  cmap = cm.gray_r, vmin = 0, vmax = 10 ,  rasterized = True, aspect='auto')
-    '''
+    # Return tk.Canvas
     canvas = FigureCanvasTkAgg(fig, master=root)
     canvas.draw()
     canvas = canvas.get_tk_widget()
-
-    # Resize
-    load_plot_ratio = 2.557
-    height = load_plot_ratio * base
-    canvas.configure(width=k*height, height=height)
     return (canvas, None)
 
 def max_num_in_dir(path):

@@ -26,7 +26,7 @@ class Diagnostic_Display(tk.LabelFrame):
             self.img_path = path
             self.wgt_img.grid_forget()
             vmin, vmax = self.fr_options.get()
-            self.wgt_img, self.img = Helpers.load_image(self.img_path,
+            self.wgt_img, self.img = Helpers.plot_image(self.img_path,
                                                     self, recolor=True, vmin=vmin, vmax=vmax)
             self.wgt_img.grid(row=0, column=0)
     
