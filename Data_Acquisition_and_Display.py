@@ -9,7 +9,6 @@ import Menu_Bar
 import Main_tab
 import Diagnostic_Parameters
 import Image_Display_Single
-import Image_Display_Montage
 import Image_Display_Newest
 import Save_Controls
 
@@ -60,7 +59,6 @@ class Acquisition_Display:
         self.book.add(self.tab_main, text="Main")
         self.book.add(self.tab_diag_params, text="Diagnostic Parameters")
         self.book.add(self.tab_single_image, text="Single Image Display")
-        self.book.add(self.tab_montage, text="Image Montage Display")
         self.book.add(self.tab_newest, text="Recent Image Display")
         
         self.book.pack(expand=1, fill="both")
@@ -73,10 +71,6 @@ class Acquisition_Display:
         self.fr_single_image.pack()
         self.update_funcs.append(self.fr_single_image.update_all)
         self.add_wksp_funcs(self.fr_single_image)
-
-        self.fr_multi_image = Image_Display_Montage.UI(self.tab_montage)
-        self.update_funcs.append(self.fr_multi_image.update_all)
-        self.fr_multi_image.pack()
 
         self.fr_recent_image = Image_Display_Newest.UI(self.tab_newest)
         self.fr_recent_image.pack()
@@ -92,7 +86,7 @@ class Acquisition_Display:
         self.add_wksp_funcs(self.fr_diag_params)
 
         wksp_diag = self.fr_diag_params.get_workspace
-        self.fr_save = Save_Controls.UI(self.root, wksp_diag)
+        self.fr_save = Save_Controls.UI(self.root, wksp_diag, self.update_funcs)
         self.fr_save.grid(row=1, column=0)
         
         # File Menu

@@ -30,20 +30,11 @@ class Diagnostic_Display(tk.LabelFrame):
                                                     self, recolor=True, vmin=vmin, vmax=vmax)
             self.wgt_img.grid(row=0, column=0)
     
-    def update_label(self):
-        if (self.diag == "" or self.img_path == Helpers.default_img_path):
-            shot_num = ""
-        else:
-            shot_num = "Shot #" + Helpers.get_shot_num(self.img_path)
-            self.lbl_img = tk.Label(self, text=shot_num)
-            self.lbl_img.grid(row=1, column=0)
-    
     def update_diagnostic(self, diag, shotrundir):
         self.config(text = diag)
         self.diag = diag
         self.shotrundir = shotrundir
         self.update_image()
-        self.update_label()
 
     def __init__(self, master, diag, shotrundir, **options):
         tk.LabelFrame.__init__(self, master, text=diag, **options)
@@ -54,14 +45,11 @@ class Diagnostic_Display(tk.LabelFrame):
         self.wgt_img, self.img = Helpers.load_image(self.img_path,
                                                     self)
 
-        self.lbl_img = tk.Label(self, text="")
-
         self.fr_options = Image_Options_Menu.UI(self)
 
         # Gridding
         self.wgt_img.grid(row=0, column=0)
-        self.lbl_img.grid(row=1, column=0)
-        self.fr_options.grid(row=2, column=0)
+        self.fr_options.grid(row=1, column=0)
 
 #-------------------------------------------------
 # Top-level GUI
@@ -96,6 +84,8 @@ class UI(tk.Frame):
         out = []
         lst = os.listdir(self.shotrundir)
         for item in lst:
+            if (item == "Aggregated Plots"):
+                continue
             path = os.path.join(self.shotrundir, item)
             if os.path.isdir(path):
                 out.append(item)

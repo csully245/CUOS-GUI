@@ -12,6 +12,8 @@ import os
 import shutil
 from datetime import date
 from time import strftime
+import time
+import pyautogui
 
 #-------------------------------------------------
 # Generic Data Manipulation
@@ -152,7 +154,7 @@ def plot_image(img_path, root, k=1.0, ratio=2.0, base=200, recolor=False,
     fig = Figure()
 
     # Edit plot settings
-    base_size = 2
+    base_size = 2.5
     fig, plot1 = plt.subplots(1, subplot_kw={'aspect': 'auto'},
                     figsize=(ratio*base_size,base_size))
     xleft, xright = plot1.get_xlim()
@@ -289,45 +291,8 @@ def save_most_recent(src, dest, diag, num):
     for file in files:
         new_files.append(src + "/" + file)
     path = max(new_files, key=os.path.getctime)
-    
-    '''
-    # Isolate shot number from src
-    filename = path.partition(src)[2]
-    if ("_s" in filename):
-        num = filename.partition("_s")[2]
-    elif ("shot" in filename):
-        num = filename.partition("shot")[2]
-    else:
-        Error_Window("Bad filename: " + filename)
-        return
-    num = num.partition(".")[0]
-    try:
-        num = int(num)
-    except:
-        Error_Window("Bad filename: " + filename)
-        return
-    '''
     num = to_3_digit(num)
-    # Copy file
     copy_raw_data(path, dest, num, diag)
-
-def save_by_number(src, dest, num, diag):
-    '''
-    Copies file including 's###' or 'shot#' in the source directory into the
-    destination, then renames to naming convention:
-    diagnostic_date_s###
-    src: string, source file
-    dest: string, destination directory
-    num: string or int, minimum-digit number (no leading zeros)
-    diag: string, name of diagnostic
-    '''
-    files = os.listdir(src)
-    for file in files:
-        convention_1 = "s" + to_3_digit(num)
-        convention_2 = "shot" + str(num)
-        if (convention_1 in file) or (convention_2 in file):
-            path = src + "/" + file
-            copy_raw_data(path, dest, num, diag)
 
 date_default = {
         "year": "0001",
@@ -356,6 +321,33 @@ def take_screenshot():
     timestamp = strftime("%Y-%m-%d_%H.%M.%S")
     name = dest + "/" + timestamp + ".png"
     img.save(name, format="PNG")
+
+def save_plots(num, shotrundir, delay=0.5):
+    '''
+    Saves a screenshot, cropped to include only the recent display
+    num: int/str, shot number
+    shotrundir: str, shot run directory
+    delay: numeral, seconds to delay before taking screenshot
+    '''
+    time.sleep(delay)
+    width, height = pyautogui.size()
+    width *= 0.20
+    height *= 0.063
+    pyautogui.click(width, height, button="left")
+
+    img = ImageGrab.grab()
+    width, height = img.size
+    left = int(width * 0.01)
+    right = int(width * 0.82)
+    top = int(height * 0.079)
+    bottom = int(height * 0.65)
+    img = img.crop((left, top, right, bottom))
+
+    dest = os.path.join(shotrundir, "Aggregated Plots")
+    if not (os.path.isdir(dest)):
+        os.mkdir(dest)
+    filename = "plots_shot" + to_3_digit(num) + ".png"
+    img.save(os.path.join(dest, filename), format="PNG")
 
 def test_screenshots(period):
     import time
