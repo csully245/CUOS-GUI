@@ -1,4 +1,5 @@
 import Helpers
+import Image_Options_Menu
 
 from tkinter import ttk
 import tkinter as tk
@@ -117,12 +118,18 @@ class UI(tk.Frame):
         '''
         Updates image to selected image in entry
         '''
-        self.img_path = self._get_img_path()
-        self.lbl_img.grid_forget()
+        vmin, vmax, flipud = self.fr_options.get()
+        self.wgt_img.grid_forget()
         Helpers.delete_img(self.img)
-        self.lbl_img, self.img = Helpers.plot_image(self.img_path, self,
-                                                    k=self.scale, recolor=True)
-        self.lbl_img.grid(row=0, column=0)
+        if (self.img_path == Helpers.default_img_path):
+            self.wgt_img, self.img = Helpers.load_image(self.img_path,
+                                                self, recolor=False)
+        else:
+            self.wgt_img, self.img = Helpers.plot_image(self.img_path,
+                                                self, recolor=True,
+                                                vmin=vmin, vmax=vmax,
+                                                flipud=flipud)
+        self.wgt_img.grid(row=0, column=0)
 
     def _update_buttonstate(self):
         '''
@@ -220,9 +227,9 @@ class UI(tk.Frame):
 
         # Image and colorbar
         self.img_path = "assets/CUOS-med.png"
-        self.lbl_img, self.img = Helpers.load_image(self.img_path, self,
+        self.wgt_img, self.img = Helpers.load_image(self.img_path, self,
                                                     k=scale)
-        self.lbl_img.grid(row=0, column=0)
+        self.wgt_img.grid(row=0, column=0)
         
         # Frames
         self.fr_controls = tk.Frame(self)
@@ -278,6 +285,10 @@ class UI(tk.Frame):
         self._update_buttonstate()
         self.arrow_left.grid(row=1, column=1)
         self.arrow_right.grid(row=1, column=3)
+
+        # Image options
+        self.fr_options = Image_Options_Menu.UI(self)
+        self.fr_options.grid(row=2, column=0, columnspan=2, pady=2)
         
 
 #-------------------------------------------------

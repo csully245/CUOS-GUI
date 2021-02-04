@@ -27,7 +27,7 @@ class Diagnostic_Display(tk.LabelFrame):
             self.img_path = path
 
         # Plot
-        vmin, vmax = self.fr_options.get()
+        vmin, vmax, flipud = self.fr_options.get()
         self.wgt_img.grid_forget()
         Helpers.delete_img(self.img)
         if (self.img_path == Helpers.default_img_path):
@@ -36,7 +36,8 @@ class Diagnostic_Display(tk.LabelFrame):
         else:
             self.wgt_img, self.img = Helpers.plot_image(self.img_path,
                                                 self, recolor=True,
-                                                vmin=vmin, vmax=vmax)
+                                                vmin=vmin, vmax=vmax,
+                                                flipud=flipud)
         self.wgt_img.grid(row=0, column=0)
     
     def update_diagnostic(self, diag, shotrundir):

@@ -134,7 +134,7 @@ def load_image(img_path, root, k=1.0, ratio=2.0, base=200, recolor=False,
     return (tk.Label(root, image=img), img)
 
 def plot_image(img_path, root, k=1.0, ratio=2.0, base=200, recolor=False,
-               colormap=cm.magma, vmin=0, vmax=255):
+               colormap=cm.magma, vmin=0, vmax=255, flipud=False):
     '''
     Plots image using plt.imread and tk.Canvas
     Still in development and to be tested
@@ -167,6 +167,8 @@ def plot_image(img_path, root, k=1.0, ratio=2.0, base=200, recolor=False,
     img_arr = np.asarray(img)
     if (len(img_arr.shape) > 2):
         img_arr = rgb2gray(img_arr)
+    if (flipud.get()):
+        img_arr = np.flipud(img_arr)
     if (recolor):
         plot1.imshow(img_arr, vmin=vmin, vmax=vmax, cmap=colormap,
                                     rasterized=True, aspect='auto')
