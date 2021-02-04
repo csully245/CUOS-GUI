@@ -134,7 +134,7 @@ def load_image(img_path, root, k=1.0, ratio=2.0, base=200, recolor=False,
     return (tk.Label(root, image=img), img)
 
 def plot_image(img_path, root, k=1.0, ratio=2.0, base=200, recolor=False,
-               colormap=cm.magma, vmin=0, vmax=255, ticks=False):
+               colormap=cm.magma, vmin=0, vmax=255):
     '''
     Plots image using plt.imread and tk.Canvas
     Still in development and to be tested
@@ -145,8 +145,9 @@ def plot_image(img_path, root, k=1.0, ratio=2.0, base=200, recolor=False,
         -ratio: float, aspect ratio (W:H)
         -base: int, W/H dimensions at k=1.0
     Output:
-        -tuple: (tkinter Canvas of plt Figure, None)
-    Note: returns None to maintain format of load_image()
+        -tuple: (tkinter Canvas of plt Figure, plt subplot)
+    
+    Note: plt subplot garbage collection must be handled on application end
     '''
     
     # Create image plot
@@ -166,13 +167,30 @@ def plot_image(img_path, root, k=1.0, ratio=2.0, base=200, recolor=False,
     img_arr = np.asarray(img)
     if (len(img_arr.shape) > 2):
         img_arr = rgb2gray(img_arr)
-    plot1.imshow(img_arr, vmin=vmin, vmax=vmax, cmap=colormap, rasterized=True, aspect='auto')
+    if (recolor):
+        plot1.imshow(img_arr, vmin=vmin, vmax=vmax, cmap=colormap,
+                                    rasterized=True, aspect='auto')
+    else:
+        plot1.imshow(img_arr, rasterized=True, aspect='auto')
 
     # Return tk.Canvas
     canvas = FigureCanvasTkAgg(fig, master=root)
     canvas.draw()
     canvas = canvas.get_tk_widget()
-    return (canvas, None)
+    return (canvas, fig)
+
+def delete_img(img):
+    '''
+    Handles cleanly deleting image sources across types:
+    -plt.Figure
+    -PIL.PhotoImage
+    -tkinter.Canvas
+    -np.ndarray
+    '''
+    if type(img) == Figure:
+        plt.close(img)
+    else:
+        del img
 
 def max_num_in_dir(path):
     '''

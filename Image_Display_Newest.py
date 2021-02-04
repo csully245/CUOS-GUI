@@ -3,6 +3,7 @@ import Image_Options_Menu
 
 import os
 import tkinter as tk
+from matplotlib import pyplot as plt
 
 class Diagnostic_Display(tk.LabelFrame):
     '''
@@ -24,14 +25,18 @@ class Diagnostic_Display(tk.LabelFrame):
             else:
                 path = Helpers.default_img_path
             self.img_path = path
-        if (self.img_path == Helpers.default_img_path):
-            recolor = False
-        else:
-            recolor = True
-        self.wgt_img.grid_forget()
+
+        # Plot
         vmin, vmax = self.fr_options.get()
-        self.wgt_img, self.img = Helpers.plot_image(self.img_path,
-                                                self, recolor=recolor, vmin=vmin, vmax=vmax)
+        self.wgt_img.grid_forget()
+        Helpers.delete_img(self.img)
+        if (self.img_path == Helpers.default_img_path):
+            self.wgt_img, self.img = Helpers.load_image(self.img_path,
+                                                self, recolor=False)
+        else:
+            self.wgt_img, self.img = Helpers.plot_image(self.img_path,
+                                                self, recolor=True,
+                                                vmin=vmin, vmax=vmax)
         self.wgt_img.grid(row=0, column=0)
     
     def update_diagnostic(self, diag, shotrundir):
