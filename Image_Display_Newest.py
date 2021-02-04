@@ -11,24 +11,28 @@ class Diagnostic_Display(tk.LabelFrame):
     def update_image(self):
         '''Checks for more recent data for the diagnostic and updates image'''
         if (self.diag == ""):
-            return
-        diag_path = os.path.join(self.shotrundir, self.diag)
-        files = []
-        for file in os.listdir(diag_path):
-            filename = os.path.join(diag_path, file)
-            if (os.path.isfile(filename)):
-                files.append(filename)
-        if files:
-            path = max(files, key=os.path.getctime)
-        else:
             path = Helpers.default_img_path
-        if (True):
+        else:
+            diag_path = os.path.join(self.shotrundir, self.diag)
+            files = []
+            for file in os.listdir(diag_path):
+                filename = os.path.join(diag_path, file)
+                if (os.path.isfile(filename)):
+                    files.append(filename)
+            if files:
+                path = max(files, key=os.path.getctime)
+            else:
+                path = Helpers.default_img_path
             self.img_path = path
-            self.wgt_img.grid_forget()
-            vmin, vmax = self.fr_options.get()
-            self.wgt_img, self.img = Helpers.plot_image(self.img_path,
-                                                    self, recolor=True, vmin=vmin, vmax=vmax)
-            self.wgt_img.grid(row=0, column=0)
+        if (self.img_path == Helpers.default_img_path):
+            recolor = False
+        else:
+            recolor = True
+        self.wgt_img.grid_forget()
+        vmin, vmax = self.fr_options.get()
+        self.wgt_img, self.img = Helpers.plot_image(self.img_path,
+                                                self, recolor=recolor, vmin=vmin, vmax=vmax)
+        self.wgt_img.grid(row=0, column=0)
     
     def update_diagnostic(self, diag, shotrundir):
         self.config(text = diag)
@@ -124,7 +128,7 @@ class UI(tk.Frame):
                 fr.grid(row=r, column=c, padx=10, pady=5)
                 self.frames.append(fr)
 
-        self.btn_update = tk.Button(self, text="Update", command=lambda: self.update_diagnostics)
+        self.btn_update = tk.Button(self, text="Update", command=lambda: self.update_diagnostics())
         self.btn_update.grid(row=rows, column=1)
 
 #-------------------------------------------------
