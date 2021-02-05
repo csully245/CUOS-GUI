@@ -22,7 +22,7 @@ class UI(tk.Menu):
         return None
     
     def __init__(self, master, workspace_load=None, workspace_save=None,
-                 tearoff=0, **options):
+                 update_funcs=None, tearoff=0, **options):
         tk.Menu.__init__(self, master, tearoff=tearoff, **options)
         
         '''
@@ -102,6 +102,10 @@ class UI(tk.Menu):
             perm_dir_file = open("PermDirFile", "w")
             perm_dir_file.write(self.path_perm)
             Helpers.edit_file("shotrundir", self.path_perm, "setup.json")
+
+        if (update_funcs):
+            for func in update_funcs:
+                func()
             
 
         # Assemble menu bar

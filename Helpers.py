@@ -63,7 +63,7 @@ class Error_Window:
 # Image display
 #-------------------------------------------------
 
-default_img_path = "./assets/CUOS-med.png"
+default_img_path = "assets/CUOS-med.png"
 
 def rgb2gray(rgb):
     '''
@@ -144,6 +144,7 @@ def plot_image(img_path, root, k=1.0, ratio=2.0, base=200, recolor=False,
         -k: float, scale factor
         -ratio: float, aspect ratio (W:H)
         -base: int, W/H dimensions at k=1.0
+        -flipud: bool, whether or not to flip img vertically
     Output:
         -tuple: (tkinter Canvas of plt Figure, plt subplot)
     
@@ -167,7 +168,7 @@ def plot_image(img_path, root, k=1.0, ratio=2.0, base=200, recolor=False,
     img_arr = np.asarray(img)
     if (len(img_arr.shape) > 2):
         img_arr = rgb2gray(img_arr)
-    if (flipud.get()):
+    if (flipud):
         img_arr = np.flipud(img_arr)
     if (recolor):
         plot1.imshow(img_arr, vmin=vmin, vmax=vmax, cmap=colormap,
@@ -349,12 +350,13 @@ def save_plots(num, shotrundir, delay=0.5):
     shotrundir: str, shot run directory
     delay: numeral, seconds to delay before taking screenshot
     '''
-    time.sleep(delay)
     width, height = pyautogui.size()
     width *= 0.20
     height *= 0.063
     pyautogui.click(width, height, button="left")
-
+    
+    time.sleep(delay)
+    
     img = ImageGrab.grab()
     width, height = img.size
     left = int(width * 0.01)
@@ -366,7 +368,7 @@ def save_plots(num, shotrundir, delay=0.5):
     dest = os.path.join(shotrundir, "Aggregated Plots")
     if not (os.path.isdir(dest)):
         os.mkdir(dest)
-    filename = "plots_shot" + to_3_digit(num) + ".png"
+    filename = "plot_agg_s" + to_3_digit(num) + ".png"
     img.save(os.path.join(dest, filename), format="PNG")
 
 def test_screenshots(period):

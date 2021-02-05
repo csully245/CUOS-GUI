@@ -29,7 +29,7 @@ class UI(tk.Frame):
     def get(self):
         vmin = int(self.entry_vmin.get())
         vmax = int(self.entry_vmax.get())
-        flipud = self.flipud
+        flipud = self.flipud.get()
         return (vmin, vmax, flipud)
 
 def test():

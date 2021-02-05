@@ -25,13 +25,17 @@ class Diagnostic_Display(tk.LabelFrame):
             else:
                 path = Helpers.default_img_path
             self.img_path = path
+        if not (os.path.isfile(self.img_path)):
+            error_text = "Image path does not exist: " + self.img_path
+            Helpers.Error_Window(error_text)
+            self.img_path = Helpers.default_img_path
 
         # Plot
         vmin, vmax, flipud = self.fr_options.get()
         self.wgt_img.grid_forget()
         Helpers.delete_img(self.img)
         if (self.img_path == Helpers.default_img_path):
-            self.wgt_img, self.img = Helpers.load_image(self.img_path,
+            self.wgt_img, self.img = Helpers.plot_image(self.img_path,
                                                 self, recolor=False)
         else:
             self.wgt_img, self.img = Helpers.plot_image(self.img_path,

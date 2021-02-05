@@ -75,9 +75,6 @@ class Acquisition_Display:
         self.fr_recent_image = Image_Display_Newest.UI(self.tab_newest)
         self.fr_recent_image.pack()
         self.update_funcs.append(self.fr_recent_image.update_diagnostics)
-        def handle_tab_change(flag):
-            self.fr_recent_image.update_diagnostics()
-        self.book.bind("<<NotebookTabChanged>>", handle_tab_change)
 
         ''' Parameter frames loaded last to allow passing full update_funcs '''
         self.fr_diag_params = Diagnostic_Parameters.UI(self.tab_diag_params,
@@ -95,7 +92,7 @@ class Acquisition_Display:
         file menu instead of a whole frame
         '''
         self.menubar = Menu_Bar.UI(self.root, self.workspace_load_funcs,
-                                   self.workspace_save_funcs)
+                                   self.workspace_save_funcs, self.update_funcs)
         self.root.config(menu=self.menubar)
 
     def open(self):

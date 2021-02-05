@@ -59,13 +59,13 @@ class UI(tk.Frame):
         '''
         Updates dropdown for new options
         '''
-        self.diagnostic.set(self.options[0])
-
         self.drop_diag.pack_forget()
         self.drop_diag = ttk.Combobox(self.fr_controls, width=27,
                                       textvariable=self.diagnostic)
         self.drop_diag['values'] = tuple(self.options)
         self.drop_diag.grid(row=0, column=0, columnspan=2)
+        if (self.diagnostic not in self.drop_diag['values']):
+            self.diagnostic.set(self.options[0])
         
     def _get_img_path(self):
         ''' Returns the path of the desired image '''
@@ -118,6 +118,14 @@ class UI(tk.Frame):
         '''
         Updates image to selected image in entry
         '''
+        # Locate image path
+        self.img_path = self._get_img_path()
+        if not (os.path.isfile(self.img_path)):
+            error_text = "Image path does not exist: " + self.img_path
+            Helpers.Error_Window(error_text)
+            self.img_path = Helpers.default_img_path
+
+        # Plot
         vmin, vmax, flipud = self.fr_options.get()
         self.wgt_img.grid_forget()
         Helpers.delete_img(self.img)
