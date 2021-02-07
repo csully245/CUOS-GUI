@@ -1,8 +1,9 @@
+import Helpers
+
 from tkinter import filedialog as fd
 import tkinter as tk
 import os
 import json
-import Helpers
 
 class UI(tk.Menu):
     '''
@@ -14,13 +15,6 @@ class UI(tk.Menu):
     -Load From Workspace
     -Save Current Workspace
     '''
-    
-    def load_from_workspace(self, workspace):
-        return
-        
-    def get_workspace(self):
-        return None
-    
     def __init__(self, master, workspace_load=None, workspace_save=None,
                  update_funcs=None, tearoff=0, **options):
         tk.Menu.__init__(self, master, tearoff=tearoff, **options)
@@ -29,6 +23,7 @@ class UI(tk.Menu):
         workspace_load: list of functions to update a tab based on a json file.
         Should have parameters (self, workspace), where workspace is a
         json-friendly data type packaged by the tab's own workspace_save()
+
         workspace_save: list of functions to save a tab's settings into a
         json file. Should have parameters (self).
         '''
@@ -61,7 +56,6 @@ class UI(tk.Menu):
                 funct(wksp)
 
         # Save Current Workspace
-
         ''' Assign null function if no functions are passed '''
         if (workspace_save == None or len(workspace_save) == 0):
             self.workspace_save = [null]
@@ -101,12 +95,11 @@ class UI(tk.Menu):
                                         title="Set Permanent Storage Directory")
             perm_dir_file = open("PermDirFile", "w")
             perm_dir_file.write(self.path_perm)
-            Helpers.edit_file("shotrundir", self.path_perm, "setup.json")
+            Helpers.edit_file("shotrundir", self.path_perm)
 
-        if (update_funcs):
-            for func in update_funcs:
-                func()
-            
+            if (update_funcs):
+                for func in update_funcs:
+                    func() 
 
         # Assemble menu bar
         self.filemenu = tk.Menu(self, tearoff=0)
@@ -117,6 +110,12 @@ class UI(tk.Menu):
                                   command=lambda: load_workspace(self))
         self.filemenu.add_command(label="Save Current Workspace",
                                   command=lambda: save_workspace(self))
+    
+    def load_from_workspace(self, workspace):
+        return
+        
+    def get_workspace(self):
+        return None
 
 def test():
     root = tk.Tk()

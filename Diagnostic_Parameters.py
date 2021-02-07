@@ -15,43 +15,8 @@ class Diagnostic_Frame(tk.LabelFrame):
     -checkbtn_raw: no functionality
     -checkbtn_enabled: determines whether the diagnostic is ready to transmit
     '''
-    def load_from_workspace(self, workspace):
-        '''
-        Loads default data from input values generated from selected workspace
-        .json file
-        Workspace: dict containing diagnostic name, file extension, raw image
-        Enabling is set to false (will need error handling)
-        '''
-        # Enabling
-        self.enabled.set(False)
-        # ERROR HANDLING: what happens if the folder already exists?
-
-        # Loading
-        try:
-            self.entry_diagnostic.delete(0, tk.END)
-            self.entry_diagnostic.insert(0, workspace["diagnostic"])
-            self.entry_dir.delete(0, tk.END)
-            self.entry_dir.insert(0, workspace["dir_temp"])
-            self.entry_ext.delete(0, tk.END)
-            self.entry_ext.insert(0, workspace["file_extension"])
-            self.drop_process.set(workspace["process"])
-        except KeyError:
-            Helpers.Error_Window("Incompatible workspace file.")
-
-    def get_workspace(self):
-        '''
-        Returns all variables needed to later recreate an identical frame
-        '''
-        workspace = {
-                "diagnostic": self.entry_diagnostic.get(),
-                "dir_temp" : self.entry_dir.get(),
-                "file_extension" : self.entry_ext.get(),
-                "process" : self.drop_process.get()
-            }
-        return workspace
-        
-    def __init__(self, master, num, updater):
-        self.updater = updater
+    def __init__(self, master, num, update_funcs):
+        self.update_funcs = update_funcs
         tk.LabelFrame.__init__(self, master, text="Diagnostic " + str(num))
 
         # Public-access data
@@ -95,7 +60,7 @@ class Diagnostic_Frame(tk.LabelFrame):
             Manages data source and destination folders for diagnostic
             Adds folder for diagnostic in shot_run_dir if setting to enable
             '''
-            path = Helpers.get_from_file("shotrundir", "setup.json")
+            path = Helpers.get_from_file("shotrundir")
             perm=os.path.join(path, self.entry_diagnostic.get())
             if (self.enabled.get()):
                 if not (os.path.isdir(perm)):
@@ -110,7 +75,7 @@ class Diagnostic_Frame(tk.LabelFrame):
                         self.checkbtn_enabled.select()
                         text = "Cannot disable, destination contains files."
                         Helpers.Notice_Window(text)
-            for func in self.updater:
+            for func in self.update_funcs:
                 func()
                 # ERROR: enabling diagnostic attempts to update image
                 # but by definition the destination has no files
@@ -128,6 +93,40 @@ class Diagnostic_Frame(tk.LabelFrame):
         self.entry_ext.grid(row=2, column=1, pady=2)
         self.drop_process.grid(row=3, column=0, pady=2, padx=2)
         self.checkbtn_enabled.grid(row=3, column=1, pady=2)
+    
+    def load_from_workspace(self, workspace):
+        '''
+        Loads default data from input values generated from selected workspace
+        .json file
+        Workspace: dict containing diagnostic name, file extension, raw image
+        Enabling is set to false (will need error handling)
+        '''
+        # Enabling
+        self.enabled.set(False)
+
+        # Loading
+        try:
+            self.entry_diagnostic.delete(0, tk.END)
+            self.entry_diagnostic.insert(0, workspace["diagnostic"])
+            self.entry_dir.delete(0, tk.END)
+            self.entry_dir.insert(0, workspace["dir_temp"])
+            self.entry_ext.delete(0, tk.END)
+            self.entry_ext.insert(0, workspace["file_extension"])
+            self.drop_process.set(workspace["process"])
+        except KeyError:
+            Helpers.Error_Window("Incompatible workspace file.")
+
+    def get_workspace(self):
+        '''
+        Returns all variables needed to later recreate an identical frame
+        '''
+        workspace = {
+                "diagnostic": self.entry_diagnostic.get(),
+                "dir_temp" : self.entry_dir.get(),
+                "file_extension" : self.entry_ext.get(),
+                "process" : self.drop_process.get()
+            }
+        return workspace
 
 class UI(tk.Frame):
     '''
@@ -135,37 +134,6 @@ class UI(tk.Frame):
     Appears regardless of selected tab.
     Creates an instance of Diagnostic_Frame for each possible diagnostic.
     '''
-    def load_from_workspace(self, workspace):
-        '''
-        Sets all diagnostics to values stored in workspace
-        Workspace: list containing dicts of diagnostic values
-        '''
-        default_workspace = {
-                "dir_temp" : "",
-                "file_extension" : ".tif",
-                "process" : "Select a Process"
-            }
-        i = 0
-        for frame in self.frames:
-            if (len(workspace) <= i):
-                frame.load_from_workspace(default_workspace)
-            else:
-                frame.load_from_workspace(workspace[i])
-            i += 1
-
-    def get_workspace(self):
-        workspace = []
-        for frame in self.frames:
-            workspace.append(frame.get_workspace())
-        return workspace
-
-    def get_source_paths(self):
-        paths = []
-        for fr in self.frames:
-            if (fr.enabled.get()):
-                paths.append(fr.entry_dir.get())
-        return paths
-        
     def __init__(self, master, updater=None, **options):
         tk.Frame.__init__(self, master, **options)
 
@@ -184,6 +152,35 @@ class UI(tk.Frame):
                 fr.grid(row=r, column=c, padx=10, pady=5)
                 self.frames.append(fr)
                 count += 1
+    
+    def load_from_workspace(self, workspace):
+        '''
+        Sets all diagnostics to values stored in workspace
+        Workspace: list containing dicts of diagnostic values
+        '''
+        default_workspace = {
+                "dir_temp" : "",
+                "file_extension" : ".tif",
+                "process" : "Select a Process"
+            }
+        for frame, i in zip(self.frames, range(len(self.frames))):
+            if (len(workspace) <= i):
+                frame.load_from_workspace(default_workspace)
+            else:
+                frame.load_from_workspace(workspace[i])
+
+    def get_workspace(self):
+        workspace = []
+        for frame in self.frames:
+            workspace.append(frame.get_workspace())
+        return workspace
+
+    def get_source_paths(self):
+        paths = []
+        for fr in self.frames:
+            if (fr.enabled.get()):
+                paths.append(fr.entry_dir.get())
+        return paths
 
 def test():
     root = tk.Tk()

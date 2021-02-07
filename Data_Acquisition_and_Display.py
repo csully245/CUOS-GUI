@@ -1,7 +1,3 @@
-from tkinter import ttk
-import tkinter as tk
-import sys
-
 import Startup
 import Sidebar_Dialog
 import Helpers
@@ -12,6 +8,10 @@ import Image_Display_Single
 import Image_Display_Newest
 import Save_Controls
 
+from tkinter import ttk
+import tkinter as tk
+import sys
+
 #-------------------------------------------------
 # GUI
 #-------------------------------------------------
@@ -20,16 +20,6 @@ class Acquisition_Display:
     '''
     Master top-level GUI for data acquisition and display
     '''
-    def add_wksp_funcs(self, frame):
-        '''
-        Adds functions for saving and loading workspace data for a
-        particular tab's frame
-        '''
-        load = frame.load_from_workspace
-        self.workspace_load_funcs.append(load)
-        save = frame.get_workspace
-        self.workspace_save_funcs.append(save)
-
     def __init__(self):    
         Startup.startup()
 
@@ -94,6 +84,16 @@ class Acquisition_Display:
         self.menubar = Menu_Bar.UI(self.root, self.workspace_load_funcs,
                                    self.workspace_save_funcs, self.update_funcs)
         self.root.config(menu=self.menubar)
+    
+    def add_wksp_funcs(self, frame):
+        '''
+        Adds functions for saving and loading workspace data for a
+        particular tab's frame
+        '''
+        load = frame.load_from_workspace
+        self.workspace_load_funcs.append(load)
+        save = frame.get_workspace
+        self.workspace_save_funcs.append(save)
 
     def open(self):
         self.root.mainloop()

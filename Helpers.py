@@ -16,6 +16,18 @@ import time
 import pyautogui
 
 #-------------------------------------------------
+# Constants
+#-------------------------------------------------
+
+default_img_path = "assets/CUOS-med.png"
+date_default = {
+        "year": "0001",
+        "month": "01",
+        "day": "01"
+        }
+default_filename = "setup.json"
+
+#-------------------------------------------------
 # Generic Data Manipulation
 #-------------------------------------------------
 
@@ -37,10 +49,8 @@ class Notice_Window:
         self.root.title("Notice")
         self.root.iconbitmap("assets/UM.ico")
         self.root.geometry("500x50")
-        
         self.lbl = tk.Label(self.root, text=txt)
         self.lbl.pack(padx=10, pady=10)
-        
         self.root.mainloop()
 
 class Error_Window:
@@ -52,33 +62,19 @@ class Error_Window:
         self.root.title("Error")
         self.root.iconbitmap("assets/UM.ico")
         self.root.geometry("500x50")
-        
         self.lbl = tk.Label(self.root, text="Error: " + txt)
         self.lbl.pack()
         winsound.PlaySound("SystemExit", winsound.SND_ASYNC)
-        
         self.root.mainloop()
 
 #-------------------------------------------------
 # Image display
 #-------------------------------------------------
 
-default_img_path = "assets/CUOS-med.png"
-
 def rgb2gray(rgb):
     '''
-    Convert the 3-channel rgb image into grayscale
+    Converts the 3-channel rgb image into grayscale
     Developed by Yong Ma for Daq_Yong_v2.py
-    '''
-    '''
-    if ((len(rgb.shape)) == 3):
-        r, g, b = rgb[:,:,0] , rgb[:,:,1] , rgb[:,:,2]
-    elif ((len(rgb.shape)) == 2):
-        r, g, b = rgb[:,:,0] , rgb[:,:,1] , rgb[:,:,0]
-    else:
-        r, g, b = rgb[:,:,0] , rgb[:,:,0] , rgb[:,:,0]
-    gray  = 0.2989 * r + 0.587 * g + 0.114 * b
-    return gray
     '''
     r, g, b = rgb[:,:,0] , rgb[:,:,1] , rgb[:,:,2]
     gray  = 0.2989 * r + 0.587 * g + 0.114 * b
@@ -86,6 +82,8 @@ def rgb2gray(rgb):
 
 def resize_image(img, k, ratio, base):
     '''
+    Resizes PIL image
+
     Inputs:
     -img: PIL Image
     -k: float, scale factor
@@ -108,7 +106,7 @@ def resize_image(img, k, ratio, base):
 def load_image(img_path, root, k=1.0, ratio=2.0, base=200, recolor=False,
                 vmin=0, vmax=255):
     '''
-    Plots image using Image.open and ImageTk.PhotoImage
+    Plots image using ImageTk.PhotoImage
     
     Input:
         -img_path: string, filepath to plt.imread-acceptable source
@@ -136,7 +134,7 @@ def load_image(img_path, root, k=1.0, ratio=2.0, base=200, recolor=False,
 def plot_image(img_path, root, k=1.0, ratio=2.0, base=200, recolor=False,
                colormap=cm.magma, vmin=0, vmax=255, flipud=False):
     '''
-    Plots image using plt.imread and tk.Canvas
+    Plots image using plt.imshow and tk.Canvas
     Still in development and to be tested
     
     Input:
@@ -150,7 +148,6 @@ def plot_image(img_path, root, k=1.0, ratio=2.0, base=200, recolor=False,
     
     Note: plt subplot garbage collection must be handled on application end
     '''
-    
     # Create image plot
     img = Image.open(img_path)
     fig = Figure()
@@ -251,7 +248,7 @@ def get_shot_num(path):
 # File management
 #-------------------------------------------------
 
-def get_from_file(key, filename):
+def get_from_file(key, filename=default_filename):
     '''
     Returns value of key in dict stored in filename
     File must be .json and contain only a dict
@@ -263,7 +260,7 @@ def get_from_file(key, filename):
         return ""
     return data[key]
 
-def edit_file(key, value, filename):
+def edit_file(key, value, filename=default_filename):
     '''
     Sets value of key in dict stored in filename
     File must be .json and contain only a dict
@@ -277,34 +274,16 @@ def edit_file(key, value, filename):
     with open(filename, "w") as write_file:
         json.dump(data, write_file)
 
-def check_saved(dest, filename):
-    ''' Checks whether file saving functions completed and creates
-        appropriate message window
-    '''
-    if (os.path.isfile(dest + "/" + filename)):
-        return True
-    else:
-        return False
-
-def copy_raw_data(src, dest, num, diag):
-    '''
-    Copies file at location 'src' to directory 'dest'
-    with naming convention: diagnostic_date_s###
-    '''
-    ext = get_suffix(src, ".")
-    today = date.today()
-    name = diag + "_" + today.strftime("%Y%m%d")
-    name += "_s" + to_3_digit(num) + "." + ext
-    shutil.copy(src, dest + "/" + name)
-
 def save_most_recent(src, dest, diag, num):
     '''
     Copies the most recently edited file in the source directory into the
     destination
-    src: string, source file
-    dest: string, destination directory
-    diag: string, name of diagnostic
-    num: int/string, shot number
+    
+    Inputs:
+    -src: string, source file
+    -dest: string, destination directory
+    -diag: string, name of diagnostic
+    -num: int/string, shot number
     '''
     # Identify most recent file
     files = os.listdir(src)
@@ -313,13 +292,13 @@ def save_most_recent(src, dest, diag, num):
         new_files.append(src + "/" + file)
     path = max(new_files, key=os.path.getctime)
     num = to_3_digit(num)
-    copy_raw_data(path, dest, num, diag)
 
-date_default = {
-        "year": "0001",
-        "month": "01",
-        "day": "01"
-        }
+    # Copy raw data
+    ext = get_suffix(path, ".")
+    today = get_today()
+    name = diag + "_" + today.strftime("%Y%m%d")
+    name += "_s" + to_3_digit(num) + "." + ext
+    shutil.copy(path, os.path.join(dest, name))
 
 def get_today():
     '''
@@ -335,49 +314,39 @@ def get_today():
         return date(y, m, d)
     else:
         return date.today()
-    
-def take_screenshot():
-    img = ImageGrab.grab()
-    dest = "./Screenshots"
-    timestamp = strftime("%Y-%m-%d_%H.%M.%S")
-    name = dest + "/" + timestamp + ".png"
-    img.save(name, format="PNG")
 
-def save_plots(num, shotrundir, delay=0.5):
+def save_plots(num, shotrundir, delay=0.5, left=0.01, right=0.82,
+                top=0.079, bottom=0.65, x_button=0.2, y_button=0.063):
     '''
     Saves a screenshot, cropped to include only the recent display
-    num: int/str, shot number
-    shotrundir: str, shot run directory
-    delay: numeral, seconds to delay before taking screenshot
+
+    Inputs:
+    -num: int/str, shot number
+    -shotrundir: str, shot run directory
+    -delay: numeral, seconds to delay before taking screenshot
+    -left, right, top, bottom: float, ratio of screen to use for that margin
+    -x_button, y_button: float, ration of screen to use to press the button
+        for Recent Image Display
     '''
+    # Move to Recent Image Display
     width, height = pyautogui.size()
-    width *= 0.20
-    height *= 0.063
+    width *= x_button
+    height *= y_button
     pyautogui.click(width, height, button="left")
-    
     time.sleep(delay)
     
+    # Take and crop screenshot
     img = ImageGrab.grab()
     width, height = img.size
-    left = int(width * 0.01)
-    right = int(width * 0.82)
-    top = int(height * 0.079)
-    bottom = int(height * 0.65)
+    left = int(width * left)
+    right = int(width * right)
+    top = int(height * top)
+    bottom = int(height * bottom)
     img = img.crop((left, top, right, bottom))
 
+    # Save screenshot
     dest = os.path.join(shotrundir, "Aggregated Plots")
     if not (os.path.isdir(dest)):
         os.mkdir(dest)
     filename = "plot_agg_s" + to_3_digit(num) + ".png"
     img.save(os.path.join(dest, filename), format="PNG")
-
-def test_screenshots(period):
-    import time
-    baseline = time.perf_counter()
-    elapsed = time.perf_counter() - baseline
-    iterations = 0
-    while (elapsed < period):
-        take_screenshot()
-        iterations += 1
-        elapsed = time.perf_counter() - baseline
-    print(iterations / period)

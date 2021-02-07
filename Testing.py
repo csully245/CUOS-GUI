@@ -1,3 +1,5 @@
+import Helpers
+
 import tkinter as tk
 from PIL import Image, ImageTk, ImageGrab, ImageOps
 import time
@@ -5,20 +7,7 @@ import pyautogui
 import threading
 from numpy import median
 
-import Helpers
-
 class Example_UI:
-    def add_widget(self, func):
-        self.start_time = time.perf_counter()
-        widget, img = func("./assets/CUOS-med.png", self.root, recolor=True,
-                           k=1.5)
-        widget.pack()
-        self.runtime = time.perf_counter() - self.start_time
-        
-        time.sleep(self.safety_delay)
-        self.root.quit()
-        self.root.destroy()
-
     def __init__(self, func, safety_delay=0.5):
         self.root = tk.Tk()
         self.root.state('zoomed')
@@ -29,6 +18,17 @@ class Example_UI:
                              command=lambda: self.add_widget(func))
         self.btn.pack()
         self.root.mainloop()
+    
+    def add_widget(self, func):
+        self.start_time = time.perf_counter()
+        widget, img = func("./assets/CUOS-med.png", self.root, recolor=True,
+                           k=1.5)
+        widget.pack()
+        self.runtime = time.perf_counter() - self.start_time
+        
+        time.sleep(self.safety_delay)
+        self.root.quit()
+        self.root.destroy()
 
 def click_top_center(delay=0.1):
     time.sleep(delay)
@@ -78,17 +78,3 @@ def test_plot_image(safety_delay=0.0):
 def test_load_image(safety_delay=0.0):
     ui = Example_UI(Helpers.load_image, safety_delay)
     return ui.runtime
-
-def basic_test_load():
-    root = tk.Tk()
-    widget, img = Helpers.load_image("./assets/CUOS-med.png", root, recolor=True,
-                           k=1.5)
-    widget.pack()
-    root.mainloop()
-    
-def basic_test_plot():
-    root = tk.Tk()
-    widget, img = Helpers.plot_image("./assets/CUOS-med.png", root, recolor=True,
-                           k=1.5)
-    widget.pack()
-    root.mainloop()

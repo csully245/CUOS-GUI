@@ -54,4 +54,3 @@ def test():
     gui.pack()
     root.attributes('-topmost', True)
     root.mainloop()
-        

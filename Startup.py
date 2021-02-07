@@ -1,15 +1,76 @@
+import Helpers
+
 import os
 import json
 from datetime import date
 import tkinter as tk
-
-import Helpers
 
 class Startup_Menu(tk.Frame):
     '''
     Asks user for info needed to create shotrundir
     Instantiated in Sidebar_Dialog
     '''
+    def __init__(self, master, **options):
+        self.master = master
+        tk.Frame.__init__(self, master, **options)
+
+        # Shot Run Directory
+        txt="Enter shot run directory name"
+        self.lbl_run_name = tk.Label(self, text=txt)
+        
+        self.entry_run_name = tk.Entry(self, width=30)
+        self.entry_run_name.insert(0, "Shot_Run")
+
+        # Date
+        txt="Enter date"
+        self.lbl_date = tk.Label(self, text=txt)
+
+        self.frame_date_entries = tk.Frame(self)
+        today = date.today()
+        
+        self.entry_year = tk.Entry(self.frame_date_entries, width=15)
+        self.entry_year.insert(0, today.strftime("%Y"))
+        self.entry_year.grid(row=0, column=0)
+        
+        self.entry_month = tk.Entry(self.frame_date_entries, width=7)
+        self.entry_month.insert(0, today.strftime("%m"))
+        self.entry_month.grid(row=0, column=1)
+        
+        self.entry_day = tk.Entry(self.frame_date_entries, width=7)
+        self.entry_day.insert(0, today.strftime("%d"))
+        self.entry_day.grid(row=0, column=2)
+
+        # Run number
+        txt="Enter run number"
+        self.lbl_run_num = tk.Label(self, text=txt)
+        self.entry_run_num = tk.Entry(self, width=30)
+        self.entry_run_num.insert(0, "0")
+
+        # "Generate Shot Run Directory?" button
+        self.fr_generate = tk.Frame(self)
+        lbl_text = "Generate Shot Run Directory?"
+        self.lbl_generate = tk.Label(self.fr_generate, text=lbl_text)
+        self.lbl_generate.grid(row=0, column=0)
+        self.btn_generate = tk.Button(self.fr_generate, text="Ok",
+                                        command=lambda: self.generate())
+        self.btn_generate.grid(row=0, column=1)
+
+        # "Use last" button
+        self.fr_use_last = tk.Frame(self)
+        lbl_text = "Use Last Shot Run Directory?"
+        self.lbl_use_last = tk.Label(self.fr_use_last, text=lbl_text)
+        self.lbl_use_last.grid(row=0, column=0)
+        self.btn_use_last = tk.Button(self.fr_use_last, text="Ok",
+                                        command=lambda: self.use_last())
+        self.btn_use_last.grid(row=0, column=1)
+
+        # Gridding
+        self.entry_run_name.grid(row=0, column=0)
+        self.frame_date_entries.grid(row=1, column=0)
+        self.entry_run_num.grid(row=2, column=0)
+        self.fr_generate.grid(row=3, column=0)
+        self.fr_use_last.grid(row=4, column=0)
+    
     def get_data(self):
         date = {
             "year": self.entry_year.get(),
@@ -59,68 +120,6 @@ class Startup_Menu(tk.Frame):
         shotrundir = Helpers.get_from_file("shotrundir_last", "setup.json")
         Helpers.edit_file("shotrundir", shotrundir, "setup.json")
         self.grid_forget()
-        
-    def __init__(self, master, **options):
-        self.master = master
-        tk.Frame.__init__(self, master, **options)
-
-        # Shot Run Directory
-        txt="Enter shot run directory name"
-        self.lbl_run_name = tk.Label(self, text=txt)
-        
-        self.entry_run_name = tk.Entry(self, width=30)
-        self.entry_run_name.insert(0, "Shot_Run")
-
-        # Date
-        txt="Enter date"
-        self.lbl_date = tk.Label(self, text=txt)
-
-        self.frame_date_entries = tk.Frame(self)
-        today = date.today()
-        
-        self.entry_year = tk.Entry(self.frame_date_entries, width=15)
-        self.entry_year.insert(0, today.strftime("%Y"))
-        self.entry_year.grid(row=0, column=0)
-        
-        self.entry_month = tk.Entry(self.frame_date_entries, width=7)
-        self.entry_month.insert(0, today.strftime("%m"))
-        self.entry_month.grid(row=0, column=1)
-        
-        self.entry_day = tk.Entry(self.frame_date_entries, width=7)
-        self.entry_day.insert(0, today.strftime("%d"))
-        self.entry_day.grid(row=0, column=2)
-
-        # Run number
-        txt="Enter run number"
-        self.lbl_run_num = tk.Label(self, text=txt)
-        
-        self.entry_run_num = tk.Entry(self, width=30)
-        self.entry_run_num.insert(0, "0")
-
-        # "Generate Shot Run Directory?" button
-        self.fr_generate = tk.Frame(self)
-        lbl_text = "Generate Shot Run Directory?"
-        self.lbl_generate = tk.Label(self.fr_generate, text=lbl_text)
-        self.lbl_generate.grid(row=0, column=0)
-        self.btn_generate = tk.Button(self.fr_generate, text="Ok",
-                                        command=lambda: self.generate())
-        self.btn_generate.grid(row=0, column=1)
-
-        # "Use last" button
-        self.fr_use_last = tk.Frame(self)
-        lbl_text = "Use Last Shot Run Directory?"
-        self.lbl_use_last = tk.Label(self.fr_use_last, text=lbl_text)
-        self.lbl_use_last.grid(row=0, column=0)
-        self.btn_use_last = tk.Button(self.fr_use_last, text="Ok",
-                                        command=lambda: self.use_last())
-        self.btn_use_last.grid(row=0, column=1)
-
-        # Gridding
-        self.entry_run_name.grid(row=0, column=0)
-        self.frame_date_entries.grid(row=1, column=0)
-        self.entry_run_num.grid(row=2, column=0)
-        self.fr_generate.grid(row=3, column=0)
-        self.fr_use_last.grid(row=4, column=0)
 
 def startup():
     '''
@@ -153,7 +152,7 @@ def startup():
             os.mkdir(path)
     
     ''' Stores shot_run_name in setup.json '''
-    filename = "setup.json"
+    filename = Helpers.default_filename
     shotrundir_last = Helpers.get_from_file("shotrundir", filename)
     data = {
             "shotrundir": "./Shot_Runs/Shot_Run_Default",

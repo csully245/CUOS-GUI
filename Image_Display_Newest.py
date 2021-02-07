@@ -73,6 +73,31 @@ class UI(tk.Frame):
     '''
     Container for each diagnostic frame. Shows the most recent data from each diagnostic.
     '''
+    def __init__(self, master, **options):
+        tk.Frame.__init__(self, master, **options)
+
+        # Get diagnostics
+        self.shotrundir = Helpers.get_from_file("shotrundir")
+        diags = self.get_diagnostics()
+
+        # Display tiled images
+        rows = 2
+        columns = 3
+        self.frames = []
+        for c in range(columns):
+            for r in range(rows):
+                if (diags):
+                    diag = diags[0]
+                    del diags[0]
+                else:
+                    diag = ""
+                fr = Diagnostic_Display(self, diag, self.shotrundir)
+                fr.grid(row=r, column=c, padx=10, pady=5)
+                self.frames.append(fr)
+
+        self.btn_update = tk.Button(self, text="Update", command=lambda: self.update_diagnostics())
+        self.btn_update.grid(row=rows, column=1)
+    
     def load_from_workspace(self, workspace):
         '''
         Loads default data from input values generated from selected workspace
@@ -115,31 +140,6 @@ class UI(tk.Frame):
             else:
                 diag = ""
             frame.update_diagnostic(diag, self.shotrundir)
-    
-    def __init__(self, master, **options):
-        tk.Frame.__init__(self, master, **options)
-
-        # Get diagnostics
-        self.shotrundir = Helpers.get_from_file("shotrundir", "setup.json")
-        diags = self.get_diagnostics()
-
-        # Display tiled images
-        rows = 2
-        columns = 3
-        self.frames = []
-        for c in range(columns):
-            for r in range(rows):
-                if (diags):
-                    diag = diags[0]
-                    del diags[0]
-                else:
-                    diag = ""
-                fr = Diagnostic_Display(self, diag, self.shotrundir)
-                fr.grid(row=r, column=c, padx=10, pady=5)
-                self.frames.append(fr)
-
-        self.btn_update = tk.Button(self, text="Update", command=lambda: self.update_diagnostics())
-        self.btn_update.grid(row=rows, column=1)
 
 #-------------------------------------------------
 # Execution
