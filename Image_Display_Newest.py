@@ -24,7 +24,7 @@ class Diagnostic_Display(tk.LabelFrame):
                 path = max(files, key=os.path.getctime)
             else:
                 path = Helpers.default_img_path
-            self.img_path = path
+        self.img_path = path
         if not (os.path.isfile(self.img_path)):
             error_text = "Image path does not exist: " + self.img_path
             Helpers.Error_Window(error_text)

@@ -4,7 +4,6 @@ from tkinter import filedialog as fd
 import tkinter as tk
 from tkinter import ttk
 import os
-import threading
 
 class UI(tk.Frame):
     '''
@@ -40,9 +39,12 @@ class UI(tk.Frame):
                 Helpers.save_most_recent(path, dest, name, num)
         for func in self.update_funcs:
             func()
+        Helpers.save_plots(self.entry_num.get(), shotrundir)
+        '''
         t1 = threading.Thread(target=Helpers.save_plots,
                     args=(self.entry_num.get(), shotrundir))
         t1.start()
+        '''
         num += 1
         self.entry_num.delete(0, tk.END)
         self.entry_num.insert(0, str(num))

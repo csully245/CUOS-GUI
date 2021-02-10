@@ -14,6 +14,7 @@ from datetime import date
 from time import strftime
 import time
 import pyautogui
+import threading
 
 #-------------------------------------------------
 # Constants
@@ -131,7 +132,7 @@ def load_image(img_path, root, k=1.0, ratio=2.0, base=200, recolor=False,
     img = ImageTk.PhotoImage(img)
     return (tk.Label(root, image=img), img)
 
-def plot_image(img_path, root, k=1.0, ratio=2.0, base=200, recolor=False,
+def plot_image(img_path, root, k=1.0, ratio=2.0, base=240, recolor=False,
                colormap=cm.magma, vmin=0, vmax=255, flipud=False):
     '''
     Plots image using plt.imshow and tk.Canvas
@@ -155,7 +156,7 @@ def plot_image(img_path, root, k=1.0, ratio=2.0, base=200, recolor=False,
     # Edit plot settings
     base_size = 2.5
     fig, plot1 = plt.subplots(1, subplot_kw={'aspect': 'auto'},
-                    figsize=(ratio*base_size,base_size))
+                    figsize=(ratio*base_size, base_size))
     xleft, xright = plot1.get_xlim()
     ybottom, ytop = plot1.get_ylim()
     plot1.set_aspect(abs((xright-xleft)/(ybottom-ytop))*ratio)
@@ -177,6 +178,7 @@ def plot_image(img_path, root, k=1.0, ratio=2.0, base=200, recolor=False,
     canvas = FigureCanvasTkAgg(fig, master=root)
     canvas.draw()
     canvas = canvas.get_tk_widget()
+    canvas.configure(width=ratio*base, height=base)
     return (canvas, fig)
 
 def delete_img(img):
@@ -315,7 +317,7 @@ def get_today():
     else:
         return date.today()
 
-def save_plots(num, shotrundir, delay=0.5, left=0.01, right=0.82,
+def save_plots(num, shotrundir, delay=1, left=0.01, right=0.82,
                 top=0.079, bottom=0.65, x_button=0.2, y_button=0.063):
     '''
     Saves a screenshot, cropped to include only the recent display
@@ -328,25 +330,39 @@ def save_plots(num, shotrundir, delay=0.5, left=0.01, right=0.82,
     -x_button, y_button: float, ration of screen to use to press the button
         for Recent Image Display
     '''
-    # Move to Recent Image Display
-    width, height = pyautogui.size()
-    width *= x_button
-    height *= y_button
-    pyautogui.click(width, height, button="left")
-    time.sleep(delay)
-    
-    # Take and crop screenshot
-    img = ImageGrab.grab()
-    width, height = img.size
-    left = int(width * left)
-    right = int(width * right)
-    top = int(height * top)
-    bottom = int(height * bottom)
-    img = img.crop((left, top, right, bottom))
 
-    # Save screenshot
-    dest = os.path.join(shotrundir, "Aggregated Plots")
-    if not (os.path.isdir(dest)):
-        os.mkdir(dest)
-    filename = "plot_agg_s" + to_3_digit(num) + ".png"
-    img.save(os.path.join(dest, filename), format="PNG")
+    # Define threads
+    def thread_a(x_button, y_button):
+        ''' Switches tab to Recent Image Display '''
+        width, height = pyautogui.size()
+        width *= x_button
+        height *= y_button
+        pyautogui.click(width, height, button="left")
+    
+    def thread_b(num, shotrundir, delay, left, right,
+                top, bottom, x_button, y_button):
+        ''' Saves screenshot '''
+        # Delay to leave time for tab switching
+        time.sleep(delay)
+
+        # Take and crop screenshot
+        img = ImageGrab.grab()
+        width, height = img.size
+        left = int(width * left)
+        right = int(width * right)
+        top = int(height * top)
+        bottom = int(height * bottom)
+        img = img.crop((left, top, right, bottom))
+
+        # Save screenshot
+        dest = os.path.join(shotrundir, "Aggregated Plots")
+        if not (os.path.isdir(dest)):
+            os.mkdir(dest)
+        filename = "plot_agg_s" + to_3_digit(num) + ".png"
+        img.save(os.path.join(dest, filename), format="PNG")
+    
+    # Operate
+    t1 = threading.Thread(target=thread_b, args=(num, shotrundir, delay,
+                    left, right, top, bottom, x_button, y_button))
+    t1.start()
+    thread_a(x_button, y_button)
