@@ -203,8 +203,6 @@ def max_num_in_dir(path):
     pic_names = os.listdir(path)
     nums = []
     for name in pic_names:
-        if not ".tif" in name:
-            continue
         pic = name.partition(".")[0]
         pic = pic.partition("_s")[2]
         try:
@@ -358,7 +356,22 @@ def save_plots(num, shotrundir, delay=1, left=0.01, right=0.82,
         dest = os.path.join(shotrundir, "Aggregated Plots")
         if not (os.path.isdir(dest)):
             os.mkdir(dest)
-        filename = "plot_agg_s" + to_3_digit(num) + ".png"
+        filename = "plot_agg_s" + to_3_digit(num)
+        ext = ".png"
+        # Check for duplicates
+        tag = "_v"
+        num = 1
+        if (os.path.isfile(os.path.join(dest, filename) + ext)):
+            # Add "_v#" tag for alternate save
+            base = os.path.join(dest, filename)
+            base = base.partition(ext)[0]
+            tag = "_v"
+            num = 1
+            while (os.path.isfile(base + tag + str(num) + ext)):
+                num += 1
+            filename += tag + str(num)
+        filename += ext
+        # Save
         img.save(os.path.join(dest, filename), format="PNG")
     
     # Operate

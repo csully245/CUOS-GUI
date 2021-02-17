@@ -183,8 +183,9 @@ class UI(tk.Frame):
 
         # Plot
         vmin, vmax, flipud = self.fr_options.get()
+        size = 700
         self.wgt_img.grid_forget()
-        Helpers.delete_img(self.img)
+        garbage_img = self.img
         if (self.img_path == Helpers.default_img_path):
             self.wgt_img, self.img = Helpers.load_image(self.img_path,
                                                 self, recolor=False)
@@ -192,8 +193,9 @@ class UI(tk.Frame):
             self.wgt_img, self.img = Helpers.plot_image(self.img_path,
                                                 self, recolor=True,
                                                 vmin=vmin, vmax=vmax,
-                                                flipud=flipud)
+                                                flipud=flipud, base=size)
         self.wgt_img.grid(row=0, column=0)
+        Helpers.delete_img(garbage_img)
 
     def update_buttonstate(self):
         '''
@@ -205,11 +207,15 @@ class UI(tk.Frame):
             self.arrow_left.config(state='disabled')
             self.arrow_right.config(state='disabled')
             return
+
+        # Left button
         img_num = int(self.entry_num.get())
         if (img_num == 0):
             self.arrow_left.config(state='disabled')
         else:
             self.arrow_left.config(state='active')
+        
+        # Right button
         max_num = Helpers.max_num_in_dir(path)
         if (img_num == max_num):
             self.arrow_right.config(state='disabled')

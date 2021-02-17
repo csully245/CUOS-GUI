@@ -18,11 +18,15 @@ class UI(tk.Frame):
                                     command=lambda: self.save_most_recent())
         self.btn_save_recent.grid(row=0, column=0)
 
+        self.btn_save_current = tk.Button(self, text="Save With These Settings",
+                                    command=lambda: self.save_most_recent(increment=False))
+        self.btn_save_current.grid(row=0, column=1)
+
         self.entry_num = tk.Entry(self)
         self.entry_num.insert(0, "0")
         self.entry_num.grid(row=1, column=0)
     
-    def save_most_recent(self):
+    def save_most_recent(self, increment=True):
         ''' Saves most recent shot data '''
         diag_data = self.wksp_diag()
         paths = []
@@ -32,6 +36,10 @@ class UI(tk.Frame):
             names.append(diag["diagnostic"])
         shotrundir = Helpers.get_from_file("shotrundir")
         num = int(self.entry_num.get())
+        if (increment):
+            num += 1
+            self.entry_num.delete(0, tk.END)
+            self.entry_num.insert(0, str(num))
         for path, name in zip(paths, names):
             dest = os.path.join(shotrundir, name)
             # ADD: check if enabled
@@ -40,11 +48,3 @@ class UI(tk.Frame):
         for func in self.update_funcs:
             func()
         Helpers.save_plots(self.entry_num.get(), shotrundir)
-        '''
-        t1 = threading.Thread(target=Helpers.save_plots,
-                    args=(self.entry_num.get(), shotrundir))
-        t1.start()
-        '''
-        num += 1
-        self.entry_num.delete(0, tk.END)
-        self.entry_num.insert(0, str(num))
