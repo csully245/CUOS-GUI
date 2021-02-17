@@ -315,8 +315,7 @@ def get_today():
     else:
         return date.today()
 
-def save_plots(num, shotrundir, delay=1, left=0.01, right=0.82,
-                top=0.079, bottom=0.65, x_button=0.2, y_button=0.063):
+def save_plots(num, shotrundir, delay=0.8):
     '''
     Saves a screenshot, cropped to include only the recent display
 
@@ -324,9 +323,6 @@ def save_plots(num, shotrundir, delay=1, left=0.01, right=0.82,
     -num: int/str, shot number
     -shotrundir: str, shot run directory
     -delay: numeral, seconds to delay before taking screenshot
-    -left, right, top, bottom: float, ratio of screen to use for that margin
-    -x_button, y_button: float, ration of screen to use to press the button
-        for Recent Image Display
     '''
 
     # Define threads
@@ -374,6 +370,24 @@ def save_plots(num, shotrundir, delay=1, left=0.01, right=0.82,
         # Save
         img.save(os.path.join(dest, filename), format="PNG")
     
+    # Get dimensions
+    '''
+    -left, right, top, bottom: float, ratio of screen to use for that margin
+    -x_button, y_button: float, ration of screen to use to press the button
+        for Recent Image Display
+    
+    dimensions.json must be adjusted to match the settings of a particular
+    computer screen. Using pyautogui.position() is a good way to get the
+    coordinates of a certain mouse position
+    '''
+    dimensions = get_from_file("dimensions", "./assets/dimensions.json")
+    left = dimensions["left"]
+    right = dimensions["right"]
+    top = dimensions["top"]
+    bottom = dimensions["bottom"]
+    x_button = dimensions["x_button"]
+    y_button = dimensions["y_button"]
+
     # Operate
     t1 = threading.Thread(target=thread_b, args=(num, shotrundir, delay,
                     left, right, top, bottom, x_button, y_button))
