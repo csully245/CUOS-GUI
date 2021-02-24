@@ -109,7 +109,7 @@ class Startup_Menu(tk.Frame):
             # Makes a new dir
             os.mkdir(shotrundir)
             Helpers.edit_file("shotrundir", shotrundir, "setup.json")
-        self.grid_forget()
+        self.destroy()
 
     def use_last(self):
         '''
@@ -119,7 +119,7 @@ class Startup_Menu(tk.Frame):
         '''
         shotrundir = Helpers.get_from_file("shotrundir_last", "setup.json")
         Helpers.edit_file("shotrundir", shotrundir, "setup.json")
-        self.grid_forget()
+        self.destroy()
 
 def startup():
     '''
