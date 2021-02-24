@@ -3,10 +3,8 @@ import Image_Options_Menu
 
 from tkinter import ttk
 import tkinter as tk
-from PIL import Image, ImageTk
 import os
-from matplotlib import pyplot as plt
-  
+
 #-------------------------------------------------
 # Top-level GUI
 #-------------------------------------------------  
@@ -115,10 +113,10 @@ class UI(tk.Frame):
         self.options_dirs = {"Select a Diagnostic":"./"}
         shotrundir = Helpers.get_from_file("shotrundir")
         for dr in os.listdir(shotrundir):
-            #if (os.path.isdir(dr)):
             path = os.path.join(shotrundir, dr)
-            self.options_dirs[dr] = path
-            self.options.append(dr)
+            if (os.path.isdir(path)):
+                self.options_dirs[dr] = path
+                self.options.append(dr)
 
     def update_dropdown(self):
         '''
