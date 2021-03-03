@@ -3,7 +3,7 @@ High rep rate data acquisition software for the Center for Ultrafast Optical Sci
 
 Currently only for GUI
 
-Non-native dependencies: matplotlib, PIL, numpy
+Non-native dependencies: matplotlib, PIL, numpy, pyautogui
 
 Top-level module: Data_Acquisition_and_Display
 
