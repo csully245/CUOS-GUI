@@ -353,7 +353,9 @@ def save_plots(num, shotrundir, delay=0.8):
         width, height = pyautogui.size()
         width *= x_button
         height *= y_button
+        x, y = pyautogui.position()
         pyautogui.click(width, height, button="left")
+        pyautogui.moveTo(x, y)
 
     def thread_b(num, shotrundir, delay, x_button, y_button):
         """ Saves screenshot """

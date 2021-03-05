@@ -3,7 +3,7 @@ import Image_Options_Menu
 
 import os
 import tkinter as tk
-from matplotlib import pyplot as plt
+import tkinter.font
 
 class Diagnostic_Display(tk.LabelFrame):
     '''
@@ -76,6 +76,10 @@ class UI(tk.Frame):
     def __init__(self, master, **options):
         tk.Frame.__init__(self, master, **options)
 
+        self.lbl_shot_num = tk.Label(self, text="Shot #000")
+        self.lbl_shot_num.grid(row=0, column=0, columnspan=4)
+        self.lbl_shot_num.config(font=("Arial", 24))
+
         # Get diagnostics
         self.shotrundir = Helpers.get_from_file("shotrundir")
         diags = self.get_diagnostics()
@@ -92,11 +96,11 @@ class UI(tk.Frame):
                 else:
                     diag = ""
                 fr = Diagnostic_Display(self, diag, self.shotrundir)
-                fr.grid(row=r, column=c, padx=10, pady=5)
+                fr.grid(row=r+1, column=c+1, padx=10, pady=5)
                 self.frames.append(fr)
 
         self.btn_update = tk.Button(self, text="Update", command=lambda: self.update_diagnostics())
-        self.btn_update.grid(row=rows, column=1)
+        self.btn_update.grid(row=rows+1, column=1)
     
     def load_from_workspace(self, workspace):
         '''
@@ -140,6 +144,10 @@ class UI(tk.Frame):
             else:
                 diag = ""
             frame.update_diagnostic(diag, self.shotrundir)
+        shot_num = Helpers.get_from_file("shot_num", "setup.json")
+        shot_num = Helpers.to_3_digit(shot_num)
+        text = "Shot #" + shot_num
+        self.lbl_shot_num.config(text=text)
 
 #-------------------------------------------------
 # Execution

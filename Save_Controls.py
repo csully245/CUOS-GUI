@@ -45,6 +45,7 @@ class UI(tk.Frame):
             # ADD: check if enabled
             if (os.path.isdir(path) and os.path.isdir(dest) and name != ""):
                 Helpers.save_most_recent(path, dest, name, num)
+        Helpers.edit_file("shot_num", self.entry_num.get(), "setup.json")
         for func in self.update_funcs:
             func()
         Helpers.save_plots(self.entry_num.get(), shotrundir)

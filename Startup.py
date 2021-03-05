@@ -157,7 +157,8 @@ def startup():
     data = {
             "shotrundir": "./Shot_Runs/Shot_Run_Default",
             "shotrundir_last": shotrundir_last,
-            "date": Helpers.date_default
+            "date": Helpers.date_default,
+            "shot_num": "0"
             }
     with open(filename,"w") as write_file:
             json.dump(data,write_file)

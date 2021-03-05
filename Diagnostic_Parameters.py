@@ -6,7 +6,7 @@ from tkinter import ttk
 import os
 
 class Diagnostic_Frame(tk.LabelFrame):
-    '''
+    """
     Sub-frame for options for each unique diagnostic
     Interactive widgets:
     -entry_diagnostic: enter name of diagnostic, used for shotrundir file name
@@ -14,7 +14,7 @@ class Diagnostic_Frame(tk.LabelFrame):
     -entry_ext: enter file extension, to unpack data if plt.imread() fails
     -checkbtn_raw: no functionality
     -checkbtn_enabled: determines whether the diagnostic is ready to transmit
-    '''
+    """
     def __init__(self, master, num, update_funcs):
         self.update_funcs = update_funcs
         tk.LabelFrame.__init__(self, master, text="Diagnostic " + str(num))
