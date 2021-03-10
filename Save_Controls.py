@@ -28,22 +28,24 @@ class UI(tk.Frame):
     
     def save_most_recent(self, increment=True):
         ''' Saves most recent shot data '''
-        diag_data = self.wksp_diag()
+        diag_data = Helpers.get_from_file("diagnostics", "diagnostic_data.json")
         paths = []
         names = []
+        enabled_states = []
         for diag in diag_data:
             paths.append(diag["dir_temp"])
             names.append(diag["diagnostic"])
+            enabled_states.append(diag["enabled"])
         shotrundir = Helpers.get_from_file("shotrundir")
         num = int(self.entry_num.get())
-        if (increment):
+        if increment:
             num += 1
             self.entry_num.delete(0, tk.END)
             self.entry_num.insert(0, str(num))
-        for path, name in zip(paths, names):
+        for path, name, enabled in zip(paths, names, enabled_states):
             dest = os.path.join(shotrundir, name)
-            # ADD: check if enabled
-            if (os.path.isdir(path) and os.path.isdir(dest) and name != ""):
+            if (os.path.isdir(path) and os.path.isdir(dest)
+                    and name != "" and enabled):
                 Helpers.save_most_recent(path, dest, name, num)
         Helpers.edit_file("shot_num", self.entry_num.get(), "setup.json")
         for func in self.update_funcs:

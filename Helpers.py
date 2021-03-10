@@ -139,7 +139,7 @@ def load_image(img_path, root, k=1.0, ratio=2.0, base=200, recolor=False,
     return (tk.Label(root, image=img), img)
 
 
-def plot_image(img_path, root, k=1.0, ratio=1.75, base=-1, recolor=False,
+def plot_image(img_path, root, k=1.0, ratio=1.5, base=-1, recolor=False,
                colormap=cm.magma, vmin=0, vmax=255, flipud=False):
     '''
     Plots image using plt.imshow and tk.Canvas
