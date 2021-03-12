@@ -139,12 +139,12 @@ def load_image(img_path, root, k=1.0, ratio=2.0, base=200, recolor=False,
     return (tk.Label(root, image=img), img)
 
 
-def plot_image(img_path, root, k=1.0, ratio=1.5, base=-1, recolor=False,
+def plot_image(img_path, root, k=1.0, base=-1, recolor=False,
                colormap=cm.magma, vmin=0, vmax=255, flipud=False):
-    '''
+    """
     Plots image using plt.imshow and tk.Canvas
     Still in development and to be tested
-    
+
     Input:
         -img_path: string, filepath to plt.imread-acceptable source
         -k: float, scale factor
@@ -153,17 +153,20 @@ def plot_image(img_path, root, k=1.0, ratio=1.5, base=-1, recolor=False,
         -flipud: bool, whether or not to flip img vertically
     Output:
         -tuple: (tkinter Canvas of plt Figure, plt subplot)
-    
+
     Note: plt subplot garbage collection must be handled on application end
-    '''
+    """
     # Create image plot
     img = Image.open(img_path)
     fig = Figure()
 
     # Edit plot settings
+    dimensions = get_from_file("dimensions", "assets/dimensions.json")
+    ratio = dimensions["ratio"]
     base_size = 2.5
     fig, plot1 = plt.subplots(1, subplot_kw={'aspect': 'auto'},
                               figsize=(ratio * base_size, base_size))
+    plt.subplots_adjust(left=0.01, right=0.99, top=0.99, bottom=0.01)
     xleft, xright = plot1.get_xlim()
     ybottom, ytop = plot1.get_ylim()
     plot1.set_aspect(abs((xright - xleft) / (ybottom - ytop)) * ratio)
@@ -186,7 +189,6 @@ def plot_image(img_path, root, k=1.0, ratio=1.5, base=-1, recolor=False,
     canvas.draw()
     canvas = canvas.get_tk_widget()
     if base == -1:
-        dimensions = get_from_file("dimensions", "assets/dimensions.json")
         base = dimensions["img_size"]
     canvas.configure(width=ratio * base, height=base)
     return canvas, fig
@@ -337,7 +339,7 @@ def get_today():
     else:
         return date.today()
 
-def save_plots(num, shotrundir, delay=0.8):
+def save_plots(num, shotrundir):
     '''
     Saves a screenshot, cropped to include only the recent display
 
@@ -406,6 +408,7 @@ def save_plots(num, shotrundir, delay=0.8):
     dimensions = get_from_file("dimensions", "./assets/dimensions.json")
     x_button = dimensions["x_button"]
     y_button = dimensions["y_button"]
+    delay = dimensions["time_delay"]
 
     # Operate
     t1 = threading.Thread(target=thread_b, args=(num, shotrundir, delay,

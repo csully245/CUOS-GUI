@@ -19,7 +19,7 @@ class UI(tk.Frame):
         self.btn_save_recent.grid(row=0, column=0)
 
         self.btn_save_current = tk.Button(self, text="Save With These Settings",
-                                    command=lambda: self.save_most_recent(increment=False))
+                                    command=lambda: self.save_current())
         self.btn_save_current.grid(row=0, column=1)
 
         self.entry_num = tk.Entry(self)
@@ -50,4 +50,8 @@ class UI(tk.Frame):
         Helpers.edit_file("shot_num", self.entry_num.get(), "setup.json")
         for func in self.update_funcs:
             func()
+        Helpers.save_plots(self.entry_num.get(), shotrundir)
+
+    def save_current(self):
+        shotrundir = Helpers.get_from_file("shotrundir")
         Helpers.save_plots(self.entry_num.get(), shotrundir)
