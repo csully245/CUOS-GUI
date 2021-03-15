@@ -55,7 +55,7 @@ class Diagnostic_Display(tk.LabelFrame):
         self.shotrundir = shotrundir
 
         self.img_path = Helpers.default_img_path
-        self.wgt_img, self.img = Helpers.load_image(self.img_path,
+        self.wgt_img, self.img = Helpers.plot_image(self.img_path,
                                                     self)
 
         self.fr_options = Image_Options_Menu.UI(self)

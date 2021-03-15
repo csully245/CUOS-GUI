@@ -143,7 +143,8 @@ def startup():
     paths = ["./Shot_Runs",
              "./Shot_Runs/Shot_Run_Default",
              "./Workspaces",
-             "./Screenshots"
+             "./Screenshots",
+             "./Zipped Experiments"
              ]
     for path in paths:
         if not (os.path.isdir(path)):
@@ -169,6 +170,3 @@ def startup():
     diagnostic_out = {"diagnostics": diagnostic_data}
     with open("diagnostic_data.json", "w") as write_file:
         json.dump(diagnostic_out, write_file)
-
-
-startup()
