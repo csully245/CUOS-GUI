@@ -114,10 +114,10 @@ class UI(tk.Menu):
 
             shotrundir = Helpers.get_from_file("shotrundir")
             shotrundir_name = Helpers.get_suffix(shotrundir, "/")
-            os.chdir("./Zipped Experiments")
+            #os.chdir("./Zipped Experiments")
 
             # Make zipped shots folder
-            folder_name = "Zipped_Shots_" + shotrundir_name
+            folder_name = "./Zipped Experiments/Zipped_Shots_" + shotrundir_name
             if not os.path.isdir(folder_name):
                 os.mkdir(folder_name)
             else:
@@ -157,22 +157,23 @@ class UI(tk.Menu):
                     break
 
                 # Zip files
-                os.chdir(folder_name)
                 shot_folder_name = shotrundir_name + "_Shot"
                 shot_folder_name += Helpers.to_3_digit(shot_num)
+                shot_folder_name = os.path.join(folder_name, shot_folder_name)
                 for file_path in files_of_shot:
                     file_name = Helpers.get_suffix(file_path, "\\")
+                    file_name = os.path.join(folder_name, file_name)
                     shutil.copy(file_path, file_name)
                 zip_file = ZipFile(shot_folder_name + ".zip", "w")
-                for f in os.listdir(os.getcwd()):
+                base_dir = os.getcwd()
+                os.chdir(folder_name)
+                for f in os.listdir("./"):
                     if ".zip" not in f:
                         zip_file.write(f)
                         os.remove(f)
+                os.chdir(base_dir)
                 zip_file.close()
-
-                os.chdir("..")
                 shot_num += 1
-            os.chdir("..")
 
         # Assemble menu bar
         self.filemenu = tk.Menu(self, tearoff=0)
