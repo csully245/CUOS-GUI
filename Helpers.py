@@ -1,18 +1,21 @@
-import tkinter as tk
-import winsound
-import numpy as np
-from PIL import Image, ImageTk, ImageGrab, ImageOps
-from matplotlib import pyplot as plt
-from matplotlib.figure import Figure
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-from matplotlib import cm
 import json
 import os
 import shutil
-from datetime import date
-import time
-import pyautogui
 import threading
+import time
+import tkinter as tk
+import winsound
+from datetime import date
+
+import numpy as np
+from scipy.interpolate import interp1d
+import pyautogui
+from PIL import Image, ImageTk, ImageGrab, ImageOps
+from matplotlib import colors
+from matplotlib import cm
+from matplotlib import pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from matplotlib.figure import Figure
 
 # -------------------------------------------------
 # Constants
@@ -139,8 +142,9 @@ def load_image(img_path, root, k=1.0, ratio=2.0, base=200, recolor=False,
     return (tk.Label(root, image=img), img)
 
 
-def plot_image(img_path, root, k=1.0, base=-1, recolor=False,
-               colormap=cm.magma, vmin=0, vmax=255, flipud=False):
+def plot_image(img_path, root, base=-1, recolor=False,
+               colormap=cm.magma, vmin=0, vmax=255, flipud=False,
+               display_process="Raw Image"):
     """
     Plots image using plt.imshow and tk.Canvas
     Still in development and to be tested
@@ -170,18 +174,94 @@ def plot_image(img_path, root, k=1.0, base=-1, recolor=False,
     xleft, xright = plot1.get_xlim()
     ybottom, ytop = plot1.get_ylim()
     plot1.set_aspect(abs((xright - xleft) / (ybottom - ytop)) * ratio)
-    plot1.tick_params(axis='both', which='both',
-                      bottom=False, left=False, labelbottom=False,
-                      labelleft=False)
     img_arr = np.asarray(img)
-    if len(img_arr.shape) > 2:
-        img_arr = rgb2gray(img_arr)
     if flipud:
         img_arr = np.flipud(img_arr)
-    if recolor:
+
+    if display_process == "Raw Image":
+        plot1.tick_params(axis='both', which='both',
+                          bottom=False, left=False, labelbottom=False,
+                          labelleft=False)
+        plot1.imshow(img_arr, rasterized=True, aspect='auto')
+    elif display_process == "Color Map":
+        plot1.tick_params(axis='both', which='both',
+                          bottom=False, left=False, labelbottom=False,
+                          labelleft=False)
+        if len(img_arr.shape) > 2:
+            img_arr = rgb2gray(img_arr)
         plot1.imshow(img_arr, vmin=vmin, vmax=vmax, cmap=colormap,
                      rasterized=True, aspect='auto')
+    elif display_process == "ESPEC 1":
+        """ Developed by Yong Ma for daq_Yong_2021_espec_PMT.py"""
+        # Parameters
+        dispersion1 = np.loadtxt('./dispersion_20210106_e1.txt')
+        dispersion2 = np.loadtxt('./dispersion_20210106_e2.txt')
+        f1 = interp1d(dispersion1[0], dispersion1[1], fill_value='extrapolate')
+        f2 = interp1d(dispersion2[0], dispersion2[1], fill_value='extrapolate')
+        espec1_start = 0
+        espec1_end = 1392
+        espec2_start = 114
+        espec2_end = 2469
+        pixels1 = np.arange(0, (espec1_end - espec1_start))
+        pixels2 = np.arange(0, (espec2_end - espec2_start))
+        meter_per_pixel1 = 0.2 / (1235 - 41)
+        meter_per_pixel2 = 0.23 / (2654 - 495)
+        Lip_pxiel1 = pixels1 * meter_per_pixel1
+        Lip_pxiel2 = pixels2 * meter_per_pixel2
+        energy_itp1 = f1(Lip_pxiel1[::-1])
+        energy_itp2 = f2(Lip_pxiel2[::-1])
+        lanex1totcc = 0.15
+        lanex2totcc = 0.3
+        cmap_bella = colors.LinearSegmentedColormap.from_list('cmap_bella',
+                                                              ['white', 'blue', 'red', 'yellow'], 201)
+
+        # Execution
+        bg1 = np.mean(img_arr[50:200, espec1_start:espec1_end], axis=0)
+        espec1 = img_arr[250:600, espec1_start:espec1_end] - bg1
+        theta1 = np.arange(0, 600 - 250) * meter_per_pixel1 / lanex1totcc * 1000
+        extent = (energy_itp1.min(), energy_itp1.max(), theta1.min(), theta1.max())
+        plot1.imshow(espec1, extent=extent, vmin=vmin, vmax=vmax, cmap=cmap_bella, aspect='auto')
+        plot1.set_ylabel(r'$\rm \theta \ [mrad]$')
+        plot1.set_xlabel(r'Energy [MeV]')
+    elif display_process == "ESPEC 2":
+        """ Developed by Yong Ma for daq_Yong_2021_espec_PMT.py"""
+        # Parameters
+        dispersion1 = np.loadtxt('./dispersion_20210106_e1.txt')
+        dispersion2 = np.loadtxt('./dispersion_20210106_e2.txt')
+        f1 = interp1d(dispersion1[0], dispersion1[1], fill_value='extrapolate')
+        f2 = interp1d(dispersion2[0], dispersion2[1], fill_value='extrapolate')
+        espec1_start = 0
+        espec1_end = 1392
+        espec2_start = 114
+        espec2_end = 2469
+        pixels1 = np.arange(0, (espec1_end - espec1_start))
+        pixels2 = np.arange(0, (espec2_end - espec2_start))
+        meter_per_pixel1 = 0.2 / (1235 - 41)
+        meter_per_pixel2 = 0.23 / (2654 - 495)
+        Lip_pxiel1 = pixels1 * meter_per_pixel1
+        Lip_pxiel2 = pixels2 * meter_per_pixel2
+        energy_itp1 = f1(Lip_pxiel1[::-1])
+        energy_itp2 = f2(Lip_pxiel2[::-1])
+        lanex1totcc = 0.15
+        lanex2totcc = 0.3
+        cmap_bella = colors.LinearSegmentedColormap.from_list('cmap_bella',
+                                                              ['white', 'blue', 'red', 'yellow'], 201)
+
+        # Execution
+        bg2 = np.mean(img_arr[50:500, espec2_start:espec2_end], axis=0)
+        espec2 = img_arr[400:1300, espec2_start:espec2_end] - bg2
+        theta2 = np.arange(0, 1300 - 400) * meter_per_pixel2 / lanex2totcc * 1000
+        extent = (energy_itp2.min(), energy_itp2.max(), theta2.min(), theta2.max())
+
+        plot1.imshow(espec2, extent=extent, vmin=vmin, vmax=vmax, cmap=cmap_bella, aspect='auto')
+        plot1.set_ylabel(r'$\rm \theta \ [mrad]$')
+        plot1.set_xlabel(r'Energy [MeV]')
     else:
+        plot1.tick_params(axis='both', which='both',
+                          bottom=False, left=False, labelbottom=False,
+                          labelleft=False)
+        if len(img_arr.shape) > 2:
+            img_arr = rgb2gray(img_arr)
         plot1.imshow(img_arr, rasterized=True, aspect='auto')
 
     # Return tk.Canvas
@@ -313,6 +393,7 @@ def save_most_recent(src, dest, diag, num,
         ext = get_suffix(file, ".").lower()
         if ext in extensions:
             new_files.append(src + "/" + file)
+            continue
     path = max(new_files, key=os.path.getctime)
     num = to_3_digit(num)
 
@@ -338,6 +419,7 @@ def get_today():
         return date(y, m, d)
     else:
         return date.today()
+
 
 def save_plots(num, shotrundir):
     '''

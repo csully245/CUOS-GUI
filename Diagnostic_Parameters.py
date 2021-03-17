@@ -44,7 +44,10 @@ class Diagnostic_Frame(tk.LabelFrame):
         self.entry_ext.insert(0, ".tif")
 
         self.process_options = [
-            "Raw Image"
+            "Raw Image",
+            "Color Map",
+            "ESPEC 1",
+            "ESPEC 2"
         ]
         self.process = tk.StringVar()
         self.process.set(self.process_options[0])
