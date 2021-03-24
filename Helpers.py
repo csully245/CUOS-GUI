@@ -137,7 +137,7 @@ def plot_image(img_path, root, base=-1, colormap=cm.magma,
     fig = Figure()
 
     # Edit plot settings
-    dimensions = get_from_file("dimensions", "assets/dimensions.json")
+    dimensions = get_from_file("dimensions", "dimensions.json")
     ratio = dimensions["ratio"]
     base_size = 2.5
     fig, plot1 = plt.subplots(1, subplot_kw={'aspect': 'auto'},
@@ -448,7 +448,7 @@ def save_plots(num, shotrundir, book):
             im.save(os.path.join(dest, filename))
 
     # Get dimensions
-    dimensions = get_from_file("dimensions", "./assets/dimensions.json")
+    dimensions = get_from_file("dimensions", "dimensions.json")
     delay = dimensions["time_delay"]
 
     # Operate
