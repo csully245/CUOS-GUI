@@ -73,7 +73,7 @@ class Acquisition_Display:
         self.add_wksp_funcs(self.fr_diag_params)
 
         wksp_diag = self.fr_diag_params.get_workspace
-        self.fr_save = Save_Controls.UI(self.root, wksp_diag, self.update_funcs)
+        self.fr_save = Save_Controls.UI(self.root, wksp_diag, self.update_funcs, self.book)
         self.fr_save.grid(row=1, column=0)
         
         # File Menu

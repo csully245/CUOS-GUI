@@ -10,12 +10,13 @@ from datetime import date
 import numpy as np
 from scipy.interpolate import interp1d
 import pyautogui
-from PIL import Image, ImageTk, ImageGrab, ImageOps
+from PIL import Image, ImageGrab
 from matplotlib import colors
 from matplotlib import cm
 from matplotlib import pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
+import win32gui
 
 # -------------------------------------------------
 # Constants
@@ -113,37 +114,8 @@ def resize_image(img, k, ratio, base):
     return out
 
 
-def load_image(img_path, root, k=1.0, ratio=2.0, base=200, recolor=False,
-               vmin=0, vmax=255):
-    '''
-    Plots image using ImageTk.PhotoImage
-    
-    Input:
-        -img_path: string, filepath to plt.imread-acceptable source
-        -k: float, scale factor
-        -ratio: float, aspect ratio (W:H)
-        -base: int, W/H dimensions at k=1.0
-        -recolor: bool, whether or not to recolor the image
-        -black: color to use for black pixels in recolor
-        -white: color to use for white pixels in recolor
-    Output:
-        -tuple: (tkinter Label, tkinter PhotoImage)
-    '''
-    img = Image.open(img_path)
-    img = resize_image(img, k, ratio, base)
-    if (recolor):
-        black = "black"
-        white = "white"
-        img = np.asarray(img)
-        img = np.clip(img, vmin, vmax)
-        img = Image.fromarray(img)
-        img = ImageOps.colorize(img.convert("L"), black=black, white=white)
-    img = ImageTk.PhotoImage(img)
-    return (tk.Label(root, image=img), img)
-
-
-def plot_image(img_path, root, base=-1, recolor=False,
-               colormap=cm.magma, vmin=0, vmax=255, flipud=False,
+def plot_image(img_path, root, base=-1, colormap=cm.magma,
+               vmin=0, vmax=255, flipud=False,
                display_process="Raw Image"):
     """
     Plots image using plt.imshow and tk.Canvas
@@ -170,7 +142,6 @@ def plot_image(img_path, root, base=-1, recolor=False,
     base_size = 2.5
     fig, plot1 = plt.subplots(1, subplot_kw={'aspect': 'auto'},
                               figsize=(ratio * base_size, base_size))
-    plt.subplots_adjust(left=0.01, right=0.99, top=0.99, bottom=0.01)
     xleft, xright = plot1.get_xlim()
     ybottom, ytop = plot1.get_ylim()
     plot1.set_aspect(abs((xright - xleft) / (ybottom - ytop)) * ratio)
@@ -179,89 +150,77 @@ def plot_image(img_path, root, base=-1, recolor=False,
         img_arr = np.flipud(img_arr)
 
     if display_process == "Raw Image":
+        plt.subplots_adjust(left=0.01, right=0.99, top=0.99, bottom=0.01)
         plot1.tick_params(axis='both', which='both',
                           bottom=False, left=False, labelbottom=False,
                           labelleft=False)
         plot1.imshow(img_arr, rasterized=True, aspect='auto')
     elif display_process == "Color Map":
+        plt.subplots_adjust(left=0.01, right=0.99, top=0.99, bottom=0.01)
         plot1.tick_params(axis='both', which='both',
                           bottom=False, left=False, labelbottom=False,
                           labelleft=False)
-        if len(img_arr.shape) > 2:
-            img_arr = rgb2gray(img_arr)
         plot1.imshow(img_arr, vmin=vmin, vmax=vmax, cmap=colormap,
                      rasterized=True, aspect='auto')
     elif display_process == "ESPEC 1":
+        plt.subplots_adjust(left=0.18, right=0.95, top=0.95, bottom=0.18)
         """ Developed by Yong Ma for daq_Yong_2021_espec_PMT.py"""
-        # Parameters
         dispersion1 = np.loadtxt('./dispersion_20210106_e1.txt')
-        dispersion2 = np.loadtxt('./dispersion_20210106_e2.txt')
         f1 = interp1d(dispersion1[0], dispersion1[1], fill_value='extrapolate')
-        f2 = interp1d(dispersion2[0], dispersion2[1], fill_value='extrapolate')
         espec1_start = 0
         espec1_end = 1392
-        espec2_start = 114
-        espec2_end = 2469
         pixels1 = np.arange(0, (espec1_end - espec1_start))
-        pixels2 = np.arange(0, (espec2_end - espec2_start))
         meter_per_pixel1 = 0.2 / (1235 - 41)
-        meter_per_pixel2 = 0.23 / (2654 - 495)
         Lip_pxiel1 = pixels1 * meter_per_pixel1
-        Lip_pxiel2 = pixels2 * meter_per_pixel2
         energy_itp1 = f1(Lip_pxiel1[::-1])
-        energy_itp2 = f2(Lip_pxiel2[::-1])
         lanex1totcc = 0.15
-        lanex2totcc = 0.3
         cmap_bella = colors.LinearSegmentedColormap.from_list('cmap_bella',
                                                               ['white', 'blue', 'red', 'yellow'], 201)
-
-        # Execution
-        bg1 = np.mean(img_arr[50:200, espec1_start:espec1_end], axis=0)
-        espec1 = img_arr[250:600, espec1_start:espec1_end] - bg1
-        theta1 = np.arange(0, 600 - 250) * meter_per_pixel1 / lanex1totcc * 1000
-        extent = (energy_itp1.min(), energy_itp1.max(), theta1.min(), theta1.max())
-        plot1.imshow(espec1, extent=extent, vmin=vmin, vmax=vmax, cmap=cmap_bella, aspect='auto')
-        plot1.set_ylabel(r'$\rm \theta \ [mrad]$')
-        plot1.set_xlabel(r'Energy [MeV]')
+        try:
+            bg1 = np.mean(img_arr[50:200, espec1_start:espec1_end], axis=0)
+            espec1 = img_arr[250:600, espec1_start:espec1_end] - bg1
+            theta1 = np.arange(0, 600 - 250) * meter_per_pixel1 / lanex1totcc * 1000
+            extent = (energy_itp1.min(), energy_itp1.max(), theta1.min(), theta1.max())
+            plot1.imshow(espec1, extent=extent, vmin=vmin, vmax=vmax, cmap=cmap_bella, aspect='auto')
+            plot1.set_ylabel(r'$\rm \theta \ [mrad]$')
+            plot1.set_xlabel(r'Energy [MeV]')
+        except ValueError:
+            error_text = "Image incompatible with ESPEC 1 processing \n"
+            error_text += "File path: " + img_path
+            Error_Window(error_text)
+            return
     elif display_process == "ESPEC 2":
+        plt.subplots_adjust(left=0.18, right=0.95, top=0.95, bottom=0.18)
         """ Developed by Yong Ma for daq_Yong_2021_espec_PMT.py"""
-        # Parameters
-        dispersion1 = np.loadtxt('./dispersion_20210106_e1.txt')
         dispersion2 = np.loadtxt('./dispersion_20210106_e2.txt')
-        f1 = interp1d(dispersion1[0], dispersion1[1], fill_value='extrapolate')
         f2 = interp1d(dispersion2[0], dispersion2[1], fill_value='extrapolate')
-        espec1_start = 0
-        espec1_end = 1392
         espec2_start = 114
         espec2_end = 2469
-        pixels1 = np.arange(0, (espec1_end - espec1_start))
         pixels2 = np.arange(0, (espec2_end - espec2_start))
-        meter_per_pixel1 = 0.2 / (1235 - 41)
         meter_per_pixel2 = 0.23 / (2654 - 495)
-        Lip_pxiel1 = pixels1 * meter_per_pixel1
         Lip_pxiel2 = pixels2 * meter_per_pixel2
-        energy_itp1 = f1(Lip_pxiel1[::-1])
         energy_itp2 = f2(Lip_pxiel2[::-1])
-        lanex1totcc = 0.15
         lanex2totcc = 0.3
         cmap_bella = colors.LinearSegmentedColormap.from_list('cmap_bella',
                                                               ['white', 'blue', 'red', 'yellow'], 201)
+        try:
+            bg2 = np.mean(img_arr[50:500, espec2_start:espec2_end], axis=0)
+            espec2 = img_arr[400:1300, espec2_start:espec2_end] - bg2
+            theta2 = np.arange(0, 1300 - 400) * meter_per_pixel2 / lanex2totcc * 1000
+            extent = (energy_itp2.min(), energy_itp2.max(), theta2.min(), theta2.max())
 
-        # Execution
-        bg2 = np.mean(img_arr[50:500, espec2_start:espec2_end], axis=0)
-        espec2 = img_arr[400:1300, espec2_start:espec2_end] - bg2
-        theta2 = np.arange(0, 1300 - 400) * meter_per_pixel2 / lanex2totcc * 1000
-        extent = (energy_itp2.min(), energy_itp2.max(), theta2.min(), theta2.max())
-
-        plot1.imshow(espec2, extent=extent, vmin=vmin, vmax=vmax, cmap=cmap_bella, aspect='auto')
-        plot1.set_ylabel(r'$\rm \theta \ [mrad]$')
-        plot1.set_xlabel(r'Energy [MeV]')
+            plot1.imshow(espec2, extent=extent, vmin=vmin, vmax=vmax, cmap=cmap_bella, aspect='auto')
+            plot1.set_ylabel(r'$\rm \theta \ [mrad]$')
+            plot1.set_xlabel(r'Energy [MeV]')
+        except ValueError:
+            error_text = "Image incompatible with ESPEC 2 processing \n"
+            error_text += "File path: " + img_path
+            Error_Window(error_text)
+            return
     else:
         plot1.tick_params(axis='both', which='both',
                           bottom=False, left=False, labelbottom=False,
                           labelleft=False)
-        if len(img_arr.shape) > 2:
-            img_arr = rgb2gray(img_arr)
         plot1.imshow(img_arr, rasterized=True, aspect='auto')
 
     # Return tk.Canvas
@@ -421,7 +380,7 @@ def get_today():
         return date.today()
 
 
-def save_plots(num, shotrundir):
+def save_plots(num, shotrundir, book):
     '''
     Saves a screenshot, cropped to include only the recent display
 
@@ -432,39 +391,46 @@ def save_plots(num, shotrundir):
     '''
 
     # Define threads
-    def thread_a(x_button, y_button):
+    def thread_a(book):
         """ Switches tab to Recent Image Display """
-        width, height = pyautogui.size()
-        width *= x_button
-        height *= y_button
-        x, y = pyautogui.position()
-        pyautogui.click(width, height, button="left")
-        pyautogui.moveTo(x, y)
+        book.select('.!frame.!notebook.!frame5')
 
-    def thread_b(num, shotrundir, delay, x_button, y_button):
+    def thread_b(num, shotrundir, delay):
         """ Saves screenshot """
         # Delay to leave time for tab switching
         time.sleep(delay)
 
         # Take and crop screenshot
         img = ImageGrab.grab()
-        '''
-        width, height = img.size
-        left = int(width * left)
-        right = int(width * right)
-        top = int(height * top)
-        bottom = int(height * bottom)
-        img = img.crop((left, top, right, bottom))
-        '''
 
-        # Save screenshot
+        def windowEnumerationHandler(hwnd, top_windows):
+            top_windows.append((hwnd, win32gui.GetWindowText(hwnd)))
+
+        # Set active window
+        top_windows = []
+        win32gui.EnumWindows(windowEnumerationHandler, top_windows)
+        window_name = "Data Acquisition and Display"
+        for i in top_windows:
+            if window_name in i[1]:
+                win32gui.ShowWindow(i[0], 5)
+                try:
+                    win32gui.SetForegroundWindow(i[0])
+                except:
+                    pass
+                break
+
+        # Save screenshot to clipboard
+        pyautogui.keyDown("alt")
+        pyautogui.press("printscreen")
+        pyautogui.keyUp("alt")
+
+        # Generate file name
         dest = os.path.join(shotrundir, "Aggregated Plots")
         if not (os.path.isdir(dest)):
             os.mkdir(dest)
         filename = "plot_agg_s" + to_3_digit(num)
         ext = ".png"
         # Check for duplicates
-        tag = "_v"
         if os.path.isfile(os.path.join(dest, filename) + ext):
             # Add "_v#" tag for alternate save
             base = os.path.join(dest, filename)
@@ -475,25 +441,17 @@ def save_plots(num, shotrundir):
                 num += 1
             filename += tag + str(num)
         filename += ext
-        # Save
-        img.save(os.path.join(dest, filename), format="PNG")
+
+        # Save screenshot to disk
+        im = ImageGrab.grabclipboard()
+        if isinstance(im, Image.Image):
+            im.save(os.path.join(dest, filename))
 
     # Get dimensions
-    '''
-    -x_button, y_button: float, ration of screen to use to press the button
-        for Recent Image Display
-    
-    dimensions.json must be adjusted to match the settings of a particular
-    computer screen. Using pyautogui.position() is a good way to get the
-    coordinates of a certain mouse position
-    '''
     dimensions = get_from_file("dimensions", "./assets/dimensions.json")
-    x_button = dimensions["x_button"]
-    y_button = dimensions["y_button"]
     delay = dimensions["time_delay"]
 
     # Operate
-    t1 = threading.Thread(target=thread_b, args=(num, shotrundir, delay,
-                                                 x_button, y_button))
+    t1 = threading.Thread(target=thread_b, args=(num, shotrundir, delay))
     t1.start()
-    thread_a(x_button, y_button)
+    thread_a(book)
