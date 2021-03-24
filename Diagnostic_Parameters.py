@@ -71,19 +71,6 @@ class Diagnostic_Frame(tk.LabelFrame):
         self.btn_dir = tk.Button(self, text="Select Directory",
                                  command=lambda: select_dir(self))
 
-        def enable_diagnostic(self):
-            '''
-            Manages data source and destination folders for diagnostic
-            Adds folder for diagnostic in shot_run_dir if setting to enable
-            Updates diagnostic_data.json
-            '''
-            path = Helpers.get_from_file("shotrundir")
-            perm = os.path.join(path, self.entry_diagnostic.get())
-            if self.enabled.get() and not os.path.isdir(perm):
-                os.mkdir(perm)
-            for func in self.update_funcs:
-                func()
-
         self.checkbtn_enabled = tk.Checkbutton(self, text="Enable Diagnostic",
                                                variable=self.enabled,
                                                command=lambda: \
@@ -99,17 +86,25 @@ class Diagnostic_Frame(tk.LabelFrame):
         self.drop_process.grid(row=3, column=0, pady=2, padx=2)
         self.checkbtn_enabled.grid(row=3, column=1, pady=2)
 
+    def enable_diagnostic(self):
+        '''
+        Manages data source and destination folders for diagnostic
+        Adds folder for diagnostic in shot_run_dir if setting to enable
+        Updates diagnostic_data.json
+        '''
+        path = Helpers.get_from_file("shotrundir")
+        perm = os.path.join(path, self.entry_diagnostic.get())
+        if self.enabled.get() and not os.path.isdir(perm):
+            os.mkdir(perm)
+        for func in self.update_funcs:
+            func()
+
     def load_from_workspace(self, workspace):
         '''
         Loads default data from input values generated from selected workspace
         .json file
         Workspace: dict containing diagnostic name, file extension, raw image
-        Enabling is set to false (will need error handling)
         '''
-        # Enabling
-        self.enabled.set(False)
-
-        # Loading
         try:
             """ Error somewhere in this block """
             self.entry_diagnostic.delete(0, tk.END)
@@ -121,6 +116,8 @@ class Diagnostic_Frame(tk.LabelFrame):
             self.drop_process.set(workspace["process"])
             if self.enabled.get() != workspace["enabled"]:
                 self.checkbtn_enabled.toggle()
+            if self.enabled.get():
+                self.enable_diagnostic()
         except KeyError:
             Helpers.Error_Window("Incompatible workspace file.")
 

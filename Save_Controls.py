@@ -9,10 +9,11 @@ class UI(tk.Frame):
     '''
     Frame for buttons that control saving shot data
     '''
-    def __init__(self, master, wksp_diag, update_funcs, **options):
+    def __init__(self, master, wksp_diag, update_funcs, book, **options):
         tk.Frame.__init__(self, master, **options)
         self.wksp_diag = wksp_diag
         self.update_funcs = update_funcs
+        self.book = book
             
         self.btn_save_recent = tk.Button(self, text="Save Most Recent",
                                     command=lambda: self.save_most_recent())
@@ -50,7 +51,7 @@ class UI(tk.Frame):
         Helpers.edit_file("shot_num", self.entry_num.get(), "setup.json")
         for func in self.update_funcs:
             func()
-        Helpers.save_plots(self.entry_num.get(), shotrundir)
+        Helpers.save_plots(self.entry_num.get(), shotrundir, self.book)
 
     def save_current(self):
         shotrundir = Helpers.get_from_file("shotrundir")

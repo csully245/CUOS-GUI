@@ -24,8 +24,7 @@ class UI(tk.Frame):
 
         # Image and colorbar
         self.img_path = Helpers.default_img_path
-        self.wgt_img, self.img = Helpers.load_image(self.img_path, self,
-                                                    k=scale)
+        self.wgt_img, self.img = Helpers.plot_image(self.img_path, self)
         self.wgt_img.grid(row=0, column=0)
         
         # Frames
@@ -172,6 +171,13 @@ class UI(tk.Frame):
         '''
         Updates image to selected image in entry
         '''
+        # Get diagnostic data
+        diagnostic_data = Helpers.get_from_file("diagnostics", "diagnostic_data.json")
+        display_process = "Raw Image"
+        for diagnostic in diagnostic_data:
+            if diagnostic["diagnostic"] == self.diagnostic:
+                display_process = diagnostic["process"]
+
         # Locate image path
         self.img_path = self.get_img_path()
         if not (os.path.isfile(self.img_path)):
@@ -184,12 +190,12 @@ class UI(tk.Frame):
         size = 700
         self.wgt_img.grid_forget()
         garbage_img = self.img
-        if (self.img_path == Helpers.default_img_path):
-            self.wgt_img, self.img = Helpers.load_image(self.img_path,
-                                                self, recolor=False)
+        if self.img_path == Helpers.default_img_path:
+            self.wgt_img, self.img = Helpers.plot_image(self.img_path,
+                                                self)
         else:
             self.wgt_img, self.img = Helpers.plot_image(self.img_path,
-                                                self, recolor=True,
+                                                self, display_process=display_process,
                                                 vmin=vmin, vmax=vmax,
                                                 flipud=flipud, base=size)
         self.wgt_img.grid(row=0, column=0)
