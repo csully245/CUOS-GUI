@@ -73,8 +73,7 @@ class Diagnostic_Frame(tk.LabelFrame):
 
         self.checkbtn_enabled = tk.Checkbutton(self, text="Enable Diagnostic",
                                                variable=self.enabled,
-                                               command=lambda: \
-                                                   enable_diagnostic(self))
+                                               command=lambda: self.enable_diagnostic())
 
         # Gridding
         self.lbl_1.grid(row=0, column=0, pady=2)

@@ -1,8 +1,6 @@
 import Helpers
 
-from tkinter import filedialog as fd
 import tkinter as tk
-from tkinter import ttk
 import os
 
 class UI(tk.Frame):
@@ -55,4 +53,4 @@ class UI(tk.Frame):
 
     def save_current(self):
         shotrundir = Helpers.get_from_file("shotrundir")
-        Helpers.save_plots(self.entry_num.get(), shotrundir)
+        Helpers.save_plots(self.entry_num.get(), shotrundir, self.book)
