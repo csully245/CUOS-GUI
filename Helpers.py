@@ -41,6 +41,20 @@ def get_suffix(word, delimeter):
         word = word.partition(delimeter)[2]
     return word
 
+def get_terminal_path(path):
+    '''
+    Returns the last step of a path
+    Edge cases:
+    -Delimeters: / or \\ or mixed
+    -Ends with delimeter or not
+    '''
+    # Convert "\\" to "/"
+    while "\\" in path:
+        part = path.partition("\\")
+        path = part[0] + "/" + part[2]
+    if path[-1] == "/":
+        path = path[0:-1]
+    return get_suffix(path, "/")
 
 # -------------------------------------------------
 # Message Windows

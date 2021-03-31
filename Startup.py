@@ -98,9 +98,10 @@ class Startup_Menu(tk.Frame):
         # Checks if shotrundir already exists
         menu_data = self.get_data()
         date = menu_data["date"]
-        shotrundir = "./Shot_Runs" + "/"
-        shotrundir += menu_data["run_name"] + "_"
+        base_shotrundir = Helpers.get_from_file("base_shotrundir", "dimensions.json")
+        shotrundir = menu_data["run_name"] + "_"
         shotrundir += date["year"] + date["month"] + date["day"] + "_"
+        shotrundir = os.path.join(base_shotrundir, shotrundir)
         while os.path.isdir(shotrundir + menu_data["run_num"]):
             menu_data["run_num"] = str(1 + int(menu_data["run_num"]))
         shotrundir += menu_data["run_num"]
@@ -143,8 +144,7 @@ def startup():
     paths = ["./Shot_Runs",
              "./Shot_Runs/Shot_Run_Default",
              "./Workspaces",
-             "./Screenshots",
-             "./Zipped Experiments"
+             "./Screenshots"
              ]
     for path in paths:
         if not (os.path.isdir(path)):
@@ -156,6 +156,7 @@ def startup():
     data = {
         "shotrundir": "./Shot_Runs/Shot_Run_Default",
         "shotrundir_last": shotrundir_last,
+        "base_shotrundir": "./Shot_Runs",
         "date": Helpers.date_default,
         "shot_num": "0"
     }

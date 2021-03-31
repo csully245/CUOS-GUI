@@ -7,6 +7,7 @@ import json
 from zipfile import ZipFile
 import shutil
 
+
 class UI(tk.Menu):
     '''
     Menu bar with file dropdown menu
@@ -94,30 +95,35 @@ class UI(tk.Menu):
             '''
             Sets the directory for the permanent (destination) files
             '''
-            self.path_perm = fd.askdirectory(initialdir="./Shot_Runs",
+            initial_dir = Helpers.get_from_file("base_shotrundir", "setup.json")
+            self.path_perm = fd.askdirectory(initialdir=initial_dir,
                                              title="Set Permanent Storage Directory")
             perm_dir_file = open("PermDirFile", "w")
             perm_dir_file.write(self.path_perm)
             Helpers.edit_file("shotrundir", self.path_perm)
 
-            if (update_funcs):
+            if update_funcs:
                 for func in update_funcs:
                     func()
+
+        def set_base_shotrundir():
+            initial_dir = Helpers.get_from_file("base_shotrundir", "dimensions.json")
+            initial_dir = fd.askdirectory(initialdir=initial_dir,
+                                          title="Set Base of Permanent Storage Directory")
+            Helpers.edit_file("base_shotrundir", initial_dir, "dimensions.json")
 
         def zip_shotrundir():
             """
             Compresses the shot run directory into .zip files by shot num
-            Folder: ./Zipped_Shots_(shotrundir name)
+            Folder: ./(shotrundir)/Zipped_Shots_(shotrundir name)
             .zip files: (shotrundir name)_shot###
             Files within .zip files: diagnostic_shot### (same name as origin)
             """
-
             shotrundir = Helpers.get_from_file("shotrundir")
-            shotrundir_name = Helpers.get_suffix(shotrundir, "/")
-            #os.chdir("./Zipped Experiments")
+            shotrundir_name = Helpers.get_terminal_path(shotrundir)
 
             # Make zipped shots folder
-            folder_name = "./Zipped Experiments/Zipped_Shots_" + shotrundir_name
+            folder_name = os.path.join(shotrundir, "Zipped_Shots_" + shotrundir_name)
             if not os.path.isdir(folder_name):
                 os.mkdir(folder_name)
             else:
@@ -136,6 +142,8 @@ class UI(tk.Menu):
                 shot_num_str = "s" + Helpers.to_3_digit(shot_num)
                 files_of_shot = []
                 for diagnostic in os.listdir(shotrundir):
+                    if "Zipped_Shots_" in diagnostic:
+                        continue
                     # Identify all shots of this number in the diagnostic
                     files = os.listdir(os.path.join(shotrundir, diagnostic))
                     files_of_shot_in_diagnostic = []
@@ -180,6 +188,8 @@ class UI(tk.Menu):
         self.add_cascade(label="File", menu=self.filemenu)
         self.filemenu.add_command(label="Select Shot Run Directory",
                                   command=lambda: set_path_perm(self))
+        self.filemenu.add_command(label="Select Base of Shot Run Directory",
+                                  command=set_base_shotrundir)
         self.filemenu.add_command(label="Zip Shot Run Directory",
                                   command=zip_shotrundir)
         self.filemenu.add_command(label="Load Workspace",
@@ -196,6 +206,6 @@ class UI(tk.Menu):
 
 def test():
     root = tk.Tk()
-    menubar = UI(root)
-    root.config(menu=menubar)
+    menu_bar = UI(root)
+    root.config(menu=menu_bar)
     root.mainloop()

@@ -63,7 +63,7 @@ class UI(tk.Frame):
         Buttons for moving to the previous or next picture
         '''
         self.entry_num = tk.Entry(self.fr_controls)
-        self.set_shot_num(0)
+        self.set_shot_num(1)
         self.entry_num.grid(row=1, column=2)
 
         self.arrow_left = tk.Button(self.fr_controls, text="Previous Image",

@@ -12,15 +12,17 @@ from tkinter import ttk
 import tkinter as tk
 import sys
 
-#-------------------------------------------------
+
+# -------------------------------------------------
 # GUI
-#-------------------------------------------------
+# -------------------------------------------------
 
 class Acquisition_Display:
     '''
     Master top-level GUI for data acquisition and display
     '''
-    def __init__(self):    
+
+    def __init__(self):
         Startup.startup()
 
         self.root = tk.Tk()
@@ -35,22 +37,22 @@ class Acquisition_Display:
         # Organization
         self.fr_sidebar = Sidebar_Dialog.UI(self.root)
         self.fr_sidebar.grid(row=0, column=1)
-        
+
         self.bookframe = tk.Frame()
         self.bookframe.grid(row=0, column=0)
         self.book = ttk.Notebook(self.bookframe)
-        
+
         self.tab_main = ttk.Frame(self.book)
         self.tab_diag_params = ttk.Frame(self.book)
         self.tab_single_image = ttk.Frame(self.book)
         self.tab_montage = ttk.Frame(self.book)
         self.tab_newest = ttk.Frame(self.book)
-        
+
         self.book.add(self.tab_main, text="Main")
         self.book.add(self.tab_diag_params, text="Diagnostic Parameters")
         self.book.add(self.tab_single_image, text="Single Image Display")
         self.book.add(self.tab_newest, text="Recent Image Display")
-        
+
         self.book.pack(expand=1, fill="both")
 
         # Imported Widgets
@@ -75,7 +77,7 @@ class Acquisition_Display:
         wksp_diag = self.fr_diag_params.get_workspace
         self.fr_save = Save_Controls.UI(self.root, wksp_diag, self.update_funcs, self.book)
         self.fr_save.grid(row=1, column=0)
-        
+
         # File Menu
         '''
         Identical in function to General Parameters, but uses a dropdown
@@ -84,7 +86,7 @@ class Acquisition_Display:
         self.menubar = Menu_Bar.UI(self.root, self.workspace_load_funcs,
                                    self.workspace_save_funcs, self.update_funcs)
         self.root.config(menu=self.menubar)
-    
+
     def add_wksp_funcs(self, frame):
         '''
         Adds functions for saving and loading workspace data for a
@@ -100,10 +102,12 @@ class Acquisition_Display:
 
     def close(self):
         self.root.quit()
+        quit()
 
-#-------------------------------------------------
+
+# -------------------------------------------------
 # Execution
-#-------------------------------------------------
+# -------------------------------------------------
 
 def run():
     '''
@@ -118,5 +122,6 @@ def run():
         error_message = "(unhandled) " + str(sys.exc_info()[0])
         error_message += "\nClosed Data Acquisition and Display"
         Helpers.Error_Window(error_message)
-        
+
+
 run()

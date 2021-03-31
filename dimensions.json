@@ -1,1 +1,1 @@
-{"dimensions": {"x_button": 0.2, "y_button": 0.063, "img_size":  300, "ratio":  1.2, "time_delay": 0.8}}
+{"dimensions": {"img_size": 350, "ratio": 1.5, "time_delay": 0.8}, "base_shotrundir": "C:/Users/jsull/PycharmProjects/CUOS-HRR/Shot_Runs"}

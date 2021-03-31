@@ -31,11 +31,11 @@ class Diagnostic_Display(tk.LabelFrame):
             files = []
             for file in os.listdir(self.diag_path):
                 filename = os.path.join(self.diag_path, file)
-                extensions = ["png", "jpg", "jpeg", "tif", "tiff"]
+                extensions = [".png", ".jpg", ".jpeg", ".tif", ".tiff"]
                 if not os.path.isfile(filename):
                     continue
                 for extension in extensions:
-                    if extension in filename:
+                    if extension in filename.lower():
                         files.append(filename)
                         break
             if files:
@@ -93,7 +93,7 @@ class UI(tk.Frame):
         self.fr_tiled = tk.Frame(self)
         self.fr_tiled.grid(row=1, column=0)
         rows = 2
-        columns = 4
+        columns = 3
         self.frames = []
         for c in range(columns):
             for r in range(rows):
