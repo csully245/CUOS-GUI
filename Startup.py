@@ -153,10 +153,11 @@ def startup():
     ''' Stores shot_run_name in setup.json '''
     filename = Helpers.default_filename
     shotrundir_last = Helpers.get_from_file("shotrundir", filename)
+    base_shotrundir_last = Helpers.get_from_file("base_shotrundir", filename)
     data = {
         "shotrundir": "./Shot_Runs/Shot_Run_Default",
         "shotrundir_last": shotrundir_last,
-        "base_shotrundir": "./Shot_Runs",
+        "base_shotrundir": filename,
         "date": Helpers.date_default,
         "shot_num": "0"
     }

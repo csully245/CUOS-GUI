@@ -61,7 +61,7 @@ class UI(tk.Menu):
 
         # Save Current Workspace
         ''' Assign null function if no functions are passed '''
-        if (workspace_save == None or len(workspace_save) == 0):
+        if workspace_save == None or len(workspace_save) == 0:
             self.workspace_save = [null]
         else:
             self.workspace_save = workspace_save
@@ -98,6 +98,8 @@ class UI(tk.Menu):
             initial_dir = Helpers.get_from_file("base_shotrundir", "setup.json")
             self.path_perm = fd.askdirectory(initialdir=initial_dir,
                                              title="Set Permanent Storage Directory")
+            if self.path_perm == "":
+                self.path_perm = "./Shot_Runs/Shot_Run_Default"
             perm_dir_file = open("PermDirFile", "w")
             perm_dir_file.write(self.path_perm)
             Helpers.edit_file("shotrundir", self.path_perm)

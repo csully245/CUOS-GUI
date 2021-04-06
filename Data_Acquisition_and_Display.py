@@ -6,6 +6,7 @@ import Main_tab
 import Diagnostic_Parameters
 import Image_Display_Single
 import Image_Display_Newest
+import Upload_Settings
 import Save_Controls
 
 from tkinter import ttk
@@ -47,11 +48,13 @@ class Acquisition_Display:
         self.tab_single_image = ttk.Frame(self.book)
         self.tab_montage = ttk.Frame(self.book)
         self.tab_newest = ttk.Frame(self.book)
+        self.tab_upload = ttk.Frame(self.book)
 
         self.book.add(self.tab_main, text="Main")
         self.book.add(self.tab_diag_params, text="Diagnostic Parameters")
         self.book.add(self.tab_single_image, text="Single Image Display")
         self.book.add(self.tab_newest, text="Recent Image Display")
+        self.book.add(self.tab_upload, text="Upload Settings")
 
         self.book.pack(expand=1, fill="both")
 
@@ -67,6 +70,9 @@ class Acquisition_Display:
         self.fr_recent_image = Image_Display_Newest.UI(self.tab_newest)
         self.fr_recent_image.pack()
         self.update_funcs.append(self.fr_recent_image.update_diagnostics)
+
+        self.fr_upload = Upload_Settings.UI(self.tab_upload)
+        self.fr_upload.pack()
 
         ''' Parameter frames loaded last to allow passing full update_funcs '''
         self.fr_diag_params = Diagnostic_Parameters.UI(self.tab_diag_params,

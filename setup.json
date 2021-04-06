@@ -1,1 +1,1 @@
-{"shotrundir": "C:/Users/jsull/PycharmProjects/CUOS-HRR/Shot_Runs\\Shot_Run_20210330_3", "shotrundir_last": "./Shot_Runs/Shot_Run_Default", "base_shotrundir": "./Shot_Runs", "date": {"year": "0001", "month": "01", "day": "01"}, "shot_num": "1"}
+{"shotrundir": "./Shot_Runs/Shot_Run_Default", "shotrundir_last": "./Shot_Runs/Shot_Run_Default", "base_shotrundir": "setup.json", "date": {"year": "0001", "month": "01", "day": "01"}, "shot_num": "0"}
