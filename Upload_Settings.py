@@ -2,18 +2,13 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter.scrolledtext import ScrolledText
 from tkinter import filedialog as fd
+import os
 from datetime import date
+
+import Helpers
 
 
 class UI(tk.Frame):
-    def __init__(self, master, **options):
-        tk.Frame.__init__(self, master, **options)
-
-        self.fr_input = InputData(self)
-        self.fr_input.grid(row=0, column=0)
-
-
-class InputData(tk.Frame):
     def __init__(self, master, **options):
         tk.Frame.__init__(self, master, **options)
 
@@ -35,21 +30,21 @@ class InputData(tk.Frame):
         self.fr_parameters.grid(row=0, column=0, sticky=tk.N)
         self.fr_metrics.grid(row=0, column=0, sticky=tk.N)
 
-        total_width = 65
+        self.total_width = 65
 
         # Remove after testing
         self.btn_test = tk.Button(self.fr_artifacts, text="Test", command=lambda: self.get_settings())
-        #self.btn_test.grid(row=3, column=0)
+        self.btn_test.grid(row=10, column=0)
 
         """ Shot ID """
         self.lbl_exp_name = tk.Label(self.fr_shot_id, text="Experiment Name")
-        self.entry_exp_name = tk.Entry(self.fr_shot_id, width=int(2 / 3 * total_width))
+        self.entry_exp_name = tk.Entry(self.fr_shot_id, width=int(2 / 3 * self.total_width))
         self.lbl_shot_num = tk.Label(self.fr_shot_id, text="Shot Number")
         self.lbl_shot_date = tk.Label(self.fr_shot_id, text="Shot Date")
         self.lbl_shot_time = tk.Label(self.fr_shot_id, text="Shot Time")
-        self.entry_shot_num = tk.Entry(self.fr_shot_id, width=int(1 / 3 * total_width))
-        self.entry_shot_date = tk.Entry(self.fr_shot_id, width=int(2 / 3 * total_width))
-        self.entry_shot_time = tk.Entry(self.fr_shot_id, width=int(1 / 3 * total_width))
+        self.entry_shot_num = tk.Entry(self.fr_shot_id, width=int(1 / 3 * self.total_width))
+        self.entry_shot_date = tk.Entry(self.fr_shot_id, width=int(2 / 3 * self.total_width))
+        self.entry_shot_time = tk.Entry(self.fr_shot_id, width=int(1 / 3 * self.total_width))
 
         self.lbl_exp_name.grid(row=0, column=0)
         self.lbl_shot_num.grid(row=0, column=1)
@@ -68,16 +63,16 @@ class InputData(tk.Frame):
 
         self.lbl_driver_beam_energy = tk.Label(self.fr_parameters_1, text="Driver Beam Energy (J)")
         self.lbl_injector_beam_energy = tk.Label(self.fr_parameters_1, text="Injector Beam Energy (J)")
-        self.entry_driver_beam_energy = tk.Entry(self.fr_parameters_1, width=int(0.5 * total_width))
-        self.entry_injector_beam_energy = tk.Entry(self.fr_parameters_1, width=int(0.5 * total_width))
+        self.entry_driver_beam_energy = tk.Entry(self.fr_parameters_1, width=int(0.5 * self.total_width))
+        self.entry_injector_beam_energy = tk.Entry(self.fr_parameters_1, width=int(0.5 * self.total_width))
         self.lbl_driver_beam_spot_size = tk.Label(self.fr_parameters_1, text="Driver Beam Spot Size (micron)")
         self.lbl_injector_beam_spot_size = tk.Label(self.fr_parameters_1, text="Injector Beam Spot Size (micron)")
-        self.entry_driver_beam_spot_size = tk.Entry(self.fr_parameters_1, width=int(0.5 * total_width))
-        self.entry_injector_beam_spot_size = tk.Entry(self.fr_parameters_1, width=int(0.5 * total_width))
+        self.entry_driver_beam_spot_size = tk.Entry(self.fr_parameters_1, width=int(0.5 * self.total_width))
+        self.entry_injector_beam_spot_size = tk.Entry(self.fr_parameters_1, width=int(0.5 * self.total_width))
         self.lbl_laser_contrast = tk.Label(self.fr_parameters_1, text="Laser Contrast")
         self.lbl_compressor_grating_position = tk.Label(self.fr_parameters_1, text="Compressor Grating Position (mm)")
-        self.entry_laser_contrast = tk.Entry(self.fr_parameters_1, width=int(0.5 * total_width))
-        self.entry_compressor_grating_position = tk.Entry(self.fr_parameters_1, width=int(0.5 * total_width))
+        self.entry_laser_contrast = tk.Entry(self.fr_parameters_1, width=int(0.5 * self.total_width))
+        self.entry_compressor_grating_position = tk.Entry(self.fr_parameters_1, width=int(0.5 * self.total_width))
 
         self.lbl_driver_beam_energy.grid(row=0, column=0)
         self.lbl_driver_beam_spot_size.grid(row=0, column=1)
@@ -99,21 +94,21 @@ class InputData(tk.Frame):
         self.lbl_target_x = tk.Label(self.fr_parameters_2, text="Target x (mm)")
         self.lbl_target_y = tk.Label(self.fr_parameters_2, text="Target y (mm)")
         self.lbl_target_z = tk.Label(self.fr_parameters_2, text="Target z (mm)")
-        self.entry_target_x = tk.Entry(self.fr_parameters_2, width=int(1 / 3 * total_width))
-        self.entry_target_y = tk.Entry(self.fr_parameters_2, width=int(1 / 3 * total_width))
-        self.entry_target_z = tk.Entry(self.fr_parameters_2, width=int(1 / 3 * total_width))
+        self.entry_target_x = tk.Entry(self.fr_parameters_2, width=int(1 / 3 * self.total_width))
+        self.entry_target_y = tk.Entry(self.fr_parameters_2, width=int(1 / 3 * self.total_width))
+        self.entry_target_z = tk.Entry(self.fr_parameters_2, width=int(1 / 3 * self.total_width))
         self.lbl_objective_lens_x = tk.Label(self.fr_parameters_2, text="Objective Lens x (mm)")
         self.lbl_objective_lens_y = tk.Label(self.fr_parameters_2, text="Objective Lens y (mm)")
         self.lbl_objective_lens_z = tk.Label(self.fr_parameters_2, text="Objective Lens z (mm)")
-        self.entry_objective_lens_x = tk.Entry(self.fr_parameters_2, width=int(1 / 3 * total_width))
-        self.entry_objective_lens_y = tk.Entry(self.fr_parameters_2, width=int(1 / 3 * total_width))
-        self.entry_objective_lens_z = tk.Entry(self.fr_parameters_2, width=int(1 / 3 * total_width))
+        self.entry_objective_lens_x = tk.Entry(self.fr_parameters_2, width=int(1 / 3 * self.total_width))
+        self.entry_objective_lens_y = tk.Entry(self.fr_parameters_2, width=int(1 / 3 * self.total_width))
+        self.entry_objective_lens_z = tk.Entry(self.fr_parameters_2, width=int(1 / 3 * self.total_width))
         self.lbl_sample_x = tk.Label(self.fr_parameters_2, text="Sample x (mm)")
         self.lbl_sample_y = tk.Label(self.fr_parameters_2, text="Sample y (mm)")
         self.lbl_sample_z = tk.Label(self.fr_parameters_2, text="Sample z (mm)")
-        self.entry_sample_x = tk.Entry(self.fr_parameters_2, width=int(1 / 3 * total_width))
-        self.entry_sample_y = tk.Entry(self.fr_parameters_2, width=int(1 / 3 * total_width))
-        self.entry_sample_z = tk.Entry(self.fr_parameters_2, width=int(1 / 3 * total_width))
+        self.entry_sample_x = tk.Entry(self.fr_parameters_2, width=int(1 / 3 * self.total_width))
+        self.entry_sample_y = tk.Entry(self.fr_parameters_2, width=int(1 / 3 * self.total_width))
+        self.entry_sample_z = tk.Entry(self.fr_parameters_2, width=int(1 / 3 * self.total_width))
 
         self.lbl_target_x.grid(row=0, column=0)
         self.lbl_target_y.grid(row=0, column=1)
@@ -140,16 +135,16 @@ class InputData(tk.Frame):
 
         self.lbl_gas_pressure_1 = tk.Label(self.fr_parameters_3, text="Gas Pressure 1 (PSI)")
         self.lbl_gas_pressure_2 = tk.Label(self.fr_parameters_3, text="Gas Pressure 2 (PSI)")
-        self.entry_gas_pressure_1 = tk.Entry(self.fr_parameters_3, width=int(0.5 * total_width))
-        self.entry_gas_pressure_2 = tk.Entry(self.fr_parameters_3, width=int(0.5 * total_width))
+        self.entry_gas_pressure_1 = tk.Entry(self.fr_parameters_3, width=int(0.5 * self.total_width))
+        self.entry_gas_pressure_2 = tk.Entry(self.fr_parameters_3, width=int(0.5 * self.total_width))
         self.lbl_probe_stage_delay = tk.Label(self.fr_parameters_3, text="Probe Stage Delay (mm)")
         self.lbl_beams_delay = tk.Label(self.fr_parameters_3, text="Beams Delay (mm)")
-        self.entry_probe_stage_delay = tk.Entry(self.fr_parameters_3, width=int(0.5 * total_width))
-        self.entry_beams_delay = tk.Entry(self.fr_parameters_3, width=int(0.5 * total_width))
+        self.entry_probe_stage_delay = tk.Entry(self.fr_parameters_3, width=int(0.5 * self.total_width))
+        self.entry_beams_delay = tk.Entry(self.fr_parameters_3, width=int(0.5 * self.total_width))
         self.lbl_xray_filter_materials = tk.Label(self.fr_parameters_3, text="X-Ray Filter Materials")
-        self.entry_xray_filter_materials = tk.Entry(self.fr_parameters_3, width=total_width)
+        self.entry_xray_filter_materials = tk.Entry(self.fr_parameters_3, width=self.total_width)
         self.lbl_injector_oap_motor_settings = tk.Label(self.fr_parameters_3, text="Injector OAP Motor Settings")
-        self.entry_injector_oap_motor_settings = tk.Entry(self.fr_parameters_3, width=total_width)
+        self.entry_injector_oap_motor_settings = tk.Entry(self.fr_parameters_3, width=self.total_width)
 
         self.lbl_gas_pressure_1.grid(row=0, column=0)
         self.lbl_gas_pressure_2.grid(row=0, column=1)
@@ -221,12 +216,12 @@ class InputData(tk.Frame):
 
         self.lbl_xray_filter_id = tk.Label(self.fr_metrics_1, text="X-Ray Filter ID")
         self.lbl_xray_filter_thickness = tk.Label(self.fr_metrics_1, text="X-Ray Filter Thickness (mm)")
-        self.entry_xray_filter_id = tk.Entry(self.fr_metrics_1, width=int(0.5*total_width))
-        self.entry_xray_filter_thickness = tk.Entry(self.fr_metrics_1, width=int(0.5*total_width))
+        self.entry_xray_filter_id = tk.Entry(self.fr_metrics_1, width=int(0.5*self.total_width))
+        self.entry_xray_filter_thickness = tk.Entry(self.fr_metrics_1, width=int(0.5*self.total_width))
         self.lbl_dm1_actuator_voltage = tk.Label(self.fr_metrics_1, text="DM1 Actuator Voltage (V)")
         self.lbl_dm2_actuator_voltage = tk.Label(self.fr_metrics_1, text="DM2 Actuator Voltage (V)")
-        self.entry_dm1_actuator_voltage = tk.Entry(self.fr_metrics_1, width=int(0.5*total_width))
-        self.entry_dm2_actuator_voltage = tk.Entry(self.fr_metrics_1, width=int(0.5*total_width))
+        self.entry_dm1_actuator_voltage = tk.Entry(self.fr_metrics_1, width=int(0.5*self.total_width))
+        self.entry_dm2_actuator_voltage = tk.Entry(self.fr_metrics_1, width=int(0.5*self.total_width))
 
         self.lbl_xray_filter_id.grid(row=0, column=0)
         self.lbl_xray_filter_thickness.grid(row=0, column=1)
@@ -244,15 +239,15 @@ class InputData(tk.Frame):
         self.lbl_pmt_1 = tk.Label(self.fr_metrics_2, text="PMT 1 (V)")
         self.lbl_pmt_2 = tk.Label(self.fr_metrics_2, text="PMT 2 (V)")
         self.lbl_pmt_3 = tk.Label(self.fr_metrics_2, text="PMT 3 (V)")
-        self.entry_pmt_1 = tk.Entry(self.fr_metrics_2, width=int(1/3*total_width))
-        self.entry_pmt_2 = tk.Entry(self.fr_metrics_2, width=int(1/3*total_width))
-        self.entry_pmt_3 = tk.Entry(self.fr_metrics_2, width=int(1/3*total_width))
+        self.entry_pmt_1 = tk.Entry(self.fr_metrics_2, width=int(1/3*self.total_width))
+        self.entry_pmt_2 = tk.Entry(self.fr_metrics_2, width=int(1/3*self.total_width))
+        self.entry_pmt_3 = tk.Entry(self.fr_metrics_2, width=int(1/3*self.total_width))
         self.lbl_dazzler_2nd_order_phase = tk.Label(self.fr_metrics_2, text="Dazzler 2nd Order Phase")
         self.lbl_dazzler_3rd_order_phase = tk.Label(self.fr_metrics_2, text="Dazzler 3rd Order Phase")
         self.lbl_dazzler_4th_order_phase = tk.Label(self.fr_metrics_2, text="Dazzler 4th Order Phase")
-        self.entry_dazzler_2nd_order_phase = tk.Entry(self.fr_metrics_2, width=int(1 / 3 * total_width))
-        self.entry_dazzler_3rd_order_phase = tk.Entry(self.fr_metrics_2, width=int(1 / 3 * total_width))
-        self.entry_dazzler_4th_order_phase = tk.Entry(self.fr_metrics_2, width=int(1 / 3 * total_width))
+        self.entry_dazzler_2nd_order_phase = tk.Entry(self.fr_metrics_2, width=int(1 / 3 * self.total_width))
+        self.entry_dazzler_3rd_order_phase = tk.Entry(self.fr_metrics_2, width=int(1 / 3 * self.total_width))
+        self.entry_dazzler_4th_order_phase = tk.Entry(self.fr_metrics_2, width=int(1 / 3 * self.total_width))
 
         self.lbl_pmt_1.grid(row=0, column=0)
         self.lbl_pmt_2.grid(row=0, column=1)
@@ -273,12 +268,12 @@ class InputData(tk.Frame):
 
         self.lbl_dazzler_hole_position = tk.Label(self.fr_metrics_3, text="Dazzler Hole Position (mm)")
         self.lbl_dazzler_hole_depth = tk.Label(self.fr_metrics_3, text="Dazzler Hole Depth (mm)")
-        self.entry_dazzler_hole_position = tk.Entry(self.fr_metrics_3, width=int(0.5 * total_width))
-        self.entry_dazzler_hole_depth = tk.Entry(self.fr_metrics_3, width=int(0.5 * total_width))
+        self.entry_dazzler_hole_position = tk.Entry(self.fr_metrics_3, width=int(0.5 * self.total_width))
+        self.entry_dazzler_hole_depth = tk.Entry(self.fr_metrics_3, width=int(0.5 * self.total_width))
         self.lbl_dazzler_hole_width = tk.Label(self.fr_metrics_3, text="Dazzler Hole Width (mm)")
         self.lbl_dazzler_central_wavelength = tk.Label(self.fr_metrics_3, text="Dazzler Central Wavelength (mm)")
-        self.entry_dazzler_hole_width = tk.Entry(self.fr_metrics_3, width=int(0.5 * total_width))
-        self.entry_dazzler_central_wavelength = tk.Entry(self.fr_metrics_3, width=int(0.5 * total_width))
+        self.entry_dazzler_hole_width = tk.Entry(self.fr_metrics_3, width=int(0.5 * self.total_width))
+        self.entry_dazzler_central_wavelength = tk.Entry(self.fr_metrics_3, width=int(0.5 * self.total_width))
 
         self.lbl_dazzler_hole_position.grid(row=0, column=0)
         self.lbl_dazzler_hole_depth.grid(row=0, column=1)
@@ -291,18 +286,25 @@ class InputData(tk.Frame):
 
         """ Shot Artifacts """
         self.lbl_comments = tk.Label(self.fr_artifacts, text="Comments")
-        self.text_comments = ScrolledText(self.fr_artifacts, width=int(0.765 * total_width),
-                                          height=int(0.1 * total_width))
-        self.dir_upload = "./"
+        self.text_comments = ScrolledText(self.fr_artifacts, width=int(0.765 * self.total_width),
+                                          height=int(0.1 * self.total_width))
+        self.file_frames = []
         self.btn_upload = tk.Button(self.fr_artifacts, text="Select Files", command=lambda: self.select_files())
+        self.fr_file_frames = tk.Frame(self.fr_artifacts)
 
         self.lbl_comments.grid(row=0, column=0, sticky=tk.W)
         self.text_comments.grid(row=1, column=0)
         self.btn_upload.grid(row=2, column=0, pady=2)
+        self.fr_file_frames.grid(row=3, column=0)
 
     def select_files(self):
-        """ Prompts user to select files to upload """
-        self.dir_upload = fd.askopenfilenames(initialdir="./", title="Select Files")
+        """ Prompts user to select additional files to upload """
+        selected = fd.askopenfilenames(initialdir="./", title="Select Additional Artifacts")
+        for file in selected:
+            new_file_frame = self.FileFrame(self.fr_file_frames, file,
+                                            text_width=int(0.9 * self.total_width))
+            new_file_frame.pack()
+            self.file_frames.append(new_file_frame)
 
     def get_settings(self):
         """ Data to return """
@@ -349,9 +351,16 @@ class InputData(tk.Frame):
             "dazzler_hole_width": self.entry_dazzler_hole_width.get(),
             "dazzler_central_wavelength": self.entry_dazzler_central_wavelength.get(),
         }
+        artifact_files = []
+        for frame in self.file_frames:
+            artifact_files.append(frame.filename)
+        artifacts = {
+            "comments": self.text_comments.get("1.0", tk.END),
+            "filenames": artifact_files
+        }
 
         """ Convert numbers: int if possible, then float if possible """
-        out = (shot_id, parameters, metrics)
+        out = (shot_id, parameters, metrics, artifacts)
         for dictionary in out:
             for key, value in zip(dictionary.keys(), dictionary.values()):
                 try:
@@ -363,7 +372,35 @@ class InputData(tk.Frame):
                         dictionary.update({key: value})
                     except ValueError:
                         pass
+                    except TypeError:
+                        pass
+                except TypeError:
+                    pass
         print(out[0])
         print(out[1])
         print(out[2])
+        print(out[3])
         return out
+
+    class FileFrame(tk.Frame):
+        """ Frame to show an individual selected artifact """
+        def __init__(self, master, filename, text_width, **options):
+            tk.Frame.__init__(self, master, **options)
+            self.filename = filename
+
+            """ Shorten filename to only name and last folder, plus ... at beginning """
+            name = Helpers.get_terminal_path(filename)
+            last_folder = filename.partition(name)[0]
+            last_folder = Helpers.get_terminal_path(last_folder)
+            display_name = os.path.join(last_folder, name)
+            if "/" in display_name:
+                display_name = ". . . /" + display_name
+            else:
+                display_name = ". . . \\" + display_name
+
+            """ Create frame """
+            self.lbl_filename = tk.Label(self, text=display_name, width=text_width)
+            self.btn_remove = tk.Button(self, text="X", command=lambda: self.destroy())
+
+            self.lbl_filename.grid(row=0, column=0, sticky=tk.W)
+            self.btn_remove.grid(row=0, column=1, sticky=tk.E)
