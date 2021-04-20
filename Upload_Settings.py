@@ -407,8 +407,9 @@ class UI(tk.Frame):
                         pass
                 except TypeError:
                     pass
-        for i in out:
-            print(out)
+        print(shot_id)
+        print(parameters)
+        print(metrics)
         return out
 
     def get_artifacts(self):

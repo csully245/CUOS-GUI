@@ -6,7 +6,6 @@ import time
 import tkinter as tk
 import winsound
 from datetime import date
-
 import numpy as np
 from scipy.interpolate import interp1d
 import pyautogui

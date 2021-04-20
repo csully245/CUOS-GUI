@@ -99,10 +99,11 @@ class UI(tk.Menu):
             self.path_perm = fd.askdirectory(initialdir=initial_dir,
                                              title="Set Permanent Storage Directory")
             if self.path_perm == "":
-                self.path_perm = "./Shot_Runs/Shot_Run_Default"
-            perm_dir_file = open("PermDirFile", "w")
-            perm_dir_file.write(self.path_perm)
-            Helpers.edit_file("shotrundir", self.path_perm)
+                pass
+            else:
+                perm_dir_file = open("PermDirFile", "w")
+                perm_dir_file.write(self.path_perm)
+                Helpers.edit_file("shotrundir", self.path_perm)
 
             if update_funcs:
                 for func in update_funcs:
