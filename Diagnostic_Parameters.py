@@ -16,7 +16,74 @@ DEFAULT_DIAGNOSTIC = {
 }
 
 
-class Diagnostic_Frame(tk.LabelFrame):
+class UI(tk.Frame):
+    """
+    Frame for basic data management commands.
+    Appears regardless of selected tab.
+    Creates an instance of DiagnosticFrame for each possible diagnostic.
+    """
+
+    def __init__(self, master, updater=None, **options):
+        tk.Frame.__init__(self, master, **options)
+
+        def null():
+            return
+
+        if updater is None:
+            updater = [null]
+        updater.append(self.update_diagnostic_data)
+
+        """ Create default empty frames """
+        count = 1
+        self.frames = []
+        for c in range(COLS):
+            for r in range(ROWS):
+                fr = DiagnosticFrame(self, count, updater)
+                fr.grid(row=r, column=c, padx=10, pady=5)
+                self.frames.append(fr)
+                count += 1
+
+        """ Check for existing data """
+        diagnostics = Helpers.get_from_file("diagnostics", "diagnostic_data.json")
+        self.load_from_workspace(diagnostics)
+
+    def load_from_workspace(self, workspace):
+        """
+        Sets all diagnostics to values stored in workspace
+        Workspace: list containing dicts of diagnostic values
+        """
+        for frame, i in zip(self.frames, range(len(self.frames))):
+            if len(workspace) <= i:
+                frame.load_from_workspace(DEFAULT_DIAGNOSTIC)
+            else:
+                frame.load_from_workspace(workspace[i])
+
+    def get_workspace(self):
+        """
+        Returns the data needed to reconstruct each frame from a workspace file
+        """
+        workspace = []
+        for frame in self.frames:
+            workspace.append(frame.get_workspace())
+        return workspace
+
+    def get_source_paths(self):
+        """
+        Returns a list of file paths to each diagnostic's temporary storage directory
+        """
+        paths = []
+        for fr in self.frames:
+            if fr.enabled.get():
+                paths.append(fr.entry_dir.get())
+        return paths
+
+    def update_diagnostic_data(self):
+        """ Updates diagnostic_data.json"""
+        diagnostic_data = self.get_workspace()
+        Helpers.edit_file("diagnostics", diagnostic_data, "diagnostic_data.json")
+
+
+class DiagnosticFrame(tk.LabelFrame):
     """
     Sub-frame for options for each unique diagnostic
     Interactive widgets:
@@ -118,7 +185,7 @@ class Diagnostic_Frame(tk.LabelFrame):
             if self.enabled.get():
                 self.enable_diagnostic()
         except KeyError:
-            Helpers.Error_Window("Incompatible workspace file.")
+            Helpers.ErrorWindow("Incompatible workspace file.")
 
     def get_workspace(self):
         '''
@@ -134,72 +201,10 @@ class Diagnostic_Frame(tk.LabelFrame):
         return workspace
 
 
-class UI(tk.Frame):
-    """
-    Frame for basic data management commands.
-    Appears regardless of selected tab.
-    Creates an instance of Diagnostic_Frame for each possible diagnostic.
-    """
-
-    def __init__(self, master, updater=None, **options):
-        tk.Frame.__init__(self, master, **options)
-
-        def null():
-            return
-
-        if updater is None:
-            updater = [null]
-        updater.append(self.update_diagnostic_data)
-
-        """ Create default empty frames """
-        count = 1
-        self.frames = []
-        for c in range(COLS):
-            for r in range(ROWS):
-                fr = Diagnostic_Frame(self, count, updater)
-                fr.grid(row=r, column=c, padx=10, pady=5)
-                self.frames.append(fr)
-                count += 1
-
-        """ Check for existing data """
-        diagnostics = Helpers.get_from_file("diagnostics", "diagnostic_data.json")
-        self.load_from_workspace(diagnostics)
-
-    def load_from_workspace(self, workspace):
-        """
-        Sets all diagnostics to values stored in workspace
-        Workspace: list containing dicts of diagnostic values
-        """
-        for frame, i in zip(self.frames, range(len(self.frames))):
-            if len(workspace) <= i:
-                frame.load_from_workspace(DEFAULT_DIAGNOSTIC)
-            else:
-                frame.load_from_workspace(workspace[i])
-
-    def get_workspace(self):
-        workspace = []
-        for frame in self.frames:
-            workspace.append(frame.get_workspace())
-        return workspace
-
-    def get_source_paths(self):
-        paths = []
-        for fr in self.frames:
-            if fr.enabled.get():
-                paths.append(fr.entry_dir.get())
-        return paths
-
-    def update_diagnostic_data(self):
-        """ Updates diagnostic_data.json"""
-        diagnostic_data = self.get_workspace()
-        Helpers.edit_file("diagnostics", diagnostic_data, "diagnostic_data.json")
-
-
-def test():
+if __name__ == "__main__":
     root = tk.Tk()
     fr = UI(root)
     fr.pack()
-
     btn = tk.Button(root, text="Take data",
                     command=lambda: print(fr.get_workspace()))
     btn.pack()

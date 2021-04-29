@@ -18,13 +18,13 @@ import sys
 # GUI
 # -------------------------------------------------
 
-class Acquisition_Display:
+class AcquisitionDisplay:
     '''
     Master top-level GUI for data acquisition and display
     '''
 
     def __init__(self):
-        Startup.startup()
+        Startup.startup(self)
 
         self.root = tk.Tk()
         self.root.title("Data Acquisition and Display")
@@ -115,11 +115,11 @@ class Acquisition_Display:
 # Execution
 # -------------------------------------------------
 
-def run():
+if __name__ == "__main__":
     '''
     Example code for running the GUI
     '''
-    acq = Acquisition_Display()
+    acq = AcquisitionDisplay()
     try:
         acq.open()
     except:
@@ -127,7 +127,4 @@ def run():
         # Doesn't catch errors inside mainloop
         error_message = "(unhandled) " + str(sys.exc_info()[0])
         error_message += "\nClosed Data Acquisition and Display"
-        Helpers.Error_Window(error_message)
-
-
-run()
+        Helpers.ErrorWindow(error_message)

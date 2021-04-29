@@ -3,19 +3,19 @@ import os
 import shutil
 import threading
 import time
-import tkinter as tk
 import winsound
-from datetime import date
-import numpy as np
-from scipy.interpolate import interp1d
+import win32gui
 import pyautogui
+import tkinter as tk
+import numpy as np
+from datetime import date
 from PIL import Image, ImageGrab
 from matplotlib import colors
 from matplotlib import cm
 from matplotlib import pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
-import win32gui
+from scipy.interpolate import interp1d
 
 # -------------------------------------------------
 # Constants
@@ -35,18 +35,19 @@ default_filename = "setup.json"
 # -------------------------------------------------
 
 def get_suffix(word, delimeter):
-    ''' Returns the part of word after the last instance of 'delimeter' '''
+    """ Returns the part of word after the last instance of 'delimeter' """
     while (delimeter in word):
         word = word.partition(delimeter)[2]
     return word
 
+
 def get_terminal_path(path):
-    '''
+    """
     Returns the last step of a path
     Edge cases:
     -Delimeters: / or \\ or mixed
     -Ends with delimeter or not
-    '''
+    """
     # Convert "\\" to "/"
     while "\\" in path:
         part = path.partition("\\")
@@ -55,10 +56,11 @@ def get_terminal_path(path):
         path = path[0:-1]
     return get_suffix(path, "/")
 
+
 # -------------------------------------------------
 # Message Windows
 # -------------------------------------------------
-class Notice_Window:
+class NoticeWindow:
     '''
     GUI template for notice messages, such as progress updates
     '''
@@ -73,10 +75,10 @@ class Notice_Window:
         self.root.mainloop()
 
 
-class Error_Window:
-    '''
+class ErrorWindow:
+    """
     GUI template for error messages
-    '''
+    """
 
     def __init__(self, txt):
         self.root = tk.Tk()
@@ -92,40 +94,6 @@ class Error_Window:
 # -------------------------------------------------
 # Image display
 # -------------------------------------------------
-
-def rgb2gray(rgb):
-    '''
-    Converts the 3-channel rgb image into grayscale
-    Developed by Yong Ma for Daq_Yong_v2.py
-    '''
-    r, g, b = rgb[:, :, 0], rgb[:, :, 1], rgb[:, :, 2]
-    gray = 0.2989 * r + 0.587 * g + 0.114 * b
-    return gray
-
-
-def resize_image(img, k, ratio, base):
-    '''
-    Resizes PIL image
-
-    Inputs:
-    -img: PIL Image
-    -k: float, scale factor
-    -ratio: float, aspect ratio (W:H)
-    -base: int, W/H dimensions at k=1.0
-
-    Outputs:
-    PIL Image, resized
-    '''
-    if (k == 0):
-        k = 1
-    shape = (int(ratio * k * base), int(k * base))
-    try:
-        out = img.resize(shape, Image.ANTIALIAS)
-    except ValueError:
-        out = np.resize(np.asarray(img), shape)
-        out = Image.fromarray(out)
-    return out
-
 
 def plot_image(img_path, root, base=-1, colormap=cm.magma,
                vmin=0, vmax=255, flipud=False,
@@ -147,9 +115,6 @@ def plot_image(img_path, root, base=-1, colormap=cm.magma,
     """
     # Create image plot
     img = Image.open(img_path)
-    fig = Figure()
-
-    # Edit plot settings
     dimensions = get_from_file("dimensions", "dimensions.json")
     ratio = dimensions["ratio"]
     base_size = 2.5
@@ -162,6 +127,7 @@ def plot_image(img_path, root, base=-1, colormap=cm.magma,
     if flipud:
         img_arr = np.flipud(img_arr)
 
+    # Manage plot based on selected display process
     if display_process == "Raw Image":
         plt.subplots_adjust(left=0.01, right=0.99, top=0.99, bottom=0.01)
         plot1.tick_params(axis='both', which='both',
@@ -200,7 +166,7 @@ def plot_image(img_path, root, base=-1, colormap=cm.magma,
         except ValueError:
             error_text = "Image incompatible with ESPEC 1 processing \n"
             error_text += "File path: " + img_path
-            Error_Window(error_text)
+            ErrorWindow(error_text)
             return
     elif display_process == "ESPEC 2":
         plt.subplots_adjust(left=0.18, right=0.95, top=0.95, bottom=0.18)
@@ -228,7 +194,7 @@ def plot_image(img_path, root, base=-1, colormap=cm.magma,
         except ValueError:
             error_text = "Image incompatible with ESPEC 2 processing \n"
             error_text += "File path: " + img_path
-            Error_Window(error_text)
+            ErrorWindow(error_text)
             return
     else:
         plot1.tick_params(axis='both', which='both',
@@ -275,7 +241,7 @@ def max_num_in_dir(path):
             pic = int(pic)
             nums.append(pic)
         except:
-            Error_Window("Bad filename: " + name)
+            ErrorWindow("Bad filename: " + name)
     if (len(nums) == 0):
         return None
     else:
@@ -325,7 +291,7 @@ def get_from_file(key, filename=default_filename):
     with open(filename, "r") as read_file:
         data = json.load(read_file)
     if not key in data.keys():
-        Error_Window('Key "' + key + '" does not exist.')
+        ErrorWindow('Key "' + key + '" does not exist.')
         return ""
     return data[key]
 
@@ -338,7 +304,7 @@ def edit_file(key, value, filename=default_filename):
     with open(filename, "r") as read_file:
         data = json.load(read_file)
     if not key in data.keys():
-        Error_Window('Key "' + key + '" does not exist.')
+        ErrorWindow('Key "' + key + '" does not exist.')
         return ""
     data[key] = value
     with open(filename, "w") as write_file:

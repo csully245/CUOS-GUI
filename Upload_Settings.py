@@ -459,17 +459,18 @@ class UI(tk.Frame):
                 s3.upload_file(file[0], bucket, file[1])
                 successes += 1
             except FileNotFoundError:
+                Helpers.ErrorWindow("File not found: " + file)
                 pass
             except NoCredentialsError:
-                Helpers.Error_Window("Credentials not available")
+                Helpers.ErrorWindow("Credentials not available")
                 break
         if successes == len(files):
             text = "Successfully uploaded " + str(successes) + " files."
-            Helpers.Notice_Window(text)
+            Helpers.NoticeWindow(text)
         else:
             text = "Successfully uploaded " + str(successes) + " files."
             text += "\nFailed to upload " + str(len(files) - successes) + " files."
-            Helpers.Error_Window(text)
+            Helpers.ErrorWindow(text)
 
     class FileFrame(tk.Frame):
         """ Frame to show an individual selected artifact """
