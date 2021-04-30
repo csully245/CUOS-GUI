@@ -4,8 +4,6 @@ from tkinter import filedialog as fd
 import tkinter as tk
 import os
 import json
-from zipfile import ZipFile
-import shutil
 
 
 class UI(tk.Menu):
@@ -141,69 +139,7 @@ class UI(tk.Menu):
         .zip files: (shotrundir name)_shot###
         Files within .zip files: diagnostic_shot### (same name as origin)
         """
-        shotrundir = Helpers.get_from_file("shotrundir")
-        shotrundir_name = Helpers.get_terminal_path(shotrundir)
-
-        # Make zipped shots folder
-        folder_name = os.path.join(shotrundir, "Zipped_Shots_" + shotrundir_name)
-        if not os.path.isdir(folder_name):
-            os.mkdir(folder_name)
-        else:
-            folder_num = 2
-            while True:
-                new_name = folder_name + "_" + str(folder_num)
-                if not os.path.isdir(new_name):
-                    folder_name = new_name
-                    os.mkdir(folder_name)
-                    break
-                folder_num += 1
-
-        # Get files zipped
-        shot_num = 1
-        while True:
-            shot_num_str = "s" + Helpers.to_3_digit(shot_num)
-            files_of_shot = []
-            for diagnostic in os.listdir(shotrundir):
-                if "Zipped_Shots_" in diagnostic:
-                    continue
-                # Identify all shots of this number in the diagnostic
-                files = os.listdir(os.path.join(shotrundir, diagnostic))
-                files_of_shot_in_diagnostic = []
-                for file_name in files:
-                    if shot_num_str in file_name:
-                        files_of_shot_in_diagnostic.append(file_name)
-                # Identify most recent version of shot number
-                if len(files_of_shot_in_diagnostic) > 1:
-                    file_of_shot = max(files_of_shot_in_diagnostic, key=os.path.getctime)
-                    file_of_shot_path = os.path.join(shotrundir, diagnostic, file_of_shot)
-                    files_of_shot.append(file_of_shot_path)
-                elif len(files_of_shot_in_diagnostic) == 1:
-                    file_of_shot = files_of_shot_in_diagnostic[0]
-                    file_of_shot_path = os.path.join(shotrundir, diagnostic, file_of_shot)
-                    files_of_shot.append(file_of_shot_path)
-
-            # Exit
-            if not files_of_shot:
-                break
-
-            # Zip files
-            shot_folder_name = shotrundir_name + "_Shot"
-            shot_folder_name += Helpers.to_3_digit(shot_num)
-            shot_folder_name = os.path.join(folder_name, shot_folder_name)
-            for file_path in files_of_shot:
-                file_name = Helpers.get_suffix(file_path, "\\")
-                file_name = os.path.join(folder_name, file_name)
-                shutil.copy(file_path, file_name)
-            zip_file = ZipFile(shot_folder_name + ".zip", "w")
-            base_dir = os.getcwd()
-            os.chdir(folder_name)
-            for f in os.listdir("./"):
-                if ".zip" not in f:
-                    zip_file.write(f)
-                    os.remove(f)
-            os.chdir(base_dir)
-            zip_file.close()
-            shot_num += 1
+        print(Helpers.zip_shot_run_dir())
 
     def load_from_workspace(self, workspace):
         return

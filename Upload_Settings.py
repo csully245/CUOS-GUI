@@ -6,6 +6,7 @@ import os
 import boto3
 from botocore.exceptions import NoCredentialsError
 import json
+from zipfile import ZipFile
 
 import Helpers
 
@@ -34,7 +35,7 @@ class UI(tk.Frame):
         self.fr_metrics.grid(row=0, column=0, sticky=tk.N)
         self.fr_custom.grid(row=1, column=0, sticky=tk.N, pady=5)
 
-        self.btn_test = tk.Button(self, command=lambda: self.get_manual_data())
+        self.btn_test = tk.Button(self, command=lambda: self.upload())
         self.btn_test.grid(row=2, column=0)
 
         self.total_width = 65
@@ -390,8 +391,11 @@ class UI(tk.Frame):
             elif data[0] == "Metric":
                 metrics.update(out_data)
 
+        """ Add comments """
+        comments = {"comments": self.text_comments.get("1.0", tk.END)}
+
         """ Convert numbers: int if possible, then float if possible """
-        out = (shot_id, parameters, metrics)
+        out = (shot_id, parameters, metrics, comments)
         for dictionary in out:
             for key, value in zip(dictionary.keys(), dictionary.values()):
                 try:
@@ -407,9 +411,6 @@ class UI(tk.Frame):
                         pass
                 except TypeError:
                     pass
-        print(shot_id)
-        print(parameters)
-        print(metrics)
         return out
 
     def get_artifacts(self):
@@ -417,19 +418,37 @@ class UI(tk.Frame):
         artifact_files = []
         for frame in self.file_frames:
             artifact_files.append(frame.filename)
-        comments_filename = "comments" + self.entry_exp_name.get() + "_" \
-                            + str(self.entry_shot_num.get()) + "_" \
-                            + self.entry_shot_date.get() + "_" \
-                            + self.entry_shot_time.get() + ".txt"
-        shotrundir = Helpers.get_from_file("shotrundir")
-        comments_filename = os.path.join(shotrundir, comments_filename)
-        with (comments_filename, "w") as write_file:
-            write_file.write(self.text_comments.get("1.0", tk.END))
-        artifact_files.append(comments_filename)
         return artifact_files
 
     def upload(self):
         """ Uploads selected data to AWS s3 bucket """
+
+        # Identify local files
+        manual_data = self.get_manual_data()
+        shotrundir = Helpers.get_from_file("shotrundir")
+        manual_file_name = os.path.join(shotrundir, "manual_data.json")
+        try:
+            with open(manual_file_name, "w") as write_file:
+                json.dump(manual_data, write_file)
+        except AttributeError:
+            # Doesn't affect flow of code but won't execute without 'catching' error
+            pass
+        files = [manual_file_name] + self.get_artifacts()
+        zipped_shots = Helpers.zip_shot_run_dir()
+        for file in os.listdir(zipped_shots):
+            files.append(file)
+
+        # Zip files
+        shotrundir = Helpers.get_from_file("shotrundir")
+        file_name = "s3_upload_" + Helpers.get_timestamp() + ".zip"
+        zip_file_name = os.path.join(shotrundir, file_name)
+        zip_file = ZipFile(zip_file_name, "w")
+        for file in files:
+            print(file)
+        for file in files:
+            zip_file.write(file)
+        zip_file.close()
+
         # Get s3 data
         s3_data = Helpers.get_from_file("s3_data", "s3_data.json")
         access_key = s3_data["access_key"]
@@ -440,37 +459,23 @@ class UI(tk.Frame):
         s3_file = self.entry_exp_name.get() + "_"
         s3_file += str(self.entry_shot_num.get()) + "_"
         s3_file += self.entry_shot_date.get() + "_"
-        s3_file += self.entry_shot_time.get()
-
-        # Identify local files
-        manual_data = self.get_manual_data()
-        shotrundir = Helpers.get_from_file("shotrundir")
-        filename = os.path.join(shotrundir, "manual_data.json")
-        with (filename, "w") as write_file:
-            json.dump(manual_data, write_file)
-        files = [filename] + self.get_artifacts()
+        s3_file += self.entry_shot_time.get() + ".zip"
 
         # Upload
-        successes = 0
-        for file in files:
-            s3 = boto3.client('s3', aws_access_key_id=access_key,
-                              aws_secret_access_key=secret_key)
-            try:
-                s3.upload_file(file[0], bucket, file[1])
-                successes += 1
-            except FileNotFoundError:
-                Helpers.ErrorWindow("File not found: " + file)
-                pass
-            except NoCredentialsError:
-                Helpers.ErrorWindow("Credentials not available")
-                break
-        if successes == len(files):
-            text = "Successfully uploaded " + str(successes) + " files."
+        s3 = boto3.client('s3', aws_access_key_id=access_key,
+                          aws_secret_access_key=secret_key)
+        try:
+            s3.upload_file(zip_file_name, bucket, s3_file)
+            text = "Successfully uploaded files."
             Helpers.NoticeWindow(text)
-        else:
-            text = "Successfully uploaded " + str(successes) + " files."
-            text += "\nFailed to upload " + str(len(files) - successes) + " files."
-            Helpers.ErrorWindow(text)
+        except FileNotFoundError:
+            Helpers.ErrorWindow("File not found: " + zip_file_name)
+        except NoCredentialsError:
+            Helpers.ErrorWindow("Credentials not available.")
+
+        # Clean up
+        os.remove(manual_file_name)
+        os.remove(zip_file_name)
 
     class FileFrame(tk.Frame):
         """ Frame to show an individual selected artifact """

@@ -8,8 +8,9 @@ import win32gui
 import pyautogui
 import tkinter as tk
 import numpy as np
-from datetime import date
+from datetime import date, datetime
 from PIL import Image, ImageGrab
+from zipfile import ZipFile
 from matplotlib import colors
 from matplotlib import cm
 from matplotlib import pyplot as plt
@@ -358,6 +359,14 @@ def get_today():
     else:
         return date.today()
 
+def get_timestamp():
+    """ Returns filepath-friendly timestamp """
+    timestamp = str(datetime.now())
+    while ":" in timestamp:
+        partition = timestamp.partition(":")
+        timestamp = partition[0] + "-" + partition[2]
+    return timestamp
+
 
 def save_plots(num, shotrundir, book):
     '''
@@ -434,3 +443,77 @@ def save_plots(num, shotrundir, book):
     t1 = threading.Thread(target=thread_b, args=(num, shotrundir, delay))
     t1.start()
     thread_a(book)
+
+def zip_shot_run_dir():
+    """
+    Compresses the shot run directory into .zip files by shot num and returns folder path
+    Folder: ./(shotrundir)/Zipped_Shots_(shotrundir name)
+    .zip files: (shotrundir name)_shot###
+    Files within .zip files: diagnostic_shot### (same name as origin)
+    """
+    shotrundir = get_from_file("shotrundir")
+    shotrundir_name = get_terminal_path(shotrundir)
+
+    # Make zipped shots folder
+    folder_name = os.path.join(shotrundir, "Zipped_Shots_" + shotrundir_name)
+    if not os.path.isdir(folder_name):
+        os.mkdir(folder_name)
+    else:
+        folder_num = 2
+        while True:
+            new_name = folder_name + "_" + str(folder_num)
+            if not os.path.isdir(new_name):
+                folder_name = new_name
+                os.mkdir(folder_name)
+                break
+            folder_num += 1
+
+    # Get files zipped
+    shot_num = 1
+    while True:
+        shot_num_str = "s" + to_3_digit(shot_num)
+        files_of_shot = []
+        for diagnostic in os.listdir(shotrundir):
+            if "Zipped_Shots_" in diagnostic:
+                continue
+            if not os.path.isdir(diagnostic):
+                continue
+            # Identify all shots of this number in the diagnostic
+            files = os.listdir(os.path.join(shotrundir, diagnostic))
+            files_of_shot_in_diagnostic = []
+            for file_name in files:
+                if shot_num_str in file_name:
+                    files_of_shot_in_diagnostic.append(file_name)
+            # Identify most recent version of shot number
+            if len(files_of_shot_in_diagnostic) > 1:
+                file_of_shot = max(files_of_shot_in_diagnostic, key=os.path.getctime)
+                file_of_shot_path = os.path.join(shotrundir, diagnostic, file_of_shot)
+                files_of_shot.append(file_of_shot_path)
+            elif len(files_of_shot_in_diagnostic) == 1:
+                file_of_shot = files_of_shot_in_diagnostic[0]
+                file_of_shot_path = os.path.join(shotrundir, diagnostic, file_of_shot)
+                files_of_shot.append(file_of_shot_path)
+
+        # Exit
+        if not files_of_shot:
+            break
+
+        # Zip files
+        shot_folder_name = shotrundir_name + "_Shot"
+        shot_folder_name += to_3_digit(shot_num)
+        shot_folder_name = os.path.join(folder_name, shot_folder_name)
+        for file_path in files_of_shot:
+            file_name = get_suffix(file_path, "\\")
+            file_name = os.path.join(folder_name, file_name)
+            shutil.copy(file_path, file_name)
+        zip_file = ZipFile(shot_folder_name + ".zip", "w")
+        base_dir = os.getcwd()
+        os.chdir(folder_name)
+        for file in os.listdir("./"):
+            if ".zip" not in file:
+                zip_file.write(file)
+                os.remove(file)
+        os.chdir(base_dir)
+        zip_file.close()
+        shot_num += 1
+        return os.path.join(base_dir, folder_name)
