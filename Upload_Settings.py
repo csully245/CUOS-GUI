@@ -35,7 +35,7 @@ class UI(tk.Frame):
         self.fr_metrics.grid(row=0, column=0, sticky=tk.N)
         self.fr_custom.grid(row=1, column=0, sticky=tk.N, pady=5)
 
-        self.btn_test = tk.Button(self, command=lambda: self.upload())
+        self.btn_test = tk.Button(self, command=lambda: self.upload(), text="Upload")
         self.btn_test.grid(row=2, column=0)
 
         self.total_width = 65
@@ -59,6 +59,13 @@ class UI(tk.Frame):
         self.lbl_shot_time.grid(row=2, column=1)
         self.entry_shot_date.grid(row=3, column=0)
         self.entry_shot_time.grid(row=3, column=1)
+
+        date = str(Helpers.get_today())
+        self.entry_shot_date.insert(0, date)
+        time = Helpers.get_timestamp().partition(" ")[2]
+        time = time.partition(".")[0]
+        self.entry_shot_time.insert(0, time)
+
 
         """ Shot Parameters """
         # Frame 1: Driver/injector beam energy/spot size, laser contrast, compressor grating position, gas pressure
@@ -435,19 +442,27 @@ class UI(tk.Frame):
             pass
         files = [manual_file_name] + self.get_artifacts()
         zipped_shots = Helpers.zip_shot_run_dir()
+        print(zipped_shots)
+        print(len(os.listdir(zipped_shots)))
         for file in os.listdir(zipped_shots):
-            files.append(file)
+            temp_file = os.path.join(zipped_shots, file)
+            print(temp_file)
+            files.append(temp_file)
 
         # Zip files
         shotrundir = Helpers.get_from_file("shotrundir")
         file_name = "s3_upload_" + Helpers.get_timestamp() + ".zip"
         zip_file_name = os.path.join(shotrundir, file_name)
         zip_file = ZipFile(zip_file_name, "w")
+        origin = os.getcwd()
         for file in files:
-            print(file)
-        for file in files:
+            terminal_path = Helpers.get_terminal_path(file)
+            base_dir = file.partition(terminal_path)[0]
+            os.chdir(base_dir)
+            file = os.path.relpath(file)
             zip_file.write(file)
         zip_file.close()
+        os.chdir(origin)
 
         # Get s3 data
         s3_data = Helpers.get_from_file("s3_data", "s3_data.json")
@@ -460,6 +475,12 @@ class UI(tk.Frame):
         s3_file += str(self.entry_shot_num.get()) + "_"
         s3_file += self.entry_shot_date.get() + "_"
         s3_file += self.entry_shot_time.get() + ".zip"
+
+        invalid_chars = ("<", ">", ":", "\"", "/", "\\", "|", "?", "*")
+        for char in invalid_chars:
+            while char in s3_file:
+                partition = s3_file.partition(char)
+                s3_file = partition[0] + "-" + partition[2]
 
         # Upload
         s3 = boto3.client('s3', aws_access_key_id=access_key,

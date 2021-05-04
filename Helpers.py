@@ -37,7 +37,7 @@ default_filename = "setup.json"
 
 def get_suffix(word, delimeter):
     """ Returns the part of word after the last instance of 'delimeter' """
-    while (delimeter in word):
+    while delimeter in word:
         word = word.partition(delimeter)[2]
     return word
 
@@ -56,7 +56,6 @@ def get_terminal_path(path):
     if path[-1] == "/":
         path = path[0:-1]
     return get_suffix(path, "/")
-
 
 # -------------------------------------------------
 # Message Windows
@@ -474,15 +473,19 @@ def zip_shot_run_dir():
         shot_num_str = "s" + to_3_digit(shot_num)
         files_of_shot = []
         for diagnostic in os.listdir(shotrundir):
+            diagnostic = os.path.join(shotrundir, diagnostic)
             if "Zipped_Shots_" in diagnostic:
+                print("continue for zipped shots: ", diagnostic)
                 continue
             if not os.path.isdir(diagnostic):
+                print("continue for invalid path: ", diagnostic)
                 continue
             # Identify all shots of this number in the diagnostic
-            files = os.listdir(os.path.join(shotrundir, diagnostic))
+            files = os.listdir(diagnostic)
             files_of_shot_in_diagnostic = []
             for file_name in files:
                 if shot_num_str in file_name:
+                    file_name = os.path.join(diagnostic, file_name)
                     files_of_shot_in_diagnostic.append(file_name)
             # Identify most recent version of shot number
             if len(files_of_shot_in_diagnostic) > 1:
@@ -493,10 +496,15 @@ def zip_shot_run_dir():
                 file_of_shot = files_of_shot_in_diagnostic[0]
                 file_of_shot_path = os.path.join(shotrundir, diagnostic, file_of_shot)
                 files_of_shot.append(file_of_shot_path)
+            else:
+                print("No valid files")
 
         # Exit
         if not files_of_shot:
             break
+        print("files of shot:")
+        for file in files_of_shot:
+            print(file)
 
         # Zip files
         shot_folder_name = shotrundir_name + "_Shot"
@@ -511,9 +519,17 @@ def zip_shot_run_dir():
         os.chdir(folder_name)
         for file in os.listdir("./"):
             if ".zip" not in file:
+                print("Added: ", file)
                 zip_file.write(file)
                 os.remove(file)
         os.chdir(base_dir)
         zip_file.close()
         shot_num += 1
-        return os.path.join(base_dir, folder_name)
+
+    print(folder_name)
+    return folder_name
+
+    # Identify ".." of folder_name
+    suffix = get_terminal_path(folder_name)
+    return folder_name.partition(suffix)[0]
+    #return folder_name
